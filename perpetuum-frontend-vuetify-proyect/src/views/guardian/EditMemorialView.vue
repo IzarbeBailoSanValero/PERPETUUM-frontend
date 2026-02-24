@@ -1,5 +1,5 @@
 <template>
   <div>
-    <!-- Editor: Actualizar biografía, foto y epitafio -->
+    <!-- Editor: Actualizar biografía, foto y epitafio - -->
   </div>
 </template>
