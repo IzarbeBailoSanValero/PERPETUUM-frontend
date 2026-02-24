@@ -4,6 +4,9 @@
   </v-app>
 </template>
 
-<script lang="ts" setup>
-  //
+<script setup lang="ts">
+/*
+Apuntes: 
+Aquí no debe haber lógica, porque:Es el punto de entrada.Solo envuelve todo en <v-app>.El router decide qué layout mostrar.
+*/
 </script>
