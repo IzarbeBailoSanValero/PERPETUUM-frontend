@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/authStore'
 
 const routes = [
   // 1. RUTAS PÚBLICAS
@@ -25,15 +26,39 @@ const routes = [
     children: [
       { path: 'dashboard', component: () => import('@/views/admin/DashboardView.vue') }, 
       { path: 'deceased', component: () => import('@/views/admin/DeceasedCrudView.vue') },
-      { path: 'staff', component: () => import('@/views/admin/StaffCrudView.vue') }
+      { path: 'staff', component: () => import('@/views/admin/StaffCrudView.vue') },
+      { path: 'memories', component: () => import('@/views/admin/AdminMemoriesView.vue') },
     ]
   }
 ]
 
-export default createRouter({
+const router = createRouter({
   history: createWebHistory(),
   routes
 })
+
+// --- APUNTES TEÓRICOS: NAVIGATION GUARD ---
+// Este código se ejecuta CADA VEZ que el usuario intenta cambiar de página.
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
+
+  // Verificamos si la ruta de destino (o alguna de sus padres) tiene meta: requiresAuth
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+
+  if (requiresAuth && !authStore.isLoggedIn) {
+    // Si la ruta es privada y no hay token: al Login
+    next({ name: 'Login' })
+  } else if (to.name === 'Login' && authStore.isLoggedIn) {
+    // Si ya está logueado y trata de ir al Login: lo mandamos al Dashboard
+    next({ name: 'AdminDashboard' })
+  } else {
+    // En cualquier otro caso: puede pasar
+    next()
+  }
+})
+
+export default router
+
 
 /*
 Apuntes: 
