@@ -43,7 +43,11 @@
     <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
   </v-container>
 
-
+<AddMemoryModal 
+  v-if="store.currentDeceased"
+  :deceasedId="store.currentDeceased.id" 
+  @success="store.fetchDeceasedById(store.currentDeceased.id)" 
+/>
 
   
 </template>

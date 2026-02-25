@@ -49,6 +49,9 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import apiClient from '@/plugins/axios'
+import { useUiStore } from '@/stores/uiStore'
+
+const ui = useUiStore()
 
 const props = defineProps<{ deceasedId: number }>()
 const emit = defineEmits(['success'])
@@ -81,6 +84,9 @@ async function sendToApi() {
     dialog.value = false
     emit('success') // Refrescamos la lista de la página
     
+  // ui.notify es el método en el uiStore con SweetAlert2
+    ui.notify('Recuerdo enviado. Aparecerá cuando el familiar lo apruebe', 'success')
+
     // Limpiamos
     form.textContent = ''
     form.mediaURL = ''
@@ -90,4 +96,12 @@ async function sendToApi() {
     loading.value = false
   }
 }
+
+/*
+Apuntes: 
+    1 Captura: El v-model captura los datos en el objeto reactive.
+    2 Persistencia: Axios envía el MemoryCreateDTO al [HttpPost] de C#.
+    3 Sincronización: Al recibir el OK (200/201), el componente emite un evento al padre.
+    4 Reactividad: El padre vuelve a ejecutar el GET, Pinia actualiza el state, y Vue repinta la lista de recuerdos automáticamente.
+*/
 </script>
