@@ -60,6 +60,23 @@ export const useMemorialStore = defineStore('memorial', {
       } finally {
         this.loading = false
       }
-    }
+    },
+
+    //En lugar de pedir a la API cada vez que el usuario escribe una letra sar Computed Properties para filtrar los datos que ya tenemos en el Store.--> acción que traiga todos los difuntos para que el buscador tenga dónde buscar.
+  async fetchAllDeceased() {
+  this.loading = true
+  try {
+    // GET /api/Deceased (trae la lista completa)
+    const response = await apiClient.get<Deceased[]>('/Deceased')
+    this.deceasedList = response.data
+  } catch (error) {
+    console.error("Error al traer el listado", error)
+  } finally {
+    this.loading = false
+  }
+}
+
+
+
   }
 })
