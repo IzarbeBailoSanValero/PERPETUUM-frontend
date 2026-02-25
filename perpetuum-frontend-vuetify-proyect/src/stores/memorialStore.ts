@@ -48,13 +48,15 @@ export const useMemorialStore = defineStore('memorial', {
   actions: { //las actions son las funciones que modifican el estado
     // Acción para ver el detalle de un memorial
     async fetchDeceasedById(id: number) {
-      this.loading = true //antes de llamar a axios, lo pongo a true, cuando termina, lo pongo a false. A la hora d epintar, sin ponemos un atributo loading en vuetify, Vuetify mostrará una barrita de carga mientras los datos viajan
+      this.loading = true
+      console.log('🔍 Intentando cargar difunto con ID:', id)
       try {
-        // Llamo a  endpoint: GET /api/Deceased/{id}
         const response = await apiClient.get<Deceased>(`/Deceased/${id}`)
+        console.log('✅ Datos recibidos:', response.data)
         this.currentDeceased = response.data
       } catch (error) {
-        console.error("Error al obtener el difunto:", error)
+        console.error("❌ Error al obtener el difunto:", error)
+        this.currentDeceased = null
       } finally {
         this.loading = false
       }

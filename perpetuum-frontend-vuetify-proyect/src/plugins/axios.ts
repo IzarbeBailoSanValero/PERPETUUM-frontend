@@ -12,7 +12,7 @@ import axios from 'axios'
 
 const apiClient = axios.create({
   // URL base API en .NET (hay que ajustar el puerto según  launchSettings.json)
-  baseURL: 'https://localhost:5000/api', 
+  baseURL: 'http://localhost:5023/api', 
   headers: {
     'Content-Type': 'application/json'
   }
