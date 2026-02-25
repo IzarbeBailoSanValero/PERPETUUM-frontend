@@ -1,5 +1,93 @@
-<template>
-  <div>
-    <!-- Modal para crear una nueva condolencia/foto -->
-  </div>
+<template><!-- Modal para crear una nueva condolencia/foto -->
+  <v-dialog v-model="dialog" max-width="500"> <!--pongo un modal para añadir contenido sin cmabiar de pagina-->
+    <template v-slot:activator="{ props }">
+      <v-btn v-bind="props" color="primary" prepend-icon="mdi-plus">
+        Añadir Recuerdo
+      </v-btn>
+    </template>
+
+    <v-card class="pa-4">
+      <v-card-title>Nuevo Recuerdo</v-card-title>
+      
+      <v-card-text>  <!--https://vuetifyjs.com/en/components/selects/#usage-->
+        <v-select   
+          v-model="selectedTypeText"
+          label="¿Qué quieres compartir?"
+          :items="['Condolencia', 'Anécdota', 'Foto']"
+          variant="underlined"
+        ></v-select>
+
+        <v-text-field
+          v-model="form.authorRelation"
+          label="Tu relación (ej: Nieto)"
+          variant="underlined"
+        ></v-text-field>
+
+        <v-textarea
+          v-model="form.textContent"
+          label="Tu mensaje"
+          variant="underlined"
+        ></v-textarea>
+
+        <v-text-field
+          v-if="selectedTypeText === 'Foto'"
+          v-model="form.mediaURL"
+          label="URL de la imagen"
+          variant="underlined"
+        ></v-text-field>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn variant="text" @click="dialog = false">Cerrar</v-btn>
+        <v-btn color="primary" @click="sendToApi" :loading="loading">Enviar</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
+
+<script setup lang="ts">
+import { ref, reactive } from 'vue'
+import apiClient from '@/plugins/axios'
+
+const props = defineProps<{ deceasedId: number }>()
+const emit = defineEmits(['success'])
+
+const dialog = ref(false)
+const loading = ref(false)
+const selectedTypeText = ref('Condolencia') // Texto para el v-select
+
+// Objeto que coincide con MemoryCreateDTO de C#
+const form = reactive({
+  deceasedId: props.deceasedId,
+  type: 1, 
+  textContent: '',
+  mediaURL: '',
+  authorRelation: ''
+})
+
+async function sendToApi() {
+  loading.value = true
+  
+  // Convertimos el texto del selector al número que espera tu DTO
+  if (selectedTypeText.value === 'Condolencia') form.type = 1
+  if (selectedTypeText.value === 'Anécdota') form.type = 2
+  if (selectedTypeText.value === 'Foto') form.type = 3
+
+  try {
+    // POST /api/Memory enviando el MemoryCreateDTO
+    await apiClient.post('/Memory', form)
+    
+    dialog.value = false
+    emit('success') // Refrescamos la lista de la página
+    
+    // Limpiamos
+    form.textContent = ''
+    form.mediaURL = ''
+  } catch (error) {
+    alert("Revisa los datos. El servidor dice: " + error)
+  } finally {
+    loading.value = false
+  }
+}
+</script>

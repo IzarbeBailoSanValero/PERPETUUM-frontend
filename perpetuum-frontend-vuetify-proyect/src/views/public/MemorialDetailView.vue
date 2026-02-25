@@ -42,6 +42,10 @@
   <v-container v-else-if="store.loading" class="fill-height justify-center align-center">
     <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
   </v-container>
+
+
+
+  
 </template>
 
 <script setup lang="ts">
