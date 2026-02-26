@@ -42,8 +42,30 @@
         <v-list-item prepend-icon="mdi-account" title="Perfil"></v-list-item>
 
         <!-- Opción: cerrar sesión -->
-        <v-list-item prepend-icon="mdi-logout" title="Cerrar Sesión" color="error"></v-list-item>
+        <v-list-item prepend-icon="mdi-logout" title="Cerrar Sesión" color="error" @click="handleLogout"></v-list-item>
       </v-list>
     </v-menu>
   </v-app-bar>
 </template>
+
+
+<script setup lang="ts">
+import { useAuthStore } from '@/stores/authStore'
+import { useRouter } from 'vue-router'
+
+
+/*
+1. Llama al store de autenticación (authStore)
+2. Ejecuta logout() → borra token, usuario, etc.
+3. Redirige a la ruta "Login"
+*/
+const auth = useAuthStore()
+const router = useRouter()
+
+function handleLogout() {
+  auth.logout()
+  router.push({ name: 'Login' })
+}
+
+
+</script>
