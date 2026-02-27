@@ -8,33 +8,17 @@
 
     <v-card class="pa-4">
       <v-card-title>Nuevo Recuerdo</v-card-title>
-      
-      <v-card-text>  <!--https://vuetifyjs.com/en/components/selects/#usage-->
-        <v-select   
-          v-model="selectedTypeText"
-          label="¿Qué quieres compartir?"
-          :items="['Condolencia', 'Anécdota', 'Foto']"
-          variant="underlined"
-        ></v-select>
 
-        <v-text-field
-          v-model="form.authorRelation"
-          label="Tu relación (ej: Nieto)"
-          variant="underlined"
-        ></v-text-field>
+      <v-card-text> <!--https://vuetifyjs.com/en/components/selects/#usage-->
+        <v-select v-model="selectedTypeText" label="¿Qué quieres compartir?"
+          :items="['Condolencia', 'Anécdota', 'Foto']" variant="underlined"></v-select>
 
-        <v-textarea
-          v-model="form.textContent"
-          label="Tu mensaje"
-          variant="underlined"
-        ></v-textarea>
+        <v-text-field v-model="form.authorRelation" label="Tu relación (ej: Nieto)" variant="underlined"></v-text-field>
 
-        <v-text-field
-          v-if="selectedTypeText === 'Foto'"
-          v-model="form.mediaURL"
-          label="URL de la imagen"
-          variant="underlined"
-        ></v-text-field>
+        <v-textarea v-model="form.textContent" label="Tu mensaje" variant="underlined"></v-textarea>
+
+        <v-text-field v-if="selectedTypeText === 'Foto'" v-model="form.mediaURL" label="URL de la imagen"
+          variant="underlined"></v-text-field>
       </v-card-text>
 
       <v-card-actions>
@@ -51,6 +35,7 @@ import { ref, reactive } from 'vue'
 import apiClient from '@/plugins/axios'
 import { useUiStore } from '@/stores/uiStore'
 
+
 const ui = useUiStore()
 
 const props = defineProps<{ deceasedId: number }>()
@@ -63,7 +48,7 @@ const selectedTypeText = ref('Condolencia') // Texto para el v-select
 // Objeto que coincide con MemoryCreateDTO de C#
 const form = reactive({
   deceasedId: props.deceasedId,
-  type: 1, 
+  type: 1,
   textContent: '',
   mediaURL: '',
   authorRelation: ''
@@ -71,7 +56,7 @@ const form = reactive({
 
 async function sendToApi() {
   loading.value = true
-  
+
   // Convertimos el texto del selector al número que espera tu DTO
   if (selectedTypeText.value === 'Condolencia') form.type = 1
   if (selectedTypeText.value === 'Anécdota') form.type = 2
@@ -80,28 +65,27 @@ async function sendToApi() {
   try {
     // POST /api/Memory enviando el MemoryCreateDTO
     await apiClient.post('/Memory', form)
-    
+
     dialog.value = false
     emit('success') // Refrescamos la lista de la página
-    
-  // ui.notify es el método en el uiStore con SweetAlert2
+
+    // ui.notify es el método en el uiStore con SweetAlert2
     ui.notify('Recuerdo enviado. Aparecerá cuando el familiar lo apruebe', 'success')
 
     // Limpiamos
     form.textContent = ''
     form.mediaURL = ''
-  } catch (error) {
-    alert("Revisa los datos. El servidor dice: " + error)
-  } finally {
-    loading.value = false
+  } catch (error: any) {
+    ui.notify("Revisa los datos. Error de conexión.", "error")
   }
+  finally { loading.value = false }
 }
 
 /*
 Apuntes: 
     1 Captura: El v-model captura los datos en el objeto reactive.
     2 Persistencia: Axios envía el MemoryCreateDTO al [HttpPost] de C#.
-    3 Sincronización: Al recibir el OK (200/201), el componente emite un evento al padre.
+    3 Sincronización: Al recibir 200, el componente emite un evento al padre.
     4 Reactividad: El padre vuelve a ejecutar el GET, Pinia actualiza el state, y Vue repinta la lista de recuerdos automáticamente.
 */
 </script>

@@ -16,16 +16,18 @@ const routes = [
     path: '/login',
     component: () => import('@/layouts/BlankLayout.vue'),
     children: [
-      { path: '', component: () => import('@/views/auth/LoginView.vue') }
+      { path: '', name: 'Login', component: () => import('@/views/auth/LoginView.vue') }
     ]
   },
   // 3. RUTAS ADMIN (B2B)
   {
     path: '/admin',
     component: () => import('@/layouts/AdminLayout.vue'),
+    meta: { requiresAuth: true }, //  exige estar logueado
     children: [
-      { path: 'dashboard', component: () => import('@/views/admin/DashboardView.vue') }, 
-      { path: 'deceased', component: () => import('@/views/admin/DeceasedCrudView.vue') },
+      { path: 'dashboard', name: 'AdminDashboard', component: () => import('@/views/admin/DashboardView.vue') }, 
+      { path: 'deceased', component: () => import('@/views/admin/DeceasedCrudView.vue') },    //crud 1 entidad
+      { path: 'guardians', component: () => import('@/views/admin/GuardianCrudView.vue') },   //crud 2 entidad
       { path: 'staff', component: () => import('@/views/admin/StaffCrudView.vue') },
       { path: 'memories', component: () => import('@/views/admin/AdminMemoriesView.vue') },
     ]
@@ -38,42 +40,38 @@ const router = createRouter({
 })
 
 // --- APUNTES TEÓRICOS: NAVIGATION GUARD ---
-// Este código se ejecuta CADA VEZ que el usuario intenta cambiar de página.
+//  se ejecuta CADA VEZ que el usuario intenta cambiar de página.
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
 
-  // Verificamos si la ruta de destino (o alguna de sus padres) tiene meta: requiresAuth
+  // Verificamos si  ruta de destino o  sus padres tiene meta: requiresAuth
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
 
   if (requiresAuth && !authStore.isLoggedIn) {
     // Si la ruta es privada y no hay token: al Login
     next({ name: 'Login' })
   } else if (to.name === 'Login' && authStore.isLoggedIn) {
-    // Si ya está logueado y trata de ir al Login: lo mandamos al Dashboard
+    // Si ya está logueado y trata de ir al Login: al Dashboard
     next({ name: 'AdminDashboard' })
   } else {
-    // En cualquier otro caso: puede pasar
-    next()
+    
+    next()//  puede pasar -> sigue hacia to.path
   }
 })
 
 export default router
 
-
 /*
 Apuntes: 
 createRouter es la función que construye el router.
-Aquí le dices:
+Aquí le digo:
 qué tipo de historial usar
 qué rutas tendrá tu app
 El resultado es un objeto router que Vue usará para navegar entre páginas.
 
-
 createWebHistory() usa el HTML5 History API, lo que significa: URLs limpias solo con /, sin caracteres raros
 
-
 export default --> Esto hace que el router esté disponible para importarlo en tu main.js:
-
 
 En router/index.ts, uso rutas anidadas (children). Cuando voy a /admin/deceased, el Router dice:
 "Primero cargo el AdminLayout". --> "Dentro del AdminLayout, busco el hueco <router-view /> y ahí meto la vista DeceasedCrudView". --> si cambio algo en el layout se aplica. atodos (ej. color del sidebar)

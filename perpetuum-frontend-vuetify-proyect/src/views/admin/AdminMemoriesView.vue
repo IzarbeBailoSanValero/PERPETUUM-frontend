@@ -59,6 +59,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import apiClient from '@/plugins/axios'
+import Swal from 'sweetalert2'
+
 
 const memories = ref([])
 const loading = ref(false)
@@ -94,8 +96,9 @@ async function updateStatus(id: number, status: number) {
     await apiClient.put(`/Memory/${id}/status`, { status })
     // Recargamos la lista para que el que acabamos de moderar desaparezca
     await fetchMemories()
-  } catch (error) {
-    alert("Error al actualizar el estado")
+  }catch (error) 
+  {
+   ui.notify("Error al actualizar el estado", "error")
   }
 }
 
