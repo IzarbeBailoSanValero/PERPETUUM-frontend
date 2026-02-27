@@ -70,6 +70,16 @@
               ></v-text-field>
             </Field>
 
+            <Field name="birthDate" v-model="form.birthDate" v-slot="{ field }">
+              <v-text-field 
+                v-bind="field" 
+                label="Fecha de Nacimiento" 
+                type="date"
+                variant="underlined"
+                :error-messages="errors.birthDate"
+              ></v-text-field>
+            </Field>
+
             <Field name="guardianId" v-model="form.guardianId" v-slot="{ field }">
               <v-select 
                 v-bind="field" 
@@ -83,7 +93,11 @@
               ></v-select>
             </Field>
 
+            <v-textarea v-model="form.biography" label="Biografía (Obligatoria)" variant="underlined" rows="2"></v-textarea>
+            
             <v-text-field v-model="form.photoURL" label="URL de la Foto" variant="underlined"></v-text-field>
+            
+            <v-text-field v-model="form.epitaph" label="Epitafio (Opcional)" variant="underlined"></v-text-field>
           </v-card-text>
 
           <v-card-actions>
@@ -104,8 +118,10 @@ import { useAuthStore } from '@/stores/authStore'
 import apiClient from '@/plugins/axios'
 import Swal from 'sweetalert2'
 
-//Uso de componentes individuales y validación Vee-Validate yup
+import type { DeceasedCreate } from '@/models/Deceased'
+
 import DeceasedRow from '@/components/admin/DeceasedRow.vue'
+
 import { Form as VForm, Field } from 'vee-validate'
 import * as yup from 'yup'
 
@@ -119,10 +135,11 @@ const guardians = ref<any[]>([])
 
 // Esquema de validación 
 const schema = yup.object({
-  name: yup.string().required('El nombre es obligatorio').min(3, 'Mínimo 3 letras'),
+  name: yup.string().required('El nombre es obligatorio').max(100, 'Máximo 100 caracteres'),
   dni: yup.string().required('DNI requerido'),
-  deathDate: yup.string().required('La fecha es obligatoria'),
-  guardianId: yup.number().required('Selecciona un responsable').nullable()
+  deathDate: yup.string().required('La fecha de muerte es obligatoria'),
+  birthDate: yup.string().required('La fecha de nacimiento es obligatoria'),
+  guardianId: yup.number().required('Selecciona un responsable').typeError('Debes elegir un guardián')
 })
 
 const headers = [
@@ -131,15 +148,19 @@ const headers = [
   { title: 'Fecha', key: 'deathDate' }
 ]
 
-// Gestión de estado con Pinia (se alimenta de auth.user)
-const form = reactive({
+// Gestión de estado con Pinia ( DeceasedCreateDTO)
+const form = reactive<DeceasedCreate>({
   name: '',
   dni: '',
   deathDate: '',
-  photoURL: '',
-  // lo pongo opcional porque empiezzza siendo nulo, para que no se rompa
-  funeralHomeId: auth.user?.funeralHomeId || null, 
-  guardianId: null
+  birthDate: '',
+  biography: '', 
+  photoURL: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+  epitaph: '',
+  // Extraemos IDs del token
+  funeralHomeId: auth.user?.funeralHomeId || 0, 
+  staffId: auth.user?.id || 0, // El StaffId es el ID del usuario logueado
+  guardianId: 0
 })
 
 // traer familiares desde el backend
@@ -161,12 +182,12 @@ onMounted(() => {
   fetchGuardians()         // Carga los guardianes para el selector
 })
 
+
 // Función de pOST
 async function save() {
-  //  Captura el id de la funeraria si no estaba al cargar
-  if (!form.funeralHomeId && auth.user?.funeralHomeId) {
-    form.funeralHomeId = auth.user.funeralHomeId;
-  }
+  // Asegurar que los IDs del Store están presentes antes de enviar
+  form.funeralHomeId = auth.user?.funeralHomeId || 0;
+  form.staffId = auth.user?.id || 0;
 
   saving.value = true
   try {
@@ -175,14 +196,22 @@ async function save() {
     dialog.value = false 
     store.fetchAllDeceased() // sincronizo pinia
 
-    // Limpieza 
-    Object.assign(form, { name: '', dni: '', deathDate: '', photoURL: '', guardianId: null });
+    // Limpieza  manteniendo los id del usuario logueado
+    Object.assign(form, { 
+      name: '', 
+      dni: '', 
+      deathDate: '', 
+      birthDate: '', 
+      photoURL: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png', 
+      guardianId: 0,
+      biography: '',
+      epitaph: ''
+    });
 
-   
     Swal.fire({ title: '¡Éxito!', icon: 'success', timer: 2000, showConfirmButton: false });
 
   } catch (error) {
-    Swal.fire({ title: 'Error', text: 'No se pudo registrar', icon: 'error' });
+    Swal.fire({ title: 'Error', text: 'Revisa que todos los campos obligatorios estén llenos', icon: 'error' });
   } finally {
     saving.value = false
   }

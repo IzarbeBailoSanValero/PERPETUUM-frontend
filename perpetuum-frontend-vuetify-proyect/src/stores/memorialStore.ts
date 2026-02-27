@@ -18,20 +18,6 @@ export interface Memory {
   deceasedId: number
 }
 
-// Coincide con DeceasedResponseDTO de C#
-export interface Deceased {
-  id: number
-  funeralHomeId: number
-  guardianId: number
-  dni: string
-  name: string
-  epitaph: string
-  biography: string
-  photoURL: string
-  birthDate: string
-  deathDate: string
-  memories: Memory[] | null 
-}
 
 
 

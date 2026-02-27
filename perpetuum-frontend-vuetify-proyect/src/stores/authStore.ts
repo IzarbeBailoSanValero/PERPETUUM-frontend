@@ -8,18 +8,11 @@
 
 import { defineStore } from 'pinia'
 import { jwtDecode } from 'jwt-decode'
+import type { User } from '@/models/User'
 
 
 
 
-//defino la forma que tiene que tener el usuario (segun claims de jwt)
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-  funeralHomeId: number | null; // Es null para StandardUser y number para Staff/Guardian
-}
 
 export const useAuthStore = defineStore('auth', {
   state: () => {
