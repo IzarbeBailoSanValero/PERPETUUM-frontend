@@ -92,11 +92,25 @@ async function handleLogin() {
   errorMessage.value = ''
   
   try {
+    // 1. credenciales al backend
     const response = await apiClient.post('/Auth/login', form)
+    
+    // 2. guardar el token y decodificar automáticamente 
     auth.setToken(response.data.token)
-    router.push('/')
+
+    // 3. redirijo según rol decodificado -->  Si es Admin o Staff, al panel de administración. si no parte publica
+    if (auth.userRole === 'Admin' || auth.userRole === 'Staff') {
+      router.push('/admin/dashboard')
+    } else {
+      router.push('/') 
+    }
+
   } catch (error: any) {
-    errorMessage.value = "Credenciales incorrectas."
+    if (error.response?.status === 401) {
+      errorMessage.value = "Correo o contraseña incorrectos."
+    } else {
+      errorMessage.value = "Error de conexión con el servidor."
+    }
   } finally {
     loading.value = false
   }

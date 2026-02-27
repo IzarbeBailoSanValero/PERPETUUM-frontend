@@ -18,6 +18,7 @@ declare module 'vue' {
     DeceasedForm: typeof import('./components/admin/DeceasedForm.vue')['default']
     DeceasedRow: typeof import('./components/admin/DeceasedRow.vue')['default']
     GuardianForm: typeof import('./components/admin/GuardianForm.vue')['default']
+    GuardianRow: typeof import('./components/admin/GuardianRow.vue')['default']
     HelloWorld: typeof import('./components/HelloWorld.vue')['default']
     KpiCard: typeof import('./components/admin/KpiCard.vue')['default']
     LangToggle: typeof import('./components/ui/LangToggle.vue')['default']
