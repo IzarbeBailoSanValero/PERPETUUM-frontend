@@ -1,10 +1,22 @@
 <template>
-  <v-app-bar>
-    <v-app-bar-title>PERPETUUM</v-app-bar-title>
+  <v-app-bar elevation="1">
+    <v-app-bar-title class="font-weight-bold text-indigo">
+      PERPETUUM
+    </v-app-bar-title>
+
     <v-spacer />
-    <v-btn to="/">Inicio</v-btn>
-    <v-btn to="/login">Login</v-btn>
+
+    <v-btn to="/" variant="text">Inicio</v-btn>
+    <v-btn to="/login" variant="text">Login</v-btn>
+
+    <ThemeToggle />
+
     <v-btn icon="mdi-translate" />
-    <v-btn icon="mdi-theme-light-dark" />
   </v-app-bar>
 </template>
+
+<script setup lang="ts">
+import ThemeToggle from '@/components/ui/ThemeToggle.vue'
+</script>
+
+
