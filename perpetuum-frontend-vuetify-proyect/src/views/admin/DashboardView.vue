@@ -7,6 +7,8 @@
  <apexchart>: Es el componente de la librería.
     :options: Define el diseño (ejes, colores, leyendas).
     :series: Define los datos numéricos brutos.
+
+  docum -> https://apexcharts.com/javascript-chart-demos/area-charts/basic/
  -->
 
 <template>
@@ -156,3 +158,11 @@ onMounted(() => {
   loadDashboardData()
 })
 </script>
+
+
+<style>
+/* fuerzo el color del texto dentro del tooltip de ApexCharts por porblema de conltraste */
+.apexcharts-tooltip  {
+  color: #000000 !important;
+}
+</style>
