@@ -16,6 +16,7 @@ declare module 'vue' {
     BarChart: typeof import('./components/admin/BarChart.vue')['default']
     DataTable: typeof import('./components/admin/DataTable.vue')['default']
     DeceasedForm: typeof import('./components/admin/DeceasedForm.vue')['default']
+    DeceasedRow: typeof import('./components/admin/DeceasedRow.vue')['default']
     GuardianForm: typeof import('./components/admin/GuardianForm.vue')['default']
     HelloWorld: typeof import('./components/HelloWorld.vue')['default']
     KpiCard: typeof import('./components/admin/KpiCard.vue')['default']
