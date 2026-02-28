@@ -27,7 +27,7 @@
       <v-data-table :headers="headers" :items="store.deceasedList" :loading="store.loading">
         
         <template v-slot:item.name="{ item }">
-          <DeceasedRow :item="item" />
+          <DeceasedRow :item="{ name: item.name, photoURL: item.photoURL }" />
         </template>
 
         <template v-slot:item.deathDate="{ value }">
@@ -143,9 +143,10 @@ const schema = yup.object({
 })
 
 const headers = [
-  { title: 'Nombre y Foto', key: 'name' }, //  asocia al slot item.name
-  { title: 'DNI', key: 'dni' },
-  { title: 'Fecha', key: 'deathDate' }
+  { title: 'Nombre y Foto', key: 'name', align: 'start' as const }, 
+  { title: 'DNI', key: 'dni', align: 'start' as const },
+  { title: 'Fecha', key: 'deathDate', align: 'end' as const },
+  { title: 'Acciones', key: 'actions', sortable: false, align: 'center' as const }
 ]
 
 // Gestión de estado con Pinia ( DeceasedCreateDTO)
