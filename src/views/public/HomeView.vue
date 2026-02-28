@@ -1,23 +1,22 @@
+
+
 <template>   
   <v-container>
-
-    <!-- Encabezado -->
+<!-- Encabezado -->
     <v-row class="text-center py-10">
       <v-col cols="12">
-        <h1 class="text-h2 font-weight-bold mb-4">Buscador de Memoriales</h1>
-        <p class="text-h6 text-grey">Encuentra y comparte recuerdos de tus seres queridos</p>
+        <h1 class="text-h2 font-weight-bold mb-4">{{ t.title }}</h1>
+        <p class="text-h6 text-grey">{{ t.subtitle }}</p>
       </v-col>
     </v-row>
-
     <!-- Filtros de búsqueda -->
     <v-card class="pa-4 mb-8 rounded-xl" elevation="2" variant="outlined">
       <v-row align="center">
-
-        <!--  nombre -->
+   <!--  nombre -->
         <v-col cols="12" md="4">
           <v-text-field   
             v-model="searchParams.Name"
-            label="Buscar por nombre..."
+            :label="t.labelName"
             prepend-inner-icon="mdi-magnify"
             variant="underlined"
             hide-details
@@ -25,12 +24,11 @@
             @keyup.enter="executeSearch"
           />
         </v-col>
-
-        <!-- Año de defunción -->
+  <!-- Año de defunción -->
         <v-col cols="12" md="3">
           <v-text-field   
             v-model="searchParams.DeathYear"
-            label="Año de defunción"
+            :label="t.labelYear"
             prepend-inner-icon="mdi-calendar"
             type="number"
             variant="underlined"
@@ -39,28 +37,25 @@
             @keyup.enter="executeSearch"
           />
         </v-col>
-
-        <!-- Ordenar  -->
+ <!-- Ordenar  -->
         <v-col cols="12" md="3">
           <v-select
             v-model="searchParams.SortBy"
-            :items="['Recientes', 'Antiguos', 'A-Z']"
-            label="Ordenar por"
+            :items="t.sortOptions"
+            :label="t.labelSort"
             variant="underlined"
             hide-details
           />
         </v-col>
-
-        <!-- ejecutar -->
+     <!-- ejecutar -->
         <v-col cols="12" md="2">
           <v-btn color="primary" block @click="executeSearch" :loading="store.loading">
-            Buscar
+            {{ t.btnSearch }}
           </v-btn>
         </v-col>
 
       </v-row>
     </v-card>
-
     <!-- pinto resultados -->
     <v-row v-if="store.deceasedList.length > 0">
       <!-- tarjeta por  fallecido -->
@@ -80,7 +75,6 @@
       </v-col>
     </v-row>
 
-
     <v-row justify="center" class="mt-8" v-if="store.deceasedList.length > 0">
       <v-pagination
         v-model="searchParams.Page"
@@ -89,12 +83,11 @@
         active-color="primary"
       ></v-pagination>
     </v-row>
-    
-    <!-- cuando no hay resultados -->
+     <!-- cuando no hay resultados -->
     <v-row v-else-if="!store.loading" justify="center" class="mt-10">
       <v-col cols="12" class="text-center">
         <v-icon size="64" color="grey-lighten-1">mdi-account-search-outline</v-icon>
-        <p class="text-grey mt-4">No se han encontrado resultados para tu búsqueda.</p>
+        <p class="text-grey mt-4">{{ t.noResults }}</p>
       </v-col>
     </v-row>
 
@@ -102,13 +95,55 @@
 </template>
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <script setup lang="ts">
-import { reactive, onMounted } from 'vue'
+import { reactive, onMounted, computed } from 'vue' //computed para las traducciones
 import { useMemorialStore } from '@/stores/memorialStore'
+import { useUiStore } from '@/stores/uiStore' // store de la interfaz para el idioma
 
 const store = useMemorialStore()
-/*voy a crear el objeto searchParams y enviarlo al backend */
+const ui = useUiStore() // Accedemos al estado del idioma
 
+// Lógica de traducciones 
+const t = computed(() => {
+  if (ui.language === 'en') {
+    return {
+      title: 'Memorial Search',
+      subtitle: 'Find and share memories of your loved ones',
+      labelName: 'Search by name...',
+      labelYear: 'Death year',
+      labelSort: 'Sort by',
+      sortOptions: ['Recent', 'Oldest', 'A-Z'],
+      btnSearch: 'Search',
+      noResults: 'No results found for your search.'
+    }
+  }
+  return {
+    title: 'Buscador de Memoriales',
+    subtitle: 'Encuentra y comparte recuerdos de tus seres queridos',
+    labelName: 'Buscar por nombre...',
+    labelYear: 'Año de defunción',
+    labelSort: 'Ordenar por',
+    sortOptions: ['Recientes', 'Antiguos', 'A-Z'],
+    btnSearch: 'Buscar',
+    noResults: 'No se han encontrado resultados para tu búsqueda.'
+  }
+})
+
+/*voy a crear el objeto searchParams y enviarlo al backend */
 
 // 1. DeceasedSearchDTO , uso reactive para no .value.   + Paginación
 const searchParams = reactive({
@@ -139,4 +174,3 @@ APUNTES :
 - Ordenada y Fechas: Tenemos v-select (SortBy) y un input (DeathYear) integrados en la petición.
 */
 </script>
-
