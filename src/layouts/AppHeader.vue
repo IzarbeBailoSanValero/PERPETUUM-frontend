@@ -1,32 +1,92 @@
-
 <template>
   <v-app-bar elevation="1">
     <v-app-bar-title class="font-weight-bold text-indigo">PERPETUUM</v-app-bar-title>
     
     <v-spacer />
 
-    <v-btn to="/" variant="text" class="text-none">
+    <v-btn 
+      to="/" 
+      exact 
+      variant="text" 
+      class="text-none" 
+      active-class="text-indigo font-weight-black bg-indigo-lighten-5"
+    >
       {{ t.navHome }}
     </v-btn>
     
-    <v-btn to="/login" variant="text" class="text-none">
+    <v-btn 
+      v-if="!auth.isLoggedIn"
+      to="/login" 
+      exact 
+      variant="text" 
+      class="text-none" 
+      active-class="text-indigo font-weight-black bg-indigo-lighten-5"
+    >
       {{ t.navLogin }}
     </v-btn>
+
+    <v-btn 
+      v-if="!auth.isLoggedIn"
+      to="/register" 
+      exact 
+      color="indigo" 
+      variant="flat" 
+      class="text-none ml-2"
+    >
+      {{ t.navRegister }}
+    </v-btn>
+
+    <v-btn 
+      v-if="auth.isLoggedIn && (auth.userRole === 'Admin' || auth.userRole === 'Staff')" 
+      to="/admin/dashboard" 
+      color="indigo" 
+      variant="tonal" 
+      class="text-none ml-2"
+    >
+      Panel de Gestión
+    </v-btn>
+      
+    <v-btn 
+      v-if="auth.isLoggedIn"
+      @click="handleLogout" 
+      color="error" 
+      variant="text" 
+      class="text-none ml-2"
+    >
+      {{ t.navLogout }}
+    </v-btn>
     
-    <LangToggle />
+    <LangToggle class="ml-2" />
     <ThemeToggle />
   </v-app-bar>
 </template>
 
+
+
+
+
+
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useUiStore } from '@/stores/uiStore'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/authStore'
 
 // gestión de IU
 import LangToggle from '@/components/ui/LangToggle.vue'
 import ThemeToggle from '@/components/ui/ThemeToggle.vue'
 
 const ui = useUiStore()
+
+
+const auth = useAuthStore()
+const router = useRouter()
+
+// cerrar sesión y volver a la home
+function handleLogout() {
+  auth.logout()
+  router.push('/')
+}
 
 /* APUNTES SOBRE i18n:
  Si el usuario cambia idioma,  se recalcula y actualiza los textos de la interfaz sin refrescar.
@@ -35,13 +95,16 @@ const t = computed(() => {
   if (ui.language === 'en') {
     return {
       navHome: 'Home',
-      navLogin: 'Login'
+      navLogin: 'Login',
+      navRegister: 'Sign Up',
+      navLogout: 'Logout'    
     }
   }
-  //  defecto español
   return {
     navHome: 'Inicio',
-    navLogin: 'Acceder'
+    navLogin: 'Acceder',
+    navRegister: 'Registrarse', 
+    navLogout: 'Cerrar Sesión'  
   }
 })
 </script>

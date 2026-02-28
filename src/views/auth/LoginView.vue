@@ -16,42 +16,27 @@
       flujo: 
       <Form> controla el envío. -> <Field> controla la validación del campo. -> -slot="{ field, errors }" te da: (field → eventos + valor   Y.  errors → lista de errores). -> v-bind="field" conecta el input con Vee‑Validate.
       -->
-      
-      <VForm @submit="handleLogin" :validation-schema="schema" v-slot="{ errors }"> 
+
+      <VForm @submit="handleLogin" :validation-schema="schema" v-slot="{ errors }">
         <v-card-text>
           <Field name="email" v-model="form.email" v-slot="{ field }">
-            <v-text-field
-              v-bind="field"
-              label="Correo Electrónico"
-              variant="outlined"
-              prepend-inner-icon="mdi-email"
-              :error-messages="errors.email"
-              class="mb-2"
-            ></v-text-field>
+            <v-text-field v-bind="field" label="Correo Electrónico" variant="outlined" prepend-inner-icon="mdi-email"
+              :error-messages="errors.email" class="mb-2"></v-text-field>
           </Field>
 
           <Field name="password" v-model="form.password" v-slot="{ field }">
-            <v-text-field
-              v-bind="field"
-              label="Contraseña"
-              type="password"
-              variant="outlined"
-              prepend-inner-icon="mdi-lock"
-              :error-messages="errors.password"
-            ></v-text-field>
+            <v-text-field v-bind="field" label="Contraseña" type="password" variant="outlined"
+              prepend-inner-icon="mdi-lock" :error-messages="errors.password"></v-text-field>
           </Field>
         </v-card-text>
 
-        <v-card-actions>
-          <v-btn 
-            block 
-            color="primary" 
-            size="large" 
-            variant="elevated"
-            :loading="loading" 
-            type="submit"
-          >
+        <v-card-actions class="flex-column">
+          <v-btn block color="primary" size="large" variant="elevated" :loading="loading" type="submit">
             Entrar
+          </v-btn>
+
+          <v-btn block variant="text" class="mt-2 text-none" to="/register">
+            ¿No tienes cuenta? Regístrate
           </v-btn>
         </v-card-actions>
       </VForm>
@@ -80,7 +65,7 @@ const errorMessage = ref('')
 
 const form = reactive({ email: '', password: '' })
 
-// CONCEPTO TEÓRICO: Esquema de Validación yup
+// teoria: Esquema de Validación yup
 // Aquí definimos las reglas de negocio.
 const schema = yup.object({
   email: yup.string().required('El email es obligatorio').email('Formato de email inválido'), //Yup se encarga de verificar que los datos cumplen con tus requisitos antes de que el formulario se envíe.
@@ -90,11 +75,11 @@ const schema = yup.object({
 async function handleLogin() {
   loading.value = true
   errorMessage.value = ''
-  
+
   try {
     // 1. credenciales al backend
     const response = await apiClient.post('/Auth/login', form)
-    
+
     // 2. guardar el token y decodificar automáticamente 
     auth.setToken(response.data.token)
 
@@ -102,7 +87,7 @@ async function handleLogin() {
     if (auth.userRole === 'Admin' || auth.userRole === 'Staff') {
       router.push('/admin/dashboard')
     } else {
-      router.push('/') 
+      router.push('/')
     }
 
   } catch (error: any) {

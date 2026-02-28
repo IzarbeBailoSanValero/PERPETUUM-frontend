@@ -19,6 +19,13 @@ const routes: RouteRecordRaw[] = [
       { path: '', name: 'Login', component: () => import('@/views/auth/LoginView.vue') }
     ]
   },
+  {
+    path: '/register',
+    component: () => import('@/layouts/BlankLayout.vue'),
+    children: [
+      { path: '', name: 'Register', component: () => import('@/views/auth/RegisterView.vue') }
+    ]
+  },
   // 3. RUTAS ADMIN (B2B)
   {
     path: '/admin',
