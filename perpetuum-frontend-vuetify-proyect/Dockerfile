@@ -7,7 +7,7 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# servidor nginx
+# servidor nginex
 FROM nginx:stable-alpine AS servidor
 COPY --from=compilador /app/dist /usr/share/nginx/html
 EXPOSE 80
