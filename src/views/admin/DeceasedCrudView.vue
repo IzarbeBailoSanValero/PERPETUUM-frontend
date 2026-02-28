@@ -14,11 +14,12 @@
 - store.fetchAllDeceased(): Reactividad. En lugar de insertar la fila nueva a mano, le decimos al Store: "Oye, los datos han cambiado en la base de datos, ve a buscarlos de nuevo". Vue detecta el cambio y actualiza la pantalla solo.
 -->
 
+
 <template>
   <v-container>
     <div class="d-flex justify-space-between align-center mb-5">
       <h2 class="text-h4">Listado de Difuntos</h2>
-      <v-btn color="primary" prepend-icon="mdi-plus" @click="dialog = true">
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreateModal">
         Nuevo Difunto
       </v-btn>
     </div>
@@ -33,11 +34,17 @@
         <template v-slot:item.deathDate="{ value }">
           <v-chip size="small" variant="outlined" color="primary">{{ value }}</v-chip>
         </template>
+
+        <template v-slot:item.actions="{ item }">
+          <v-btn icon="mdi-pencil" variant="text" color="blue" @click="openEditModal(item)"></v-btn>
+          <v-btn icon="mdi-delete" variant="text" color="red" @click="deleteItem(item.id)"></v-btn>
+        </template>
+
       </v-data-table>
     </v-card>
 
     <v-dialog v-model="dialog" max-width="500">
-      <v-card title="Registrar Difunto" class="pa-4">
+      <v-card :title="isEditing ? 'Editar Difunto' : 'Registrar Difunto'" class="pa-4">
         
         <VForm @submit="save" :validation-schema="schema" v-slot="{ errors }">
           <v-card-text>
@@ -119,7 +126,6 @@ import apiClient from '@/plugins/axios'
 import Swal from 'sweetalert2'
 
 import type { DeceasedCreate } from '@/models/Deceased'
-
 import DeceasedRow from '@/components/admin/DeceasedRow.vue'
 
 import { Form as VForm, Field } from 'vee-validate'
@@ -132,6 +138,10 @@ const dialog = ref(false)
 const saving = ref(false)
 const loadingGuardians = ref(false)
 const guardians = ref<any[]>([])
+
+
+const isEditing = ref(false)
+const editId = ref<number | null>(null)
 
 // Esquema de validación 
 const schema = yup.object({
@@ -150,7 +160,8 @@ const headers = [
 ]
 
 // Gestión de estado con Pinia ( DeceasedCreateDTO)
-const form = reactive<DeceasedCreate>({
+// Le ponemos any para poder inyectarle el Id luego al editar sin que TypeScript se queje
+const form = reactive<any>({
   name: '',
   dni: '',
   deathDate: '',
@@ -159,7 +170,7 @@ const form = reactive<DeceasedCreate>({
   photoURL: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
   epitaph: '',
   // Extraemos IDs del token
-  funeralHomeId: auth.user?.funeralHomeId || 0, 
+  funeralHomeId: auth.user?.funeralHomeId || 1, // Fallback a 1 para evitar error de FK si crea un Admin Global
   staffId: auth.user?.id || 0, // El StaffId es el ID del usuario logueado
   guardianId: 0
 })
@@ -183,38 +194,106 @@ onMounted(() => {
   fetchGuardians()         // Carga los guardianes para el selector
 })
 
+// limpiar o preparar el form al crear
+function openCreateModal() {
+  isEditing.value = false
+  editId.value = null
+  Object.assign(form, { 
+    name: '', dni: '', deathDate: '', birthDate: '', 
+    photoURL: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png', 
+    guardianId: null, biography: '', epitaph: '' 
+  });
+  dialog.value = true
+}
 
-// Función de pOST
+// rellenar los datos al editar
+async function openEditModal(item: any) {
+  isEditing.value = true
+  editId.value = item.id
+  
+  try {
+    // Pedimos los datos completos del difunto al backend
+    const response = await apiClient.get(`/Deceased/${item.id}`)
+    const data = response.data
+    
+    // Rellenamos el form y recortamos la hora de la fecha 
+    Object.assign(form, {
+      name: data.name,
+      dni: data.dni,
+      deathDate: data.deathDate.split('T')[0],
+      birthDate: data.birthDate.split('T')[0],
+      biography: data.biography,
+      photoURL: data.photoURL,
+      epitaph: data.epitaph,
+      guardianId: data.guardianId
+    })
+    
+    dialog.value = true
+  } catch (error) {
+    Swal.fire('Error', 'No se pudieron cargar los datos del difunto', 'error')
+  }
+}
+
+// funcion de POST / PUT
 async function save() {
   // Asegurar que los IDs del Store están presentes antes de enviar
-  form.funeralHomeId = auth.user?.funeralHomeId || 0;
+  form.funeralHomeId = auth.user?.funeralHomeId || 1; // Fallback a 1 para Admin
   form.staffId = auth.user?.id || 0;
 
   saving.value = true
   try {
     // Persistencia de datos en backend
-    await apiClient.post('/Deceased', form)
+    if (isEditing.value && editId.value) {
+      // Si editando,  PUT e inyectamos el ID al objeto form
+      await apiClient.put(`/Deceased/${editId.value}`, { ...form, id: editId.value })
+      Swal.fire({ title: '¡Actualizado!', icon: 'success', timer: 2000, showConfirmButton: false });
+    } else {
+      // Si no,  POST normal
+      await apiClient.post('/Deceased', form)
+      Swal.fire({ title: '¡Éxito!', icon: 'success', timer: 2000, showConfirmButton: false });
+    }
+
     dialog.value = false 
     store.fetchAllDeceased() // sincronizo pinia
 
-    // Limpieza  manteniendo los id del usuario logueado
-    Object.assign(form, { 
-      name: '', 
-      dni: '', 
-      deathDate: '', 
-      birthDate: '', 
-      photoURL: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png', 
-      guardianId: 0,
-      biography: '',
-      epitaph: ''
-    });
+    // Limpieza  manteniendo  id del usuario logueado
+    openCreateModal() // Llama a la función que ya limpia todo y lo deja listo
+    dialog.value = false //lo cierro porque openCreateModal lo abre
 
-    Swal.fire({ title: '¡Éxito!', icon: 'success', timer: 2000, showConfirmButton: false });
-
-  } catch (error) {
-    Swal.fire({ title: 'Error', text: 'Revisa que todos los campos obligatorios estén llenos', icon: 'error' });
+  } catch (error: any) {
+    if (error.response?.status === 403) {
+      Swal.fire('Acceso denegado', 'No tienes permiso para modificar este difunto.', 'error')
+    } else {
+      Swal.fire({ title: 'Error', text: 'Revisa que todos los campos obligatorios estén llenos o el DNI no esté duplicado.', icon: 'error' });
+    }
   } finally {
     saving.value = false
+  }
+}
+
+//  borrar
+async function deleteItem(id: number) {
+  const result = await Swal.fire({
+    title: '¿Eliminar difunto?',
+    text: "Esta acción no se puede deshacer.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    confirmButtonText: 'Sí, borrar'
+  })
+
+  if (result.isConfirmed) {
+    try {
+      await apiClient.delete(`/Deceased/${id}`)
+      store.fetchAllDeceased() //sicnronizo cn tabla
+      Swal.fire('Eliminado', 'El difunto ha sido borrado.', 'success')
+    } catch (e: any) {
+      if (e.response?.status === 403) {
+        Swal.fire('Acceso denegado', 'No tienes permiso para borrar este difunto.', 'error')
+      } else {
+        Swal.fire('Error', 'No se pudo eliminar el registro.', 'error')
+      }
+    }
   }
 }
 </script>
