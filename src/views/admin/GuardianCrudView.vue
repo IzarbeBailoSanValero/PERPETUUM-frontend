@@ -3,14 +3,15 @@
 <template>
   <v-container>
     <div class="d-flex justify-space-between align-center mb-5">
-      <h2 class="text-h4">Gestión de Guardianes</h2>
+      <h2 class="text-h4 font-weight-bold">Gestión de Guardianes</h2>
       <v-btn color="indigo" prepend-icon="mdi-plus" @click="dialog = true">
         Nuevo Familiar
       </v-btn>
     </div>
 
-    <v-card variant="outlined">
+    <v-card variant="outlined" class="rounded-xl">
       <v-data-table :headers="headers" :items="guardians" :loading="loading">
+        
         <template v-slot:item.name="{ item }">
           <GuardianRow :item="item" />
         </template>
@@ -22,7 +23,7 @@
     </v-card>
 
     <v-dialog v-model="dialog" max-width="500">
-      <v-card title="Registrar Guardián" class="pa-4">
+      <v-card title="Registrar Guardián" class="pa-4 rounded-lg">
         <VForm @submit="save" :validation-schema="schema" v-slot="{ errors }">
           <v-card-text>
             <Field name="name" v-model="form.name" v-slot="{ field }">
@@ -58,11 +59,23 @@ import GuardianRow from '@/components/admin/GuardianRow.vue'
 import { Form as VForm, Field } from 'vee-validate'
 import * as yup from 'yup'
 
+
+
+
+//creo interfaz para no usar any
+interface Guardian {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  funeralHomeId: number | null;
+}
+
 const auth = useAuthStore()
 const dialog = ref(false)
 const loading = ref(false)
 const saving = ref(false)
-const guardians = ref<any[]>([])
+const guardians = ref<Guardian[]>([])
 
 // Esquema de validación Yup
 const schema = yup.object({

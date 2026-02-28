@@ -1,13 +1,13 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router' //routerecordraw es para que  TypeScript reconozca correctamente la estructura de las rutas de Vue Router.
 import { useAuthStore } from '@/stores/authStore'
 
-const routes = [
+const routes: RouteRecordRaw[] = [
   // 1. RUTAS PÚBLICAS
   {
     path: '/',
     component: () => import('@/layouts/PublicLayout.vue'), //Cuando el usuario entra a /, se carga PublicLayout.vue. Dentro de ese layout, se renderizan las rutas hijas:
     children: [
-      { path: '', component: () => import('@/views/public/HomeView.vue') },
+      { path: '', name: 'Home', component: () => import('@/views/public/HomeView.vue') },
       { path: 'memorial/:id', component: () => import('@/views/public/MemorialDetailView.vue'), props: true } //props en true sirve para que el componente pueda recibir parámetor de la ruta dinámica
     ]
   },
@@ -23,14 +23,21 @@ const routes = [
   {
     path: '/admin',
     component: () => import('@/layouts/AdminLayout.vue'),
-    meta: { requiresAuth: true }, //  exige estar logueado
+    // REQUISITO EXTRA: Añadimos 'role' para que solo los Admin/Staff entren aquí
+    meta: { requiresAuth: true, role: 'Admin' }, //  exige estar logueado
     children: [
       { path: 'dashboard', name: 'AdminDashboard', component: () => import('@/views/admin/DashboardView.vue') }, 
-      { path: 'deceased', component: () => import('@/views/admin/DeceasedCrudView.vue') },    //crud 1 entidad
-      { path: 'guardians', component: () => import('@/views/admin/GuardianCrudView.vue') },   //crud 2 entidad
-      { path: 'staff', component: () => import('@/views/admin/StaffCrudView.vue') },
-      { path: 'memories', component: () => import('@/views/admin/AdminMemoriesView.vue') },
+      { path: 'deceased', name: 'AdminDeceased', component: () => import('@/views/admin/DeceasedCrudView.vue') },    //crud 1 entidad
+      { path: 'guardians', name: 'AdminGuardians', component: () => import('@/views/admin/GuardianCrudView.vue') },   //crud 2 entidad
+      { path: 'staff', name: 'AdminStaff', component: () => import('@/views/admin/StaffCrudView.vue') },
+      { path: 'memories', name: 'AdminMemories', component: () => import('@/views/admin/AdminMemoriesView.vue') },
     ]
+  },
+  // Ruta para accesos no autorizados
+  {
+    path: '/unauthorized',
+    name: 'Unauthorized',
+    component: () => import('@/views/public/UnauthorizedView.vue')
   }
 ]
 
@@ -46,15 +53,23 @@ router.beforeEach((to, from, next) => {
 
   // Verificamos si  ruta de destino o  sus padres tiene meta: requiresAuth
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+  // Verificamos si la ruta pide un rol específico
+  const requiredRole = to.meta.role
 
   if (requiresAuth && !authStore.isLoggedIn) {
     // Si la ruta es privada y no hay token: al Login
     next({ name: 'Login' })
-  } else if (to.name === 'Login' && authStore.isLoggedIn) {
+  } 
+  else if (to.name === 'Login' && authStore.isLoggedIn) {
     // Si ya está logueado y trata de ir al Login: al Dashboard
     next({ name: 'AdminDashboard' })
-  } else {
-    
+  }
+  // REQUISITO EXTRA: Control de seguridad por Roles
+  else if (requiredRole && authStore.user?.role !== requiredRole && authStore.user?.role !== 'Staff') {
+    // Si el rol del usuario no coincide con el necesario (y no es Staff), bloqueamos
+    next({ name: 'Unauthorized' })
+  }
+  else {
     next()//  puede pasar -> sigue hacia to.path
   }
 })
