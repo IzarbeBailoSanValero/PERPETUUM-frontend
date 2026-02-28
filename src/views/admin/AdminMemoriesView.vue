@@ -60,20 +60,22 @@
 import { ref, onMounted } from 'vue'
 import apiClient from '@/plugins/axios'
 import Swal from 'sweetalert2'
+import { useUiStore } from '@/stores/uiStore'
+
+const ui = useUiStore()
 
 
-const memories = ref([])
+const memories = ref<any[]>([])
 const loading = ref(false)
 const search = ref('')
 
-// Definición de las columnas de la tabla
+// Definición de las columnas de la tabla (pomgo as const porque me daba errores typescript ene l build y me lo ha recomendado IA para decir que no es un string cualquiera)
 const headers = [
-  { title: 'Fecha', key: 'createdDate' },
-  { title: 'Relación', key: 'authorRelation' },
-  { title: 'Mensaje', key: 'textContent' },
-  { title: 'Tipo', key: 'type', align: 'center' },
-  { title: 'Acciones', key: 'actions', sortable: false, align: 'end' },
-]
+  { title: 'Deceased', key: 'deceasedName', align: 'start' as const },
+  { title: 'Message', key: 'content', align: 'start' as const },
+  { title: 'Date', key: 'createdAt', align: 'center' as const },
+  { title: 'Actions', key: 'actions', align: 'end' as const, sortable: false },
+];
 
 // Cargar recuerdos desde la API
 async function fetchMemories() {

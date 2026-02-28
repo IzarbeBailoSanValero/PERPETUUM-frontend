@@ -75,7 +75,6 @@
             <v-img :src="item.photoURL" height="200" cover />
             <v-card-title>{{ item.name }}</v-card-title>
             <v-card-subtitle>{{ formatDate(item.deathDate) }}</v-card-subtitle>
-            <v-card-text class="text-truncate">{{ item.epitaph }}</v-card-text>
           </v-card>
         </v-hover>
       </v-col>
@@ -85,7 +84,7 @@
     <v-row justify="center" class="mt-8" v-if="store.deceasedList.length > 0">
       <v-pagination
         v-model="searchParams.Page"
-        :length="totalPages"
+        :length="store.totalPages"
         @update:modelValue="executeSearch"
         active-color="primary"
       ></v-pagination>

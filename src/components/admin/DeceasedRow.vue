@@ -11,7 +11,7 @@
     
     <div>
       <div class="text-subtitle-1 font-weight-bold">{{ item.name }}</div>
-      <div class="text-caption text-grey">DNI: {{ item.dni }}</div>
+      <div class="text-caption text-grey">DNI: {{ item.dni || 'N/A' }}</div> <!--si dni no disponible-->
     </div>
   </div>
 </template>
@@ -23,8 +23,8 @@
 defineProps<{
   item: {
     name: string;
-    dni: string;
-    photoURL: string;
+    dni?: string;
+    photoURL?: string;
   }
 }>()
 </script>

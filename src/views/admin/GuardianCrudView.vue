@@ -62,7 +62,7 @@ const auth = useAuthStore()
 const dialog = ref(false)
 const loading = ref(false)
 const saving = ref(false)
-const guardians = ref([])
+const guardians = ref<any[]>([])
 
 // Esquema de validación Yup
 const schema = yup.object({
@@ -74,7 +74,8 @@ const schema = yup.object({
 const headers = [
   { title: 'Familiar', key: 'name' },
   { title: 'Teléfono', key: 'phone' },
-  { title: 'Acciones', key: 'actions', align: 'end', sortable: false }
+  // Fíjate aquí abajo: añadimos "as const"
+  { title: 'Acciones', key: 'actions', align: 'end' as const, sortable: false }
 ]
 
 const form = reactive({
