@@ -25,6 +25,7 @@ declare module 'vue' {
     LineChart: typeof import('./components/admin/LineChart.vue')['default']
     MemorialCard: typeof import('./components/public/MemorialCard.vue')['default']
     MemoryCard: typeof import('./components/public/MemoryCard.vue')['default']
+    MemoryRow: typeof import('./components/admin/MemoryRow.vue')['default']
     PaginationControl: typeof import('./components/ui/PaginationControl.vue')['default']
     PendingMemoryCard: typeof import('./components/guardian/PendingMemoryCard.vue')['default']
     PieChart: typeof import('./components/admin/PieChart.vue')['default']
