@@ -1,16 +1,3 @@
-<!-- KPIs, Filtro global de fechas, 3 Gráficas (Barras, Tarta, Líneas) -->
-
-<!--apuntes
- Como mi api no tiene un endpoind con estadísticas, voy a hacer un mockdata en el front para calcularlo.
-
-
- <apexchart>: Es el componente de la librería.
-    :options: Define el diseño (ejes, colores, leyendas).
-    :series: Define los datos numéricos brutos.
-
-  docum -> https://apexcharts.com/javascript-chart-demos/area-charts/basic/
- -->
-
 <template>
   <v-container fluid>
     <div class="d-flex justify-space-between align-center mb-6">
@@ -19,26 +6,20 @@
         <p class="text-subtitle-1 text-grey">Análisis de la plataforma Perpetuum</p>
       </div>
 
-      <!-- FILTRO DE FECHAS (v-select timeRange). -->
       <v-col cols="12" md="6" class="d-flex justify-md-end align-center gap-3">
         <v-select 
-        v-model="timeRange" :items="['Últimos 7 días', 'Último mes', 'Últimos 6 meses', 'Todo el año']"
+          v-model="timeRange" :items="['Últimos 7 días', 'Último mes', 'Últimos 6 meses', 'Todo el año']"
           label="Periodo" variant="outlined" density="compact" hide-details style="max-width: 200px;" class="mr-4"
           @update:model-value="loadDashboardData"
-          >
+        >
         </v-select>
 
-
-
-
-        <!-- Si la variable loading es verdadera, el botón muestra un círculo de carga automáticamente.-->
-        <v-btn prepend-icon="mdi-refresh" color="primary" variant="tonal" @click="loadDashboardData" :loading="loading">
+        <v-btn prepend-icon="mdi-refresh" color="indigo" variant="elevated" @click="loadDashboardData" :loading="loading">
           Actualizar 
         </v-btn>
-        </v-col>
+      </v-col>
     </div>
 
-    <!--Solo mostramos las tarjetas cuando los datos ya han llegado. IF/ELSE  Si está cargando, pasamos al bloque v-else donde está el <v-progress-circular>          kpicard Es un componente personalizado. Le pasamos datos mediante props-->
     <v-row v-if="!loading">
       <v-col cols="12" sm="6" md="3">
         <KpiCard title="Memoriales Activos" :value="stats.totalMemorials" icon="mdi-grave-stone" color="blue" />
@@ -58,7 +39,7 @@
       <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
     </v-row>
 
-   <v-row class="mt-4">
+    <v-row class="mt-4">
       <v-col cols="12" md="8">
         <v-card border flat class="rounded-xl pa-4">
           <v-card-title class="text-subtitle-1 font-weight-bold">Nuevos Memoriales (Histórico)</v-card-title>
@@ -78,10 +59,6 @@
         </v-card>
       </v-col>
 
-
-
-      <!-- DIFERENCIA CLAVE: Aquí existe una TERCERA GRÁFICA (líneas).
-           En el segundo código NO existe gráfica de líneas -->
       <v-col cols="12">
         <v-card border flat class="rounded-xl pa-4">
           <v-card-title class="text-subtitle-1 font-weight-bold">
@@ -98,7 +75,6 @@
     </v-row>
   </v-container>
 </template>
-  
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
@@ -135,7 +111,6 @@ const donutOptions = ref<ApexOptions>({
   legend: { position: 'bottom' }
 })
 
-
 // C Gráfica de Líneas 
 const lineSeries = ref([{ name: 'Interacciones', data: [] as number[] }])
 const lineOptions = ref<ApexOptions>({
@@ -147,8 +122,6 @@ const lineOptions = ref<ApexOptions>({
   markers: { size: 5 }
 })
 
-
-
 // --- (SIMULACIÓN DE API / MOCK DATA) ---
 //Uso una función asíncrona para simular la espera del servidor
 async function loadDashboardData() {
@@ -159,7 +132,6 @@ async function loadDashboardData() {
     await new Promise(resolve => setTimeout(resolve, 800))
 
     // Estos datos son estáticos (HARCODEADOS!)
-    
     const mockData = {
       totalDeceased: 156,
       pendingMemories: 14,
@@ -171,17 +143,14 @@ async function loadDashboardData() {
     }
 
     // ACTUALIZACIÓN DEL ESTADO --> (Vue detecta estos cambios y repinta la pantalla)
-stats.totalMemorials = mockData.totalDeceased
+    stats.totalMemorials = mockData.totalDeceased
     stats.pendingMemories = mockData.pendingMemories
     stats.guardianCount = mockData.totalGuardians
     stats.avgMemories = mockData.avgMemories
-    // PONGO LOS IFS PORQUE ME DABA ERROR D EPOSIBLE UNDEFINED con los tipos
-    if (barSeries.value[0]) {
-      barSeries.value[0].data = mockData.monthlyGrowth
-    }
-    if (lineSeries.value[0]) {
-      lineSeries.value[0].data = mockData.interactionTrend
-    }
+    
+    // Actualización de series con tipado correcto
+    barSeries.value = [{ name: 'Memoriales', data: mockData.monthlyGrowth }]
+    lineSeries.value = [{ name: 'Interacciones', data: mockData.interactionTrend }]
     donutSeries.value = mockData.contentDistribution
 
   } catch (error) {
@@ -196,9 +165,6 @@ onMounted(() => {
   loadDashboardData()
 })
 </script>
-
-
-
 
 <style scoped>
 .gap-3 { gap: 12px; }
