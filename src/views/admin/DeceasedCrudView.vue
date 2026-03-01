@@ -47,10 +47,11 @@
       <v-card :title="isEditing ? 'Editar Difunto' : 'Registrar Difunto'" class="pa-4">
         
         <VForm @submit="save" :validation-schema="schema" v-slot="{ errors }">
-          <v-card-text>
+          <v-card-text class="d-flex flex-column ga-4">
             
-            <Field name="name" v-model="form.name" v-slot="{ field }">
+            <Field name="name" v-slot="{ field, value }">
               <v-text-field 
+                v-model="form.name"
                 v-bind="field" 
                 label="Nombre Completo" 
                 variant="underlined"
@@ -58,8 +59,9 @@
               ></v-text-field>
             </Field>
 
-            <Field name="dni" v-model="form.dni" v-slot="{ field }">
+            <Field name="dni" v-slot="{ field, value }">
               <v-text-field 
+                v-model="form.dni"
                 v-bind="field" 
                 label="DNI" 
                 variant="underlined"
@@ -67,8 +69,9 @@
               ></v-text-field>
             </Field>
 
-            <Field name="deathDate" v-model="form.deathDate" v-slot="{ field }">
+            <Field name="deathDate" v-slot="{ field, value }">
               <v-text-field 
+                v-model="form.deathDate"
                 v-bind="field" 
                 label="Fecha de Defunción" 
                 type="date"
@@ -77,8 +80,9 @@
               ></v-text-field>
             </Field>
 
-            <Field name="birthDate" v-model="form.birthDate" v-slot="{ field }">
+            <Field name="birthDate" v-slot="{ field, value }">
               <v-text-field 
+                v-model="form.birthDate"
                 v-bind="field" 
                 label="Fecha de Nacimiento" 
                 type="date"
@@ -87,8 +91,9 @@
               ></v-text-field>
             </Field>
 
-            <Field name="guardianId" v-model="form.guardianId" v-slot="{ field }">
+            <Field name="guardianId" v-slot="{ field, value }">
               <v-select 
+                v-model="form.guardianId"
                 v-bind="field" 
                 :items="guardians" 
                 item-title="name" 
@@ -104,11 +109,11 @@
               </v-select>
             </Field>
 
-            <v-textarea v-model="form.biography" label="Biografía (Obligatoria)" variant="underlined" rows="2"></v-textarea>
+            <v-textarea v-model="form.biography" label="Biografía (Obligatoria)" variant="outlined" rows="2"></v-textarea>
             
-            <v-text-field v-model="form.photoURL" label="URL de la Foto" variant="underlined"></v-text-field>
+            <v-text-field v-model="form.photoURL" label="URL de la Foto" variant="outlined"></v-text-field>
             
-            <v-text-field v-model="form.epitaph" label="Epitafio (Opcional)" variant="underlined"></v-text-field>
+            <v-text-field v-model="form.epitaph" label="Epitafio (Opcional)" variant="outlined"></v-text-field>
           </v-card-text>
 
           <v-card-actions>
@@ -123,7 +128,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useMemorialStore } from '@/stores/memorialStore'
 import { useAuthStore } from '@/stores/authStore'
 import apiClient from '@/plugins/axios'
@@ -147,13 +152,26 @@ const guardians = ref<any[]>([])
 const isEditing = ref(false)
 const editId = ref<number | null>(null)
 
-// Esquema de validación 
-const schema = yup.object({
-  name: yup.string().required('El nombre es obligatorio').max(100, 'Máximo 100 caracteres'),
-  dni: yup.string().required('DNI requerido'),
-  deathDate: yup.string().required('La fecha de muerte es obligatoria'),
-  birthDate: yup.string().required('La fecha de nacimiento es obligatoria'),
-  guardianId: yup.number().required('Selecciona un responsable').typeError('Debes elegir un guardián')
+// Esquema de validación condicional
+const schema = computed(() => {
+  if (isEditing.value) {
+    // Al editar, campos opcionales
+    return yup.object({
+      name: yup.string().max(100, 'Máximo 100 caracteres'),
+      dni: yup.string(),
+      deathDate: yup.string(),
+      birthDate: yup.string(),
+      guardianId: yup.number().typeError('Debe ser un número válido')
+    })
+  }
+  // Al crear, campos requeridos
+  return yup.object({
+    name: yup.string().required('El nombre es obligatorio').max(100, 'Máximo 100 caracteres'),
+    dni: yup.string().required('DNI requerido'),
+    deathDate: yup.string().required('La fecha de muerte es obligatoria'),
+    birthDate: yup.string().required('La fecha de nacimiento es obligatoria'),
+    guardianId: yup.number().required('Selecciona un responsable').typeError('Debes elegir un guardián')
+  })
 })
 
 const headers = [
