@@ -217,7 +217,7 @@ const form = reactive<any>({
   photoURL: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
   epitaph: '',
   // Extraemos IDs del token
-  funeralHomeId: auth.user?.funeralHomeId || 1, // Fallback a 1 para evitar error de FK si crea un Admin Global
+  funeralHomeId: auth.user?.funeralHomeId || 1, // Fallback a  para evitar error de FK si crea un Admin Global
   staffId: auth.user?.id || 0, // El StaffId es el ID del usuario logueado
   guardianId: 0
 })
