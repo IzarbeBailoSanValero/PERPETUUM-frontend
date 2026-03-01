@@ -109,11 +109,36 @@
               </v-select>
             </Field>
 
-            <v-textarea v-model="form.biography" label="Biografía (Obligatoria)" variant="outlined" rows="2"></v-textarea>
-            
-            <v-text-field v-model="form.photoURL" label="URL de la Foto" variant="outlined"></v-text-field>
-            
-            <v-text-field v-model="form.epitaph" label="Epitafio" variant="outlined" :error-messages="errors.epitaph"></v-text-field>
+            <Field name="biography" v-slot="{ field, value }">
+              <v-textarea
+                v-model="form.biography"
+                v-bind="field"
+                label="Biografía (Obligatoria)"
+                variant="outlined"
+                rows="2"
+                :error-messages="errors.biography"
+              ></v-textarea>
+            </Field>
+
+            <Field name="photoURL" v-slot="{ field, value }">
+              <v-text-field
+                v-model="form.photoURL"
+                v-bind="field"
+                label="URL de la Foto"
+                variant="outlined"
+                :error-messages="errors.photoURL"
+              ></v-text-field>
+            </Field>
+
+            <Field name="epitaph" v-slot="{ field, value }">
+              <v-text-field
+                v-model="form.epitaph"
+                v-bind="field"
+                label="Epitafio"
+                variant="outlined"
+                :error-messages="errors.epitaph"
+              ></v-text-field>
+            </Field>
           </v-card-text>
 
           <v-card-actions>
@@ -175,6 +200,8 @@ const schema = computed(() => {
           return new Date(value) < new Date(deathDate)
         }),
       guardianId: yup.number().typeError('Debe ser un número válido'),
+      biography: yup.string().max(1000, 'Máximo 1000 caracteres'),
+      photoURL: yup.string().url('Formato de URL inválido'),
       epitaph: yup.string().max(255, 'Máximo 255 caracteres')
     })
   }
@@ -197,6 +224,8 @@ const schema = computed(() => {
         return new Date(value) < new Date(deathDate)
       }),
     guardianId: yup.number().required('Selecciona un responsable').typeError('Debes elegir un guardián'),
+    biography: yup.string().required('La biografía es obligatoria').max(1000, 'Máximo 1000 caracteres'),
+    photoURL: yup.string().required('La URL es obligatoria').url('Formato de URL inválido'),
     epitaph: yup.string().required('El epitafio es obligatorio').max(255, 'Máximo 255 caracteres')
   })
 })
