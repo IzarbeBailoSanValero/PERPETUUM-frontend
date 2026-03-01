@@ -56,23 +56,13 @@ function decodeUserData(token: string): User | null {
   try {
     const decoded: any = jwtDecode(token);
 
-
-
-
-
-
-
-
-    // IMPORTANTE: mapeo los claims del token JWT (que vienen con nombres largos y específicos de .NET) al nombre de delante:
+    // IMPORTANTE: mapeo los claims del token JWT
     return {
-     
-      id: parseInt(decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']),
-      name: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'],
-      email: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'],
-      role: decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'],
-      
-      // FuneralHomeId: claim personalizado definido en GenerateToken
-      funeralHomeId: decoded.FuneralHomeId ? parseInt(decoded.FuneralHomeId) : null      // parseInt porque en el token viaja como string
+      id: parseInt(decoded.nameid || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']),
+      name: decoded.unique_name || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'],
+      email: decoded.email || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'],
+      role: decoded.role || decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'],
+      funeralHomeId: decoded.FuneralHomeId ? parseInt(decoded.FuneralHomeId) : null
     };
   } catch (error) {
     console.error("Error crítico decodificando el token JWT:", error);

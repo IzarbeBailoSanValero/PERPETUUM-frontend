@@ -109,10 +109,12 @@ async function handleRegister() {
     auth.setToken(response.data.token)
 
     // Redirigir según el rol del usuario
-    if (auth.userRole === 'Admin' || auth.userRole === 'Staff') {
-      router.push('/admin/dashboard')
+    const role = auth.user?.role
+    
+    if (role === 'Admin' || role === 'Staff') {
+      await router.push('/admin/dashboard')
     } else {
-      router.push('/')
+      await router.push('/')
     }
 
   } catch (error: any) {
