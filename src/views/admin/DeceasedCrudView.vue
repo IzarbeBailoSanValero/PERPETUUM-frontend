@@ -72,7 +72,7 @@
                 v-bind="field" 
                 label="Fecha de Defunción" 
                 type="date"
-                variant="underlined"
+                variant="outlined"
                 :error-messages="errors.deathDate"
               ></v-text-field>
             </Field>
@@ -82,7 +82,7 @@
                 v-bind="field" 
                 label="Fecha de Nacimiento" 
                 type="date"
-                variant="underlined"
+                variant="outlined"
                 :error-messages="errors.birthDate"
               ></v-text-field>
             </Field>
@@ -97,7 +97,11 @@
                 variant="underlined"
                 :loading="loadingGuardians"
                 :error-messages="errors.guardianId"
-              ></v-select>
+              >
+                <template v-slot:item="{ props, item }">
+                  <v-list-item v-bind="props" :title="item.raw.name" :subtitle="item.raw.email"></v-list-item>
+                </template>
+              </v-select>
             </Field>
 
             <v-textarea v-model="form.biography" label="Biografía (Obligatoria)" variant="underlined" rows="2"></v-textarea>
