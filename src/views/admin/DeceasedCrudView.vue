@@ -159,8 +159,21 @@ const schema = computed(() => {
     return yup.object({
       name: yup.string().max(100, 'Máximo 100 caracteres'),
       dni: yup.string(),
-      deathDate: yup.string(),
-      birthDate: yup.string(),
+      deathDate: yup.string()
+        .test('no-future', 'La fecha no puede ser futura', value => {
+          if (!value) return true
+          return new Date(value) <= new Date()
+        }),
+      birthDate: yup.string()
+        .test('no-future', 'La fecha no puede ser futura', value => {
+          if (!value) return true
+          return new Date(value) <= new Date()
+        })
+        .test('before-death', 'Debe ser anterior a la fecha de muerte', function(value) {
+          const { deathDate } = this.parent
+          if (!value || !deathDate) return true
+          return new Date(value) < new Date(deathDate)
+        }),
       guardianId: yup.number().typeError('Debe ser un número válido')
     })
   }
@@ -168,8 +181,20 @@ const schema = computed(() => {
   return yup.object({
     name: yup.string().required('El nombre es obligatorio').max(100, 'Máximo 100 caracteres'),
     dni: yup.string().required('DNI requerido'),
-    deathDate: yup.string().required('La fecha de muerte es obligatoria'),
-    birthDate: yup.string().required('La fecha de nacimiento es obligatoria'),
+    deathDate: yup.string()
+      .required('La fecha de muerte es obligatoria')
+      .test('no-future', 'La fecha no puede ser futura', value => {
+        return new Date(value) <= new Date()
+      }),
+    birthDate: yup.string()
+      .required('La fecha de nacimiento es obligatoria')
+      .test('no-future', 'La fecha no puede ser futura', value => {
+        return new Date(value) <= new Date()
+      })
+      .test('before-death', 'Debe ser anterior a la fecha de muerte', function(value) {
+        const { deathDate } = this.parent
+        return new Date(value) < new Date(deathDate)
+      }),
     guardianId: yup.number().required('Selecciona un responsable').typeError('Debes elegir un guardián')
   })
 })
