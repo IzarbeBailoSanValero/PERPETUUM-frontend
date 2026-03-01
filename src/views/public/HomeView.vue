@@ -41,7 +41,9 @@
         <v-col cols="12" md="3">
           <v-select
             v-model="searchParams.SortBy"
-            :items="t.sortOptions"
+            :items="sortOptions"
+            item-title="title"
+            item-value="value"
             :label="t.labelSort"
             variant="underlined"
             hide-details
@@ -126,7 +128,6 @@ const t = computed(() => {
       labelName: 'Search by name...',
       labelYear: 'Death year',
       labelSort: 'Sort by',
-      sortOptions: ['Recent', 'Oldest', 'A-Z'],
       btnSearch: 'Search',
       noResults: 'No results found for your search.'
     }
@@ -137,10 +138,24 @@ const t = computed(() => {
     labelName: 'Buscar por nombre...',
     labelYear: 'Año de defunción',
     labelSort: 'Ordenar por',
-    sortOptions: ['Recientes', 'Antiguos', 'A-Z'],
     btnSearch: 'Buscar',
     noResults: 'No se han encontrado resultados para tu búsqueda.'
   }
+})
+
+const sortOptions = computed(() => {
+  if (ui.language === 'en') {
+    return [
+      { title: 'Recent', value: 'DeathDate|DESC' },
+      { title: 'Oldest', value: 'DeathDate|ASC' },
+      { title: 'A-Z', value: 'Name|ASC' }
+    ]
+  }
+  return [
+    { title: 'Recientes', value: 'DeathDate|DESC' },
+    { title: 'Antiguos', value: 'DeathDate|ASC' },
+    { title: 'A-Z', value: 'Name|ASC' }
+  ]
 })
 
 /*voy a crear el objeto searchParams y enviarlo al backend */
@@ -149,14 +164,24 @@ const t = computed(() => {
 const searchParams = reactive({
   Name: '',
   DeathYear: null,
-  SortBy: 'Recientes',
+  SortBy: 'DeathDate|DESC',
+  SortOrder: 'DESC',
   Page: 1,      // Empieza en la página 1
   PageSize: 9   // Requisito: Cuántos elementos por página queremos
 })
 
 // 2. recoge los datos y los manda al Store
 function executeSearch() {
-  store.fetchAdvancedSearch(searchParams)
+  const selectedSort = searchParams.SortBy as string
+  const [sortBy, sortOrder] = selectedSort.includes('|') 
+    ? selectedSort.split('|') 
+    : [selectedSort, 'ASC']
+  
+  store.fetchAdvancedSearch({
+    ...searchParams,
+    SortBy: sortBy,
+    SortOrder: sortOrder
+  })
 }
 
 const formatDate = (date: string) => new Date(date).getFullYear()
