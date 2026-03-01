@@ -104,17 +104,18 @@ async function handleRegister() {
   errorMessage.value = ''
   
   try {
-    // datos al backend
     const response = await apiClient.post('/Auth/Register', form)
     
-    //  backend devuelve el token. guardo en Pinia.
     auth.setToken(response.data.token)
 
-    //redirijo a pagina principal porque si se registra es que es usuario normal
-    router.push('/')
+    // Redirigir según el rol del usuario
+    if (auth.userRole === 'Admin' || auth.userRole === 'Staff') {
+      router.push('/admin/dashboard')
+    } else {
+      router.push('/')
+    }
 
   } catch (error: any) {
-    // si email ya existe
     if (error.response?.status === 400 && error.response?.data?.message) {
       errorMessage.value = error.response.data.message;
     } else {
