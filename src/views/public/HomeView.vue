@@ -72,7 +72,18 @@
             class="rounded-xl transition-swing"
             :to="'/memorial/' + item.id"
           >
-            <v-img :src="item.photoURL" height="200" cover />
+            <v-img :src="item.photoURL" height="200" cover>
+              <template v-slot:placeholder>
+                <div class="w-100 h-100 d-flex align-center justify-center bg-grey-lighten-3">
+                  <v-icon size="60" color="grey-lighten-1">mdi-image-off</v-icon>
+                </div>
+              </template>
+              <template v-slot:error>
+                <div class="w-100 h-100 d-flex align-center justify-center bg-grey-lighten-3">
+                  <v-icon size="60" color="grey-lighten-1">mdi-image-off</v-icon>
+                </div>
+              </template>
+            </v-img>
             <v-card-title>{{ item.name }}</v-card-title>
             <v-card-subtitle>{{ formatDate(item.deathDate) }}</v-card-subtitle>
           </v-card>

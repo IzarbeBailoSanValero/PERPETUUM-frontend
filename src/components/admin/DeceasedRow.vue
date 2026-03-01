@@ -6,6 +6,9 @@
         <template v-slot:placeholder>
           <v-icon>mdi-account</v-icon>
         </template>
+        <template v-slot:error>
+          <v-icon>mdi-image-off</v-icon>
+        </template>
       </v-img>
     </v-avatar>
     

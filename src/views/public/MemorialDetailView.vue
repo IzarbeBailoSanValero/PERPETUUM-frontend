@@ -4,8 +4,19 @@
     
     <v-row justify="center" class="mb-10 text-center">
       <v-col cols="12" md="8">
-        <v-avatar size="150" class="mb-4 border-lg">
-          <v-img :src="store.currentDeceased.photoURL"></v-img>
+        <v-avatar size="150" class="mb-4 border-lg" color="grey-lighten-2">
+          <v-img :src="store.currentDeceased.photoURL">
+            <template v-slot:placeholder>
+              <div class="w-100 h-100 d-flex align-center justify-center">
+                <v-icon size="80" color="grey-lighten-1">mdi-image-off</v-icon>
+              </div>
+            </template>
+            <template v-slot:error>
+              <div class="w-100 h-100 d-flex align-center justify-center">
+                <v-icon size="80" color="grey-lighten-1">mdi-image-off</v-icon>
+              </div>
+            </template>
+          </v-img>
         </v-avatar>
         <h1 class="text-h3 font-serif mb-2">{{ store.currentDeceased.name }}</h1>
         <p class="text-h6 opacity-60 italic">"{{ store.currentDeceased.epitaph }}"</p>
