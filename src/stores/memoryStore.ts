@@ -1,1 +1,44 @@
 // Obtiene recuerdos pendientes, aprueba/rechaza y crea recuerdos.
+
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
+import apiClient from '@/plugins/axios'
+
+export interface Memory {
+  id: number
+  deceasedName: string
+  textContent: string | null
+  mediaURL: string | null
+  type: string
+  createdDate: string
+  status: number
+}
+
+export const useMemoryStore = defineStore('memory', () => {
+  const memories = ref<Memory[]>([])
+  const loading = ref(false)
+
+  async function fetchPendingMemories() {
+    loading.value = true
+    try {
+      const response = await apiClient.get('/Memory/pending')
+      memories.value = response.data
+    } catch (error) {
+      console.error('Error al cargar recuerdos pendientes:', error)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function updateMemoryStatus(id: number, status: number) {
+    await apiClient.put(`/Memory/${id}/status`, { status })
+    await fetchPendingMemories()
+  }
+
+  return {
+    memories,
+    loading,
+    fetchPendingMemories,
+    updateMemoryStatus
+  }
+})

@@ -41,7 +41,7 @@
             </tbody>
           </v-table>
           
-          <v-alert v-if="memories.length === 0 && !loading" type="info" variant="tonal" class="ma-4">
+          <v-alert v-if="store.memories.length === 0 && !store.loading" type="info" variant="tonal" class="ma-4">
             No hay recuerdos pendientes de moderar.
           </v-alert>
         </v-card>
@@ -59,51 +59,33 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import apiClient from '@/plugins/axios' // Nuestra conexión con el backend
-import { useUiStore } from '@/stores/uiStore' // Para mostrar avisos SweetAlert
-import MemoryRow from '@/components/admin/MemoryRow.vue' // Importamos el molde de la fila
+import { useMemoryStore } from '@/stores/memoryStore'
+import { useUiStore } from '@/stores/uiStore'
+import MemoryRow from '@/components/admin/MemoryRow.vue'
 
 const ui = useUiStore()
-const memories = ref<any[]>([]) // Aquí guardaremos la lista que venga del back
-const loading = ref(false)      // Para saber si estamos esperando al servidor
-const search = ref('')          // El texto que el usuario escribe para filtrar
+const store = useMemoryStore()
+const search = ref('')
 
-// COMPUTED: Una variable que se recalcula sola cuando cambia 'search' o 'memories'
-// Sirve para filtrar la lista sin perder los datos originales
 const filteredMemories = computed(() => {
-  return memories.value.filter(m => 
+  return store.memories.filter(m => 
     m.deceasedName?.toLowerCase().includes(search.value.toLowerCase()) ||
     m.textContent?.toLowerCase().includes(search.value.toLowerCase())
   )
 })
 
-//  pide al servidor los recuerdos que tienen estado pendiente
-async function fetchMemories() {
-  loading.value = true
-  try {
-    const response = await apiClient.get('/Memory/pending') 
-    memories.value = response.data
-  } catch (error) {
-    console.error("Error cargando recuerdos del servidor")
-  } finally {
-    loading.value = false
-  }
-}
-
-// // Aprobar o Rechazar  un recuerdo Llama al PUT de la API.
 async function updateStatus(id: number, status: number) {
   try {
-    await apiClient.put(`/Memory/${id}/status`, { status })
-
+    await store.updateMemoryStatus(id, status)
     ui.notify(status === 1 ? "Aprobado correctamente" : "Recuerdo rechazado", "success")
-    await fetchMemories()   // Recargamos la lista para que el que acabamos de moderar desaparezca
   } catch (error) {
     ui.notify("Error al procesar la solicitud", "error")
   }
 }
 
-// Se ejecuta automáticamente al abrir esta pantalla
-onMounted(fetchMemories)
+onMounted(() => {
+  store.fetchPendingMemories()
+})
 </script>
 
 
