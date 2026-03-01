@@ -30,8 +30,8 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/admin',
     component: () => import('@/layouts/AdminLayout.vue'),
-    // REQUISITO EXTRA: Añadimos 'role' para que solo los Admin/Staff entren aquí
-    meta: { requiresAuth: true, role: 'Admin' }, //  exige estar logueado
+    // Admin y Staff pueden acceder
+    meta: { requiresAuth: true, roles: ['Admin', 'Staff'] },
     children: [
       { path: 'dashboard', name: 'AdminDashboard', component: () => import('@/views/admin/DashboardView.vue') }, 
       { path: 'deceased', name: 'AdminDeceased', component: () => import('@/views/admin/DeceasedCrudView.vue') },    //crud 1 entidad
@@ -60,8 +60,8 @@ router.beforeEach((to, from, next) => {
 
   // Verificamos si  ruta de destino o  sus padres tiene meta: requiresAuth
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
-  // Verificamos si la ruta pide un rol específico
-  const requiredRole = to.meta.role
+  // Verificamos si la ruta pide roles específicos
+  const allowedRoles = to.matched.find(record => record.meta.roles)?.meta.roles as string[] | undefined
 
   if (requiresAuth && !authStore.isLoggedIn) {
     // Si la ruta es privada y no hay token: al Login
@@ -76,10 +76,13 @@ router.beforeEach((to, from, next) => {
       next({ name: 'Home' })
     }
   }
-  // REQUISITO EXTRA: Control de seguridad por Roles
-  else if (requiredRole && authStore.user?.role !== requiredRole && authStore.user?.role !== 'Staff') {
-    // Si el rol del usuario no coincide con el necesario (y no es Staff), bloqueamos
-    next({ name: 'Unauthorized' })
+  // Control de seguridad por Roles
+  else if (allowedRoles && authStore.user?.role) {
+    if (!allowedRoles.includes(authStore.user.role)) {
+      next({ name: 'Unauthorized' })
+    } else {
+      next()
+    }
   }
   else {
     next()//  puede pasar -> sigue hacia to.path

@@ -21,7 +21,10 @@
 
         <div class="d-flex justify-space-between align-center mb-6">
           <h2 class="text-h4">Muro de Recuerdos</h2>
-          <v-btn color="primary" prepend-icon="mdi-heart">Dejar recuerdo</v-btn>
+          <AddMemoryModal 
+            :deceasedId="store.currentDeceased.id" 
+            @success="store.fetchDeceasedById(store.currentDeceased.id)" 
+          />
         </div>
 
         <div v-if="store.currentDeceased.memories && store.currentDeceased.memories.length > 0">
@@ -42,14 +45,6 @@
   <v-container v-else-if="store.loading" class="fill-height justify-center align-center">
     <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
   </v-container>
-
-<AddMemoryModal 
-  v-if="store.currentDeceased"
-  :deceasedId="store.currentDeceased.id" 
-  @success="store.fetchDeceasedById(store.currentDeceased.id)" 
-/>
-
-  
 </template>
 
 <script setup lang="ts">
@@ -57,6 +52,7 @@ import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useMemorialStore } from '@/stores/memorialStore'
 import MemoryCard from '@/components/public/MemoryCard.vue'
+import AddMemoryModal from '@/components/public/AddMemoryModal.vue'
 
 const store = useMemorialStore()
 const route = useRoute() // Para acceder a los parámetros de la URL (:id)
@@ -66,18 +62,4 @@ onMounted(() => {
   const deceasedId = Number(route.params.id)
   store.fetchDeceasedById(deceasedId)
 })
-
-
-
-
-
-
-import { watch } from 'vue'
-
-// Vigilamos si el store recibe datos para confirmar que la API funciona
-watch(() => store.currentDeceased, (newVal) => {
-  if (newVal) {
-    console.log("¡Éxito! Datos recibidos de la API:", newVal)
-  }
-}, { deep: true })
 </script>
