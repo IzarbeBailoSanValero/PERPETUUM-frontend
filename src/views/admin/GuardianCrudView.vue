@@ -9,7 +9,7 @@
     </div>
 
     <v-card variant="outlined" class="rounded-xl">
-      <v-data-table :headers="headers" :items="guardians" :loading="loading">
+      <v-data-table :headers="headers" :items="store.guardians" :loading="store.loading">
         
         <template v-slot:item.name="{ item }">
           <GuardianRow :item="item" />
@@ -64,9 +64,10 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed} from 'vue'
-import apiClient from '@/plugins/axios' // inyecta el token JWT 
+import apiClient from '@/plugins/axios'
 import Swal from 'sweetalert2' 
-import { useAuthStore } from '@/stores/authStore' // extraer ID de usuario actual
+import { useAuthStore } from '@/stores/authStore'
+import { useGuardianStore } from '@/stores/guardianStore'
 import GuardianRow from '@/components/admin/GuardianRow.vue' 
 
 import { Form as VForm, Field } from 'vee-validate'
@@ -82,12 +83,10 @@ interface Guardian {
   phoneNumber: string;
   funeralHomeId: number | null;
 }
-//REACTIVO
-const auth = useAuthStore() // datos del usuario logueado
-const dialog = ref(false) // visibilidad del modal
-const loading = ref(false) // spinner tabla
-const saving = ref(false) // spinner  botón de guardar
-const guardians = ref<Guardian[]>([]) //  datos para enviar al backend
+const auth = useAuthStore()
+const store = useGuardianStore()
+const dialog = ref(false)
+const saving = ref(false)
 
 // Controladores de modo Edición
 const isEditing = ref(false) // false ->Crear true -> Editar
@@ -138,16 +137,6 @@ const schema = computed(() => {
 
 // CRUD
 
-
-// GET: lista de guardianes 
-async function fetchGuardians() {
-  loading.value = true
-  try {
-    const response = await apiClient.get('/MemorialGuardian')
-    guardians.value = response.data
-  } finally { loading.value = false }
-}
-
 // preparo crear: Limpia  formulario y abre modal
 function openCreateModal() {
   isEditing.value = false
@@ -177,10 +166,10 @@ async function save(values: any, { resetForm }: any) {
     if (isEditing.value && editId.value) {
       // MODO EDICIÓN PUT - Enviar solo campos con valor
       const updateData: any = { id: editId.value }
-      if (form.name) updateData.name = form.name
-      if (form.dni) updateData.dni = form.dni
-      if (form.email) updateData.email = form.email
-      if (form.phoneNumber) updateData.phoneNumber = form.phoneNumber
+      if (form.name && form.name.trim()) updateData.name = form.name
+      if (form.dni && form.dni.trim()) updateData.dni = form.dni
+      if (form.email && form.email.trim()) updateData.email = form.email
+      if (form.phoneNumber && form.phoneNumber.trim()) updateData.phoneNumber = form.phoneNumber
       
       await apiClient.put(`/MemorialGuardian/${editId.value}`, updateData)
       Swal.fire({ title: '¡Actualizado!', icon: 'success', timer: 1500, showConfirmButton: false })
@@ -192,7 +181,7 @@ async function save(values: any, { resetForm }: any) {
     
     // cerramos modal y recargamos la lista
     dialog.value = false
-    fetchGuardians()
+    store.fetchAllGuardians()
   } catch (error: any) {
     console.error('Error al guardar:', error.response?.data || error)
     const errorMsg = error.response?.data?.message || error.response?.data || 'Revisa los datos, puede que el Email o DNI ya existan.'
@@ -214,7 +203,7 @@ async function confirmDelete(id: number) {
   if (result.isConfirmed) {
     try {
       await apiClient.delete(`/MemorialGuardian/${id}`)
-      fetchGuardians() // Recargamos para ver el borrado
+      store.fetchAllGuardians()
       Swal.fire('Eliminado', '', 'success')
     } catch (e) {
       Swal.fire('Error', 'No se puede eliminar porque tiene difuntos a su cargo', 'error')
@@ -225,8 +214,7 @@ async function confirmDelete(id: number) {
 
 
 //AL CREAR COMPONENTE
-// Al montar el componente en la pantalla, pedimos los datos inmediatamente
 onMounted(() => {
-  fetchGuardians()
+  store.fetchAllGuardians()
 })
 </script>
