@@ -15,7 +15,7 @@ import router from '@/router'
 
 const apiClient = axios.create({
   // Ojo: revisar que el puerto coincida con el de la API (launchSettings.json)
-  baseURL: 'http://localhost:5023/api', 
+  baseURL: 'http://localhost:8080/api', 
   headers: {
     'Content-Type': 'application/json'
   }
