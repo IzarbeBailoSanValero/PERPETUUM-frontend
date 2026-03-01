@@ -2,19 +2,25 @@
 <template>
   <div class="d-flex align-center py-2">
     <v-avatar size="45" color="grey-lighten-2" class="mr-4">
-      <v-img :src="item.photoURL">
-        <template v-slot:placeholder>
-          <v-icon>mdi-account</v-icon>
-        </template>
-        <template v-slot:error>
-          <v-icon>mdi-image-off</v-icon>
-        </template>
-      </v-img>
-    </v-avatar>
+
+  <v-img
+    v-if="item.photoURL && item.photoURL.trim() !== ''"
+    :src="item.photoURL"
+    cover
+  />
+
+  <v-icon
+  v-else
+  icon="mdi-cemetery"
+  size="28"
+/>
+
+</v-avatar>
     
     <div>
-      <div class="text-subtitle-1 font-weight-bold">{{ item.name }}</div>
-      <div class="text-caption text-grey">DNI: {{ item.dni || 'N/A' }}</div> <!--si dni no disponible-->
+      <div class="text-subtitle-1 font-weight-bold">
+        {{ item.name }}
+      </div>
     </div>
   </div>
 </template>
