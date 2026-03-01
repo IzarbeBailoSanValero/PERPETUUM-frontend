@@ -104,6 +104,7 @@ async function updateStatus(id: number, status: number) {
 
 // Se ejecuta automáticamente al abrir esta pantalla
 onMounted(fetchMemories)
+</script>
 
 
 
