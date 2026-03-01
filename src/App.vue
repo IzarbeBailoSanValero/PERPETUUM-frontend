@@ -21,6 +21,7 @@ const theme = useTheme()
 const ui = useUiStore()
 
 onBeforeMount(() => {
-  theme.global.name.value = ui.isDark ? 'dark' : 'light'
+  const themeName = ui.isDark ? 'dark' : 'light'
+  theme.global.name.value = themeName
 })
 </script>
