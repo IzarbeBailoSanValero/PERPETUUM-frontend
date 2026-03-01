@@ -9,7 +9,7 @@ interface DeceasedBase {
   photoURL: string;
   birthDate: string;
   deathDate: string;
-  epitaph?: string;
+  epitaph: string;
 }
 
 //DeceasedCreateDTO

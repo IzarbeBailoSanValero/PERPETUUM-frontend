@@ -113,7 +113,7 @@
             
             <v-text-field v-model="form.photoURL" label="URL de la Foto" variant="outlined"></v-text-field>
             
-            <v-text-field v-model="form.epitaph" label="Epitafio (Opcional)" variant="outlined"></v-text-field>
+            <v-text-field v-model="form.epitaph" label="Epitafio" variant="outlined" :error-messages="errors.epitaph"></v-text-field>
           </v-card-text>
 
           <v-card-actions>
@@ -155,7 +155,7 @@ const editId = ref<number | null>(null)
 // Esquema de validación condicional
 const schema = computed(() => {
   if (isEditing.value) {
-    // Al editar, campos opcionales
+    // Al editar, campos opcionales (solo validamos formato si se proporciona)
     return yup.object({
       name: yup.string().max(100, 'Máximo 100 caracteres'),
       dni: yup.string(),
@@ -174,7 +174,8 @@ const schema = computed(() => {
           if (!value || !deathDate) return true
           return new Date(value) < new Date(deathDate)
         }),
-      guardianId: yup.number().typeError('Debe ser un número válido')
+      guardianId: yup.number().typeError('Debe ser un número válido'),
+      epitaph: yup.string().max(255, 'Máximo 255 caracteres')
     })
   }
   // Al crear, campos requeridos
@@ -195,7 +196,8 @@ const schema = computed(() => {
         const { deathDate } = this.parent
         return new Date(value) < new Date(deathDate)
       }),
-    guardianId: yup.number().required('Selecciona un responsable').typeError('Debes elegir un guardián')
+    guardianId: yup.number().required('Selecciona un responsable').typeError('Debes elegir un guardián'),
+    epitaph: yup.string().required('El epitafio es obligatorio').max(255, 'Máximo 255 caracteres')
   })
 })
 
