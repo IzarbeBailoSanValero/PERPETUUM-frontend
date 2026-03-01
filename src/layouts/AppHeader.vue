@@ -5,6 +5,7 @@
     <v-spacer />
 
     <v-btn 
+      v-if="route.path !== '/'"
       to="/" 
       exact 
       variant="text" 
@@ -15,7 +16,7 @@
     </v-btn>
     
     <v-btn 
-      v-if="!auth.isLoggedIn"
+      v-if="!auth.isLoggedIn && route.path !== '/login'"
       to="/login" 
       exact 
       variant="text" 
@@ -26,7 +27,7 @@
     </v-btn>
 
     <v-btn 
-      v-if="!auth.isLoggedIn"
+      v-if="!auth.isLoggedIn && route.path !== '/register'"
       to="/register" 
       exact 
       color="indigo" 
@@ -61,26 +62,20 @@
   </v-app-bar>
 </template>
 
-
-
-
-
-
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useUiStore } from '@/stores/uiStore'
-import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
+import { useRoute, useRouter } from 'vue-router'
 
 // gestión de IU
 import LangToggle from '@/components/ui/LangToggle.vue'
 import ThemeToggle from '@/components/ui/ThemeToggle.vue'
 
 const ui = useUiStore()
-
-
 const auth = useAuthStore()
 const router = useRouter()
+const route = useRoute() 
 
 // cerrar sesión y volver a la home
 function handleLogout() {
