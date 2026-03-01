@@ -64,16 +64,24 @@ export const useMemorialStore = defineStore('memorial', {
     async fetchAdvancedSearch(filters: any) {
       this.loading = true
       try {
-        //  tipo a <any> , recibimos  { items, totalPages }
         const response = await apiClient.get<any>('/Deceased/search', { params: filters })
-        
-        // Mapeamos objeto que creamos en el Controller de back --> guardamos lista de difuntos y numeros de paginas
         this.deceasedList = response.data.items;       
         this.totalPages = response.data.totalPages;    
-        
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error en búsqueda avanzada", error)
-        this.deceasedList = [] // Si falla, vacío la lista 
+        if (error.code === 'ERR_NETWORK' || error.code === 'ECONNREFUSED') {
+          console.log('Backend no disponible, reintentando en 2 segundos...')
+          await new Promise(resolve => setTimeout(resolve, 2000))
+          try {
+            const response = await apiClient.get<any>('/Deceased/search', { params: filters })
+            this.deceasedList = response.data.items
+            this.totalPages = response.data.totalPages
+            return
+          } catch (retryError) {
+            console.error('Reintento fallido', retryError)
+          }
+        }
+        this.deceasedList = []
         this.totalPages = 1
       } finally {
         this.loading = false
