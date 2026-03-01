@@ -22,6 +22,7 @@
             hide-details
             clearable
             @keyup.enter="executeSearch"
+            @click:clear="resetAndSearch"
           />
         </v-col>
   <!-- Año de defunción -->
@@ -35,6 +36,7 @@
             hide-details
             clearable
             @keyup.enter="executeSearch"
+            @click:clear="resetAndSearch"
           />
         </v-col>
  <!-- Ordenar  -->
@@ -47,6 +49,7 @@
             :label="t.labelSort"
             variant="underlined"
             hide-details
+            @update:modelValue="resetAndSearch"
           />
         </v-col>
      <!-- ejecutar -->
@@ -182,6 +185,12 @@ function executeSearch() {
     SortBy: sortBy,
     SortOrder: sortOrder
   })
+}
+
+// Resetea la página a 1 y ejecuta búsqueda
+function resetAndSearch() {
+  searchParams.Page = 1
+  executeSearch()
 }
 
 const formatDate = (date: string) => new Date(date).getFullYear()
