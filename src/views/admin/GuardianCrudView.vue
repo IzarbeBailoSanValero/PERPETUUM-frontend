@@ -29,24 +29,24 @@
         <VForm @submit="save" :validation-schema="schema" v-slot="{ errors }">
           <v-card-text>
             
-            <Field name="name" v-model="form.name" v-slot="{ field }">
-              <v-text-field v-bind="field" label="Nombre Completo" variant="underlined" :error-messages="errors.name" />
+            <Field name="name" v-slot="{ field, value }">
+              <v-text-field v-bind="field" v-model="form.name" label="Nombre Completo" variant="outlined" :error-messages="errors.name" class="mb-3" />
             </Field>
 
-            <Field name="dni" v-model="form.dni" v-slot="{ field }">
-              <v-text-field v-bind="field" label="DNI" variant="underlined" :error-messages="errors.dni" />
+            <Field name="dni" v-slot="{ field, value }">
+              <v-text-field v-bind="field" v-model="form.dni" label="DNI" variant="outlined" :error-messages="errors.dni" class="mb-3" />
             </Field>
 
-            <Field name="email" v-model="form.email" v-slot="{ field }">
-              <v-text-field v-bind="field" label="Correo Electrónico" variant="underlined" :error-messages="errors.email" />
+            <Field name="email" v-slot="{ field, value }">
+              <v-text-field v-bind="field" v-model="form.email" label="Correo Electrónico" variant="outlined" :error-messages="errors.email" class="mb-3" />
             </Field>
 
-            <Field name="phone" v-model="form.phoneNumber" v-slot="{ field }">
-              <v-text-field v-bind="field" label="Teléfono" variant="underlined" :error-messages="errors.phone" />
+            <Field name="phone" v-slot="{ field, value }">
+              <v-text-field v-bind="field" v-model="form.phoneNumber" label="Teléfono" variant="outlined" :error-messages="errors.phone" class="mb-3" />
             </Field>
 
-            <Field v-if="!isEditing" name="password" v-model="form.password" v-slot="{ field }">
-              <v-text-field v-bind="field" label="Contraseña" type="password" variant="underlined" :error-messages="errors.password" />
+            <Field v-if="!isEditing" name="password" v-slot="{ field, value }">
+              <v-text-field v-bind="field" v-model="form.password" label="Contraseña" type="password" variant="outlined" :error-messages="errors.password" class="mb-3" />
             </Field>
           </v-card-text>
 
@@ -113,16 +113,24 @@ const form = reactive<any>({
 })
 
 // VALIDACIÓN
-const schema = computed(() => {// Usamos 'computed' -> Si cambia isEditing, las reglas se actualizan solas.
+const schema = computed(() => {
+  if (isEditing.value) {
+    // Al editar, campos opcionales
+    return yup.object({
+      name: yup.string().min(3, 'Nombre demasiado corto'),
+      dni: yup.string(),
+      email: yup.string().email('Email inválido'),
+      phone: yup.string(),
+      password: yup.string().nullable()
+    })
+  }
+  // Al crear, campos requeridos
   return yup.object({
     name: yup.string().required('Nombre obligatorio').min(3, 'Nombre demasiado corto'),
     dni: yup.string().required('DNI obligatorio'),
     email: yup.string().email('Email inválido').required('Email obligatorio'),
     phone: yup.string().required('Teléfono obligatorio'),
-    
-    password: isEditing.value 
-      ? yup.string().nullable() //si esta editando dejamos que la contraseña sea nula o vacía
-      : yup.string().required('Contraseña obligatoria').min(6, 'Mínimo 6 caracteres') //sino requisitos
+    password: yup.string().required('Contraseña obligatoria').min(6, 'Mínimo 6 caracteres')
   })
 })
 
@@ -163,12 +171,18 @@ function openEditModal(item: any) {
 }
 
 // GUARDAR POST / PUT
-async function save() {
+async function save(values: any, { resetForm }: any) {
   saving.value = true
   try {
     if (isEditing.value && editId.value) {
-      // MODO EDICIÓN PUT  // Se envía el objeto form con el ID inyectado
-      await apiClient.put(`/MemorialGuardian/${editId.value}`, { ...form, id: editId.value })
+      // MODO EDICIÓN PUT - Enviar solo campos con valor
+      const updateData: any = { id: editId.value }
+      if (form.name) updateData.name = form.name
+      if (form.dni) updateData.dni = form.dni
+      if (form.email) updateData.email = form.email
+      if (form.phoneNumber) updateData.phoneNumber = form.phoneNumber
+      
+      await apiClient.put(`/MemorialGuardian/${editId.value}`, updateData)
       Swal.fire({ title: '¡Actualizado!', icon: 'success', timer: 1500, showConfirmButton: false })
     } else {
       // MODO CREACIÓN POST
@@ -179,8 +193,10 @@ async function save() {
     // cerramos modal y recargamos la lista
     dialog.value = false
     fetchGuardians()
-  } catch (error) {
-    Swal.fire('Error', 'Revisa los datos, puede que el Email o DNI ya existan.', 'error')
+  } catch (error: any) {
+    console.error('Error al guardar:', error.response?.data || error)
+    const errorMsg = error.response?.data?.message || error.response?.data || 'Revisa los datos, puede que el Email o DNI ya existan.'
+    Swal.fire('Error', errorMsg, 'error')
   } finally { saving.value = false }
 }
 
