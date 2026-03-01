@@ -1,4 +1,4 @@
-// Utilities (aún no implementado)
+// Utilities
 import { defineStore } from 'pinia'
 
 export const useAppStore = defineStore('app', {
