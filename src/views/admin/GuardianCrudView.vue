@@ -1,10 +1,9 @@
-
-    <!--  Listado y creación de Familiares/Guardianes -->
 <template>
   <v-container>
     <div class="d-flex justify-space-between align-center mb-5">
       <h2 class="text-h4 font-weight-bold">Gestión de Guardianes</h2>
-      <v-btn color="indigo" prepend-icon="mdi-plus" @click="dialog = true">
+      
+      <v-btn color="indigo" prepend-icon="mdi-plus" @click="openCreateModal">
         Nuevo Familiar
       </v-btn>
     </div>
@@ -17,25 +16,37 @@
         </template>
 
         <template v-slot:item.actions="{ item }">
+          <v-btn icon="mdi-pencil" variant="text" color="blue" @click="openEditModal(item)"></v-btn>
           <v-btn icon="mdi-delete" variant="text" color="error" @click="confirmDelete(item.id)"></v-btn>
         </template>
+
       </v-data-table>
     </v-card>
 
     <v-dialog v-model="dialog" max-width="500">
-      <v-card title="Registrar Guardián" class="pa-4 rounded-lg">
+      <v-card :title="isEditing ? 'Editar Guardián' : 'Registrar Guardián'" class="pa-4 rounded-lg">
+        
         <VForm @submit="save" :validation-schema="schema" v-slot="{ errors }">
           <v-card-text>
+            
             <Field name="name" v-model="form.name" v-slot="{ field }">
               <v-text-field v-bind="field" label="Nombre Completo" variant="underlined" :error-messages="errors.name" />
+            </Field>
+
+            <Field name="dni" v-model="form.dni" v-slot="{ field }">
+              <v-text-field v-bind="field" label="DNI" variant="underlined" :error-messages="errors.dni" />
             </Field>
 
             <Field name="email" v-model="form.email" v-slot="{ field }">
               <v-text-field v-bind="field" label="Correo Electrónico" variant="underlined" :error-messages="errors.email" />
             </Field>
 
-            <Field name="phone" v-model="form.phone" v-slot="{ field }">
+            <Field name="phone" v-model="form.phoneNumber" v-slot="{ field }">
               <v-text-field v-bind="field" label="Teléfono" variant="underlined" :error-messages="errors.phone" />
+            </Field>
+
+            <Field v-if="!isEditing" name="password" v-model="form.password" v-slot="{ field }">
+              <v-text-field v-bind="field" label="Contraseña" type="password" variant="underlined" :error-messages="errors.password" />
             </Field>
           </v-card-text>
 
@@ -45,59 +56,82 @@
             <v-btn color="indigo" type="submit" :loading="saving">Guardar</v-btn>
           </v-card-actions>
         </VForm>
+
       </v-card>
     </v-dialog>
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import apiClient from '@/plugins/axios'
-import Swal from 'sweetalert2'
-import { useAuthStore } from '@/stores/authStore'
-import GuardianRow from '@/components/admin/GuardianRow.vue'
+import { ref, reactive, onMounted, computed} from 'vue'
+import apiClient from '@/plugins/axios' // inyecta el token JWT 
+import Swal from 'sweetalert2' 
+import { useAuthStore } from '@/stores/authStore' // extraer ID de usuario actual
+import GuardianRow from '@/components/admin/GuardianRow.vue' 
+
 import { Form as VForm, Field } from 'vee-validate'
 import * as yup from 'yup'
 
 
-
-
-//creo interfaz para no usar any
+//  INTERFACES 
 interface Guardian {
   id: number;
   name: string;
+  dni: string;
   email: string;
-  phone: string;
+  phoneNumber: string;
   funeralHomeId: number | null;
 }
+//REACTIVO
+const auth = useAuthStore() // datos del usuario logueado
+const dialog = ref(false) // visibilidad del modal
+const loading = ref(false) // spinner tabla
+const saving = ref(false) // spinner  botón de guardar
+const guardians = ref<Guardian[]>([]) //  datos para enviar al backend
 
-const auth = useAuthStore()
-const dialog = ref(false)
-const loading = ref(false)
-const saving = ref(false)
-const guardians = ref<Guardian[]>([])
+// Controladores de modo Edición
+const isEditing = ref(false) // false ->Crear true -> Editar
+const editId = ref<number | null>(null) // id de elemento que estamos editando
 
-// Esquema de validación Yup
-const schema = yup.object({
-  name: yup.string().required('Nombre obligatorio').min(3, 'Nombre demasiado corto'),
-  email: yup.string().email('Email inválido').required('Email obligatorio'),
-  phone: yup.string().required('Teléfono obligatorio')
-})
 
+// CONFIGURACIÓN DE TABLA + FORMULARIO
 const headers = [
   { title: 'Familiar', key: 'name' },
-  { title: 'Teléfono', key: 'phone' },
-  // Fíjate aquí abajo: añadimos "as const"
+  { title: 'Teléfono', key: 'phoneNumber' },
   { title: 'Acciones', key: 'actions', align: 'end' as const, sortable: false }
 ]
 
-const form = reactive({
+// Objeto reactivo enlazado a los inputs x v-model
+const form = reactive<any>({
   name: '',
+  dni: '',
   email: '',
-  phone: '',
-  funeralHomeId: auth.user?.funeralHomeId || null
+  phoneNumber: '',
+  password: '',
+  funeralHomeId: auth.user?.funeralHomeId || 1,   //  familiar pertenece a la misma funeraria que el empleado que lo crea
+  staffId: auth.user?.id || 0
 })
 
+// VALIDACIÓN
+const schema = computed(() => {// Usamos 'computed' -> Si cambia isEditing, las reglas se actualizan solas.
+  return yup.object({
+    name: yup.string().required('Nombre obligatorio').min(3, 'Nombre demasiado corto'),
+    dni: yup.string().required('DNI obligatorio'),
+    email: yup.string().email('Email inválido').required('Email obligatorio'),
+    phone: yup.string().required('Teléfono obligatorio'),
+    
+    password: isEditing.value 
+      ? yup.string().nullable() //si esta editando dejamos que la contraseña sea nula o vacía
+      : yup.string().required('Contraseña obligatoria').min(6, 'Mínimo 6 caracteres') //sino requisitos
+  })
+})
+
+
+
+// CRUD
+
+
+// GET: lista de guardianes 
 async function fetchGuardians() {
   loading.value = true
   try {
@@ -106,19 +140,51 @@ async function fetchGuardians() {
   } finally { loading.value = false }
 }
 
+// preparo crear: Limpia  formulario y abre modal
+function openCreateModal() {
+  isEditing.value = false
+  editId.value = null
+  Object.assign(form, { name: '', dni: '', email: '', phoneNumber: '', password: '' })
+  dialog.value = true
+}
+
+// preparo editar: vuelca los datos de la fila seleccionada en el formulario
+function openEditModal(item: any) {
+  isEditing.value = true
+  editId.value = item.id
+  Object.assign(form, { 
+    name: item.name, 
+    dni: item.dni, 
+    email: item.email, 
+    phoneNumber: item.phoneNumber,
+    password: '' // por seguridad vacía
+  })
+  dialog.value = true
+}
+
+// GUARDAR POST / PUT
 async function save() {
   saving.value = true
   try {
-    await apiClient.post('/MemorialGuardian', form)
+    if (isEditing.value && editId.value) {
+      // MODO EDICIÓN PUT  // Se envía el objeto form con el ID inyectado
+      await apiClient.put(`/MemorialGuardian/${editId.value}`, { ...form, id: editId.value })
+      Swal.fire({ title: '¡Actualizado!', icon: 'success', timer: 1500, showConfirmButton: false })
+    } else {
+      // MODO CREACIÓN POST
+      await apiClient.post('/MemorialGuardian', form)
+      Swal.fire({ title: '¡Creado!', icon: 'success', timer: 1500, showConfirmButton: false })
+    }
+    
+    // cerramos modal y recargamos la lista
     dialog.value = false
     fetchGuardians()
-    Object.assign(form, { name: '', email: '', phone: '' })
-    Swal.fire({ title: '¡Listo!', icon: 'success', timer: 1500, showConfirmButton: false })
   } catch (error) {
-    Swal.fire('Error', 'No se pudo registrar al guardián', 'error')
+    Swal.fire('Error', 'Revisa los datos, puede que el Email o DNI ya existan.', 'error')
   } finally { saving.value = false }
 }
 
+// DELETE ->Alerta antes 
 async function confirmDelete(id: number) {
   const result = await Swal.fire({
     title: '¿Eliminar familiar?',
@@ -132,7 +198,7 @@ async function confirmDelete(id: number) {
   if (result.isConfirmed) {
     try {
       await apiClient.delete(`/MemorialGuardian/${id}`)
-      fetchGuardians()
+      fetchGuardians() // Recargamos para ver el borrado
       Swal.fire('Eliminado', '', 'success')
     } catch (e) {
       Swal.fire('Error', 'No se puede eliminar porque tiene difuntos a su cargo', 'error')
@@ -140,5 +206,11 @@ async function confirmDelete(id: number) {
   }
 }
 
-onMounted(fetchGuardians)
+
+
+//AL CREAR COMPONENTE
+// Al montar el componente en la pantalla, pedimos los datos inmediatamente
+onMounted(() => {
+  fetchGuardians()
+})
 </script>
