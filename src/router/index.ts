@@ -67,9 +67,14 @@ router.beforeEach((to, from, next) => {
     // Si la ruta es privada y no hay token: al Login
     next({ name: 'Login' })
   } 
-  else if (to.name === 'Login' && authStore.isLoggedIn) {
-    // Si ya está logueado y trata de ir al Login: al Dashboard
-    next({ name: 'AdminDashboard' })
+  else if ((to.name === 'Login' || to.name === 'Register') && authStore.isLoggedIn) {
+    // Si ya está logueado y trata de ir al Login/Register: redirigir según rol
+    const role = authStore.user?.role
+    if (role === 'Admin' || role === 'Staff') {
+      next({ name: 'AdminDashboard' })
+    } else {
+      next({ name: 'Home' })
+    }
   }
   // REQUISITO EXTRA: Control de seguridad por Roles
   else if (requiredRole && authStore.user?.role !== requiredRole && authStore.user?.role !== 'Staff') {
