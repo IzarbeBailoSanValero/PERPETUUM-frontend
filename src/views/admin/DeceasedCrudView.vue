@@ -1,107 +1,100 @@
-<!-- Listado y formulario de crud de Difuntos-->
-
-<!--
-      Carga: Al entrar, disparas dos peticiones en paralelo (onMounted).
-      Interacción: El usuario abre el modal, rellena datos y elige un único guardián de la lista.
-      Persistencia: Envías el objeto form (que ya contiene los IDs necesarios).
-      Sincronización: Al recibir el OK, limpias el formulario y disparas fetchAllDeceased() para que la tabla de fondo se actualice sin refrescar la página.
--->
-
-<!--apuntes varios: 
-- v-data-table: Es como un Excel inteligente. Solo le pasas headers (las columnas) e items (los datos del Store). Ella se encarga de pintar las filas.
-- v-model="dialog": Es un interruptor. Si es true, el modal aparece; si es false, desaparece.
-- Object.assign o limpieza manual: Al terminar de guardar, borramos el contenido de form.name, etc., para que si el usuario quiere crear otro difunto, el formulario esté limpio.
-- store.fetchAllDeceased(): Reactividad. En lugar de insertar la fila nueva a mano, le decimos al Store: "Oye, los datos han cambiado en la base de datos, ve a buscarlos de nuevo". Vue detecta el cambio y actualiza la pantalla solo.
--->
-
-
 <template>
   <v-container>
-    <div class="d-flex justify-space-between align-center mb-5">
-      <h2 class="text-h4">Listado de Difuntos</h2>
-      <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreateModal">
+    <div class="d-flex justify-space-between align-center mb-4">
+      <h2 class="text-h4 font-weight-bold">Listado de Difuntos</h2>
+      <v-btn color="indigo" prepend-icon="mdi-plus" @click="openCreateModal">
         Nuevo Difunto
       </v-btn>
     </div>
 
-    <v-card variant="outlined">
-      <v-data-table :headers="headers" :items="store.deceasedList" :loading="store.loading">
+    <v-card variant="outlined" class="rounded-xl">
+      <v-data-table :headers="headers" :items="store.deceasedList" :loading="store.loading" no-data-text="No hay difuntos cargados">
         
         <template v-slot:item.name="{ item }">
           <DeceasedRow :item="{ name: item.name, photoURL: item.photoURL }" />
         </template>
 
         <template v-slot:item.deathDate="{ value }">
-          <v-chip size="small" variant="outlined" color="primary">{{ value }}</v-chip>
+          <v-chip size="small" variant="outlined" color="indigo">{{ value }}</v-chip>
         </template>
 
         <template v-slot:item.actions="{ item }">
           <v-btn icon="mdi-pencil" variant="text" color="blue" @click="openEditModal(item)"></v-btn>
-          <v-btn icon="mdi-delete" variant="text" color="red" @click="deleteItem(item.id)"></v-btn>
+          <v-btn icon="mdi-delete" variant="text" color="error" @click="deleteItem(item.id)"></v-btn>
         </template>
 
       </v-data-table>
     </v-card>
 
     <v-dialog v-model="dialog" max-width="500">
-      <v-card :title="isEditing ? 'Editar Difunto' : 'Registrar Difunto'" class="pa-4">
+      <v-card :title="isEditing ? 'Editar Difunto' : 'Registrar Difunto'" class="pa-4 rounded-lg">
         
         <VForm @submit="save" :validation-schema="schema" v-slot="{ errors }">
-          <v-card-text class="d-flex flex-column ga-4">
+          <v-card-text>
             
-            <Field name="name" v-slot="{ field, value }">
+            <Field name="name" v-slot="{ field }">
               <v-text-field 
                 v-model="form.name"
                 v-bind="field" 
-                label="Nombre Completo" 
-                variant="underlined"
-                :error-messages="errors.name" 
+                label="Nombre Completo"
+                prepend-inner-icon="mdi-account"
+                variant="outlined"
+                :error-messages="errors.name"
+                class="mb-3"
               ></v-text-field>
             </Field>
 
-            <Field name="dni" v-slot="{ field, value }">
+            <Field name="dni" v-slot="{ field }">
               <v-text-field 
                 v-model="form.dni"
                 v-bind="field" 
-                label="DNI" 
-                variant="underlined"
+                label="DNI"
+                prepend-inner-icon="mdi-card-account-details"
+                variant="outlined"
                 :error-messages="errors.dni"
+                class="mb-3"
               ></v-text-field>
             </Field>
 
-            <Field name="deathDate" v-slot="{ field, value }">
+            <Field name="deathDate" v-slot="{ field }">
               <v-text-field 
                 v-model="form.deathDate"
                 v-bind="field" 
-                label="Fecha de Defunción" 
+                label="Fecha de Defunción"
+                prepend-inner-icon="mdi-calendar-check"
                 type="date"
                 variant="outlined"
                 :error-messages="errors.deathDate"
+                class="mb-3"
               ></v-text-field>
             </Field>
 
-            <Field name="birthDate" v-slot="{ field, value }">
+            <Field name="birthDate" v-slot="{ field }">
               <v-text-field 
                 v-model="form.birthDate"
                 v-bind="field" 
-                label="Fecha de Nacimiento" 
+                label="Fecha de Nacimiento"
+                prepend-inner-icon="mdi-calendar"
                 type="date"
                 variant="outlined"
                 :error-messages="errors.birthDate"
+                class="mb-3"
               ></v-text-field>
             </Field>
 
-            <Field name="guardianId" v-slot="{ field, value }">
+            <Field name="guardianId" v-slot="{ field }">
               <v-select 
                 v-model="form.guardianId"
                 v-bind="field" 
                 :items="guardians" 
                 item-title="name" 
                 item-value="id"
-                label="Familiar Responsable" 
-                variant="underlined"
+                label="Familiar Responsable"
+                prepend-inner-icon="mdi-account-multiple"
+                variant="outlined"
                 :loading="loadingGuardians"
                 :error-messages="errors.guardianId"
+                class="mb-3"
               >
                 <template v-slot:item="{ props, item }">
                   <v-list-item v-bind="props" :title="item.raw.name" :subtitle="item.raw.email"></v-list-item>
@@ -109,28 +102,31 @@
               </v-select>
             </Field>
 
-            <Field name="biography" v-slot="{ field, value }">
+            <Field name="biography" v-slot="{ field }">
               <v-textarea
                 v-model="form.biography"
                 v-bind="field"
                 label="Biografía (Obligatoria)"
+                prepend-inner-icon="mdi-file-document"
                 variant="outlined"
                 rows="2"
                 :error-messages="errors.biography"
+                class="mb-3"
               ></v-textarea>
             </Field>
 
-            <Field name="photoURL" v-slot="{ field, value }">
+            <Field name="photoURL" v-slot="{ field }">
               <v-text-field
                 v-model="form.photoURL"
                 v-bind="field"
                 label="URL de la Foto"
                 variant="outlined"
                 :error-messages="errors.photoURL"
+                class="mb-3"
               ></v-text-field>
             </Field>
 
-            <Field name="epitaph" v-slot="{ field, value }">
+            <Field name="epitaph" v-slot="{ field }">
               <v-text-field
                 v-model="form.epitaph"
                 v-bind="field"
@@ -144,7 +140,7 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn variant="text" @click="dialog = false">Cancelar</v-btn>
-            <v-btn color="primary" type="submit" :loading="saving">Guardar</v-btn>
+            <v-btn color="indigo" type="submit" :loading="saving">Guardar</v-btn>
           </v-card-actions>
         </VForm>
       </v-card>

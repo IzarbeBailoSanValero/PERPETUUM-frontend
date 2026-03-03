@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <div class="d-flex justify-space-between align-center mb-5">
+    <div class="d-flex justify-space-between align-center mb-4">
       <h2 class="text-h4 font-weight-bold">Gestión de Guardianes</h2>
       
       <v-btn color="indigo" prepend-icon="mdi-plus" @click="openCreateModal">
@@ -29,24 +29,24 @@
         <VForm @submit="save" :validation-schema="schema" v-slot="{ errors }">
           <v-card-text>
             
-            <Field name="name" v-slot="{ field, value }">
+            <Field name="name" v-slot="{ field }">
               <v-text-field v-bind="field" v-model="form.name" label="Nombre Completo" variant="outlined" :error-messages="errors.name" class="mb-3" />
             </Field>
 
-            <Field name="dni" v-slot="{ field, value }">
+            <Field name="dni" v-slot="{ field }">
               <v-text-field v-bind="field" v-model="form.dni" label="DNI" variant="outlined" :error-messages="errors.dni" class="mb-3" />
             </Field>
 
-            <Field name="email" v-slot="{ field, value }">
+            <Field name="email" v-slot="{ field }">
               <v-text-field v-bind="field" v-model="form.email" label="Correo Electrónico" variant="outlined" :error-messages="errors.email" class="mb-3" />
             </Field>
 
-            <Field name="phone" v-slot="{ field, value }">
+            <Field name="phone" v-slot="{ field }">
               <v-text-field v-bind="field" v-model="form.phoneNumber" label="Teléfono" variant="outlined" :error-messages="errors.phone" class="mb-3" />
             </Field>
 
-            <Field v-if="!isEditing" name="password" v-slot="{ field, value }">
-              <v-text-field v-bind="field" v-model="form.password" label="Contraseña" type="password" variant="outlined" :error-messages="errors.password" class="mb-3" />
+            <Field v-if="!isEditing" name="password" v-slot="{ field }">
+              <v-text-field v-bind="field" v-model="form.password" label="Contraseña" type="password" variant="outlined" :error-messages="errors.password" />
             </Field>
           </v-card-text>
 

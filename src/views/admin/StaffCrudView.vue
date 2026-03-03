@@ -1,5 +1,374 @@
 <template>
-  <div>
-    <!-- (Solo Admin) Gestión de empleados de la funeraria -->
-  </div>
+  <v-container>
+
+    <div class="d-flex justify-space-between align-center mb-4">
+      <h2 class="text-h4 font-weight-bold">Gestión de Empleados</h2>
+      <v-btn
+        v-if="auth.userRole === 'Admin'"
+        color="indigo"
+        prepend-icon="mdi-account-plus"
+        @click="openCreateModal"
+      >
+        Nuevo Empleado
+      </v-btn>
+    </div>
+
+    <v-card v-if="auth.userRole === 'Admin' && !auth.user?.funeralHomeId" variant="tonal" class="rounded-xl mb-4 pa-4">
+      <div class="d-flex align-center gap-3">
+        <v-text-field
+          v-model.number="funeralHomeSearch"
+          label="ID de Funeraria"
+          prepend-inner-icon="mdi-office-building"
+          variant="outlined"
+          type="number"
+          density="compact"
+          hide-details
+          class="max-w-xs"
+          style="max-width: 220px"
+        />
+        <v-btn color="indigo" variant="tonal" @click="loadStaff" :loading="store.loading">
+          Cargar empleados
+        </v-btn>
+      </div>
+    </v-card>
+
+    <v-card variant="outlined" class="rounded-xl">
+      <v-data-table
+        :headers="headers"
+        :items="store.staffList"
+        :loading="store.loading"
+        no-data-text="No hay empleados cargados"
+      >
+        
+        <template v-slot:item.name="{ item }">
+          <StaffRow :item="item" />
+        </template>
+
+        <!-- Columna Funeraria -->
+        <template v-slot:item.funeralHomeId="{ item }">
+          <v-chip
+            v-if="item.funeralHomeId"
+            color="blue-grey"
+            size="small"
+            variant="tonal"
+          >
+            Funeraria Nº{{ item.funeralHomeId }}
+          </v-chip>
+          <v-chip v-else color="indigo" size="small" variant="tonal">
+            Admin Global
+          </v-chip>
+        </template>
+
+        <!-- Columna Acciones (solo Admin) -->
+        <template v-slot:item.actions="{ item }">
+          <template v-if="auth.userRole === 'Admin'">
+            <v-btn icon="mdi-pencil" variant="text" color="blue" @click="openEditModal(item)" />
+            <v-btn icon="mdi-delete" variant="text" color="error" @click="confirmDelete(item.id)" />
+          </template>
+          <v-chip v-else color="grey" size="x-small" variant="tonal">Solo lectura</v-chip>
+        </template>
+      </v-data-table>
+    </v-card>
+
+    <v-dialog v-model="dialog" max-width="520">
+      <v-card :title="isEditing ? 'Editar Empleado' : 'Registrar Empleado'" class="pa-4 rounded-lg">
+
+        <VForm @submit="save" :validation-schema="schema" v-slot="{ errors }">
+          <v-card-text>
+
+            <!-- Nombre -->
+            <Field name="name" v-slot="{ field }">
+              <v-text-field
+                v-bind="field"
+                v-model="form.name"
+                label="Nombre Completo"
+                prepend-inner-icon="mdi-account"
+                variant="outlined"
+                :error-messages="errors.name"
+                class="mb-3"
+              />
+            </Field>
+
+            <!-- Email -->
+            <Field name="email" v-slot="{ field }">
+              <v-text-field
+                v-bind="field"
+                v-model="form.email"
+                label="Correo Electrónico"
+                prepend-inner-icon="mdi-email"
+                variant="outlined"
+                :error-messages="errors.email"
+                class="mb-3"
+              />
+            </Field>
+
+            <!-- DNI -->
+            <Field name="dni" v-slot="{ field }">
+              <v-text-field
+                v-bind="field"
+                v-model="form.dni"
+                label="DNI"
+                prepend-inner-icon="mdi-card-account-details"
+                variant="outlined"
+                :error-messages="errors.dni"
+                class="mb-3"
+              />
+            </Field>
+
+            <!-- Contraseña (solo en creación) -->
+            <Field v-if="!isEditing" name="password" v-slot="{ field }">
+              <v-text-field
+                v-bind="field"
+                v-model="form.password"
+                label="Contraseña"
+                prepend-inner-icon="mdi-lock"
+                type="password"
+                variant="outlined"
+                :error-messages="errors.password"
+                class="mb-3"
+              />
+            </Field>
+
+            <!-- ID Funeraria (solo en creación y solo si es admin sin funeraria asignada) -->
+            <Field v-if="!isEditing && !auth.user?.funeralHomeId && !form.isAdmin" name="funeralHomeId" v-slot="{ field }">
+              <v-text-field
+                v-bind="field"
+                v-model.number="form.funeralHomeId"
+                label="ID de Funeraria"
+                prepend-inner-icon="mdi-office-building"
+                type="number"
+                variant="outlined"
+                :error-messages="errors.funeralHomeId"
+                class="mb-3"
+              />
+            </Field>
+
+            <!-- Es Admin -->
+            <v-switch
+              v-if="!isEditing"
+              v-model="form.isAdmin"
+              label="Es Administrador Global"
+              color="indigo"
+              inset
+              class="mb-2"
+              @update:modelValue="onAdminToggle"
+            />
+
+            <v-alert
+              v-if="form.isAdmin && !isEditing"
+              type="info"
+              variant="tonal"
+              density="compact"
+              text="Los administradores globales no pertenecen a ninguna funeraria."
+              class="mb-2"
+            />
+
+          </v-card-text>
+
+          <v-card-actions>
+            <v-spacer />
+            <v-btn variant="text" @click="dialog = false">Cancelar</v-btn>
+            <v-btn color="indigo" type="submit" :loading="saving">
+              {{ isEditing ? 'Actualizar' : 'Crear' }}
+            </v-btn>
+          </v-card-actions>
+        </VForm>
+
+      </v-card>
+    </v-dialog>
+
+  </v-container>
 </template>
+
+<script setup lang="ts">
+import { ref, reactive, onMounted, computed } from 'vue'
+import apiClient from '@/plugins/axios'
+import Swal from 'sweetalert2'
+import { useAuthStore } from '@/stores/authStore'
+import { useStaffStore } from '@/stores/staffStore'
+import StaffRow from '@/components/admin/StaffRow.vue'
+
+import { Form as VForm, Field } from 'vee-validate'
+import * as yup from 'yup'
+
+// ─── STORES 
+const auth = useAuthStore()
+const store = useStaffStore()
+
+// ─── ESTADO DEL MODAL 
+const dialog = ref(false)
+const saving = ref(false)
+const isEditing = ref(false)
+const editId = ref<number | null>(null)
+const funeralHomeSearch = ref<number | null>(null)
+
+// ─── CABECERAS DE TABLA 
+const headers = [
+  { title: 'Empleado', key: 'name' },
+  { title: 'Funeraria', key: 'funeralHomeId' },
+  { title: 'Acciones', key: 'actions', align: 'end' as const, sortable: false }
+]
+
+// ─── FORMULARIO 
+const form = reactive<any>({
+  name: '',
+  email: '',
+  dni: '',
+  password: '',
+  funeralHomeId: auth.user?.funeralHomeId ?? null,
+  isAdmin: false
+})
+
+// ─── ESQUEMA DE VALIDACIÓN 
+
+const schema = computed(() => {
+  if (isEditing.value) {
+    return yup.object({
+      name: yup.string().required('Nombre obligatorio').max(100),
+      email: yup.string().required('Email obligatorio').email('Email inválido'),
+      dni: yup.string().required('DNI obligatorio').max(9)
+    })
+  }
+  return yup.object({
+    name: yup.string().required('Nombre obligatorio').max(100),
+    email: yup.string().required('Email obligatorio').email('Email inválido'),
+    dni: yup.string().required('DNI obligatorio').max(9),
+    password: yup.string().required('Contraseña obligatoria').min(6, 'Mínimo 6 caracteres').max(20),
+    funeralHomeId: form.isAdmin
+      ? yup.number().nullable()
+      : yup.number().nullable().required('ID de funeraria obligatorio para empleados')
+  })
+})
+
+// ─── HELPERS
+function onAdminToggle(val: boolean) {
+  if (val) form.funeralHomeId = null
+  else form.funeralHomeId = auth.user?.funeralHomeId ?? null
+}
+
+// ─── CARGA INICIAL 
+async function loadStaff() {
+  const fhId = auth.user?.funeralHomeId ?? funeralHomeSearch.value
+  if (!fhId) return
+  await store.fetchByFuneralHome(fhId)
+}
+
+// ─── APERTURA MODALES 
+function openCreateModal() {
+  isEditing.value = false
+  editId.value = null
+  Object.assign(form, {
+    name: '',
+    email: '',
+    dni: '',
+    password: '',
+    funeralHomeId: auth.user?.funeralHomeId ?? null,
+    isAdmin: false
+  })
+  dialog.value = true
+}
+
+function openEditModal(item: any) {
+  isEditing.value = true
+  editId.value = item.id
+  Object.assign(form, {
+    name: item.name,
+    email: item.email,
+    dni: item.dni,
+    password: '',
+    funeralHomeId: item.funeralHomeId,
+    isAdmin: false
+  })
+  dialog.value = true
+}
+
+// ─── GUARDAR (POST / PUT)
+async function save(values: any, { resetForm }: any) {
+  saving.value = true
+  try {
+    if (isEditing.value && editId.value !== null) {
+      // PUT: solo name, email, dni
+      const updatePayload = {
+        id: editId.value,
+        name: form.name,
+        email: form.email,
+        dni: form.dni
+      }
+      await apiClient.put(`/Staff/${editId.value}`, updatePayload)
+
+      // Actualizo el store localmente
+      store.updateInList({
+        id: editId.value,
+        funeralHomeId: form.funeralHomeId,
+        name: form.name,
+        email: form.email,
+        dni: form.dni
+      })
+
+      Swal.fire({ title: '¡Actualizado!', icon: 'success', timer: 1500, showConfirmButton: false })
+    } else {
+      // POST: create staff
+      const createPayload: any = {
+        name: form.name,
+        email: form.email,
+        dni: form.dni,
+        password: form.password,
+        isAdmin: form.isAdmin,
+        funeralHomeId: form.isAdmin ? null : form.funeralHomeId
+      }
+      const response = await apiClient.post('/Staff', createPayload)
+      store.addToList(response.data)
+
+      // Si no tenemos datos del created, recargamos
+      if (!response.data?.id) {
+        await loadStaff()
+      }
+
+      Swal.fire({ title: '¡Empleado creado!', icon: 'success', timer: 1500, showConfirmButton: false })
+    }
+
+    dialog.value = false
+
+  } catch (error: any) {
+    console.error('Error al guardar empleado:', error.response?.data || error)
+    const msg = error.response?.data?.message
+      || error.response?.data
+      || 'El Email o DNI puede que ya estén registrados.'
+    Swal.fire('Error al guardar', String(msg), 'error')
+  } finally {
+    saving.value = false
+  }
+}
+
+// ─── ELIMINAR
+async function confirmDelete(id: number) {
+  const result = await Swal.fire({
+    title: '¿Eliminar empleado?',
+    text: 'Esta acción no se puede deshacer.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonText: 'Cancelar',
+    confirmButtonText: 'Sí, eliminar'
+  })
+
+  if (result.isConfirmed) {
+    try {
+      await apiClient.delete(`/Staff/${id}`)
+      store.removeFromList(id)
+      Swal.fire({ title: 'Eliminado', icon: 'success', timer: 1200, showConfirmButton: false })
+    } catch (e: any) {
+      const msg = e.response?.data?.message || 'No se pudo eliminar el empleado.'
+      Swal.fire('Error', String(msg), 'error')
+    }
+  }
+}
+
+// ─── ON MOUNTED 
+onMounted(() => {
+  // Si el usuario tiene funeraria asignada (Staff o Admin de funeraria), cargamos automáticamente
+  if (auth.user?.funeralHomeId) {
+    loadStaff()
+  }
+})
+</script>

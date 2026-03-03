@@ -31,6 +31,7 @@ declare module 'vue' {
     PieChart: typeof import('./components/admin/PieChart.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    StaffRow: typeof import('./components/admin/StaffRow.vue')['default']
     ThemeToggle: typeof import('./components/ui/ThemeToggle.vue')['default']
     ToastNotification: typeof import('./components/ui/ToastNotification.vue')['default']
   }
