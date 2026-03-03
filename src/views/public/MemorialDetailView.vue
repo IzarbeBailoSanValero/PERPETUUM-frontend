@@ -32,10 +32,19 @@
 
         <div class="d-flex justify-space-between align-center mb-6">
           <h2 class="text-h4">Muro de Recuerdos</h2>
-          <AddMemoryModal 
+          <AddMemoryModal
+            v-if="auth.canCreateMemory"
             :deceasedId="store.currentDeceased.id" 
             @success="store.fetchDeceasedById(store.currentDeceased.id)" 
           />
+          <v-btn
+            v-else-if="!auth.isLoggedIn"
+            to="/login"
+            color="primary"
+            prepend-icon="mdi-login"
+          >
+            Inicia sesión para comentar
+          </v-btn>
         </div>
 
         <div v-if="store.currentDeceased.memories && store.currentDeceased.memories.length > 0">
@@ -62,10 +71,12 @@
 import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useMemorialStore } from '@/stores/memorialStore'
+import { useAuthStore } from '@/stores/authStore'
 import MemoryCard from '@/components/public/MemoryCard.vue'
 import AddMemoryModal from '@/components/public/AddMemoryModal.vue'
 
 const store = useMemorialStore()
+const auth = useAuthStore()
 const route = useRoute() // Para acceder a los parámetros de la URL (:id)
 
 onMounted(() => {

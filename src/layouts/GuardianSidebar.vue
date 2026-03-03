@@ -13,6 +13,11 @@
         title="Moderación" 
         to="/guardian/moderation"
       />
+      <v-list-item
+        prepend-icon="mdi-earth"
+        title="Área Pública"
+        to="/"
+      />
       <v-divider />
       <v-list-item 
         prepend-icon="mdi-logout" 

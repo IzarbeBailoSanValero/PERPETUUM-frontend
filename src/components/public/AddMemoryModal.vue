@@ -76,7 +76,13 @@ async function sendToApi() {
     form.textContent = ''
     form.mediaURL = ''
   } catch (error: any) {
-    ui.notify("Revisa los datos. Error de conexión.", "error")
+    if (error.response?.status === 401) {
+      ui.notify('Necesitas iniciar sesión para publicar un recuerdo.', 'error')
+    } else if (error.response?.status === 403) {
+      ui.notify('Tu perfil no tiene permiso para publicar recuerdos.', 'error')
+    } else {
+      ui.notify("Revisa los datos. Error de conexión.", "error")
+    }
   }
   finally { loading.value = false }
 }
