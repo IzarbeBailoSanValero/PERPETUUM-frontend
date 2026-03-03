@@ -109,10 +109,12 @@ async function handleRegister() {
     auth.setToken(response.data.token)
 
     // Redirigir según el rol del usuario
-    const role = auth.user?.role
+    const role = auth.userRole
     
     if (role === 'Admin' || role === 'Staff') {
       await router.push('/admin/dashboard')
+    } else if (role === 'Guardian') {
+      await router.push('/guardian/moderation')
     } else {
       await router.push('/')
     }

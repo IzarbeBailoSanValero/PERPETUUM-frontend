@@ -83,9 +83,11 @@ async function handleLogin() {
     // 2. guardar el token y decodificar automáticamente 
     auth.setToken(response.data.token)
 
-    // 3. redirijo según rol decodificado -->  Si es Admin o Staff, al panel de administración. si no parte publica
+    // 3. redirijo según rol decodificado
     if (auth.userRole === 'Admin' || auth.userRole === 'Staff') {
       router.push('/admin/dashboard')
+    } else if (auth.userRole === 'Guardian') {
+      router.push('/guardian/moderation')
     } else {
       router.push('/')
     }
