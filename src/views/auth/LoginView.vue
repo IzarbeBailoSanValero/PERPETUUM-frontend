@@ -87,7 +87,7 @@ async function handleLogin() {
     if (auth.userRole === 'Admin' || auth.userRole === 'Staff') {
       router.push('/admin/dashboard')
     } else if (auth.userRole === 'Guardian') {
-      router.push('/guardian/moderation')
+      router.push('/guardian/home')
     } else {
       router.push('/')
     }

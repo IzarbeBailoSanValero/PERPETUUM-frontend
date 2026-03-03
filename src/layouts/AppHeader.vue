@@ -46,6 +46,16 @@
     >
       Panel de Gestión
     </v-btn>
+
+    <v-btn
+      v-if="auth.isLoggedIn && auth.userRole === 'Guardian'"
+      to="/guardian/home"
+      color="indigo"
+      variant="tonal"
+      class="text-none ml-2"
+    >
+      Espacio Familiar
+    </v-btn>
       
     <v-btn 
       v-if="auth.isLoggedIn"

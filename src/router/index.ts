@@ -46,6 +46,8 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/layouts/GuardianLayout.vue'),
     meta: { requiresAuth: true, roles: ['Guardian'] },
     children: [
+      { path: '', redirect: { name: 'GuardianHome' } },
+      { path: 'home', name: 'GuardianHome', component: () => import('@/views/guardian/GuardianHomeView.vue') },
       { path: 'my-memorials', name: 'GuardianMyMemorials', component: () => import('@/views/guardian/MyMemorialsView.vue') },
       { path: 'moderation', name: 'GuardianModeration', component: () => import('@/views/guardian/ModerationView.vue') }
     ]
@@ -83,7 +85,7 @@ router.beforeEach((to, from, next) => {
     if (role === 'Admin' || role === 'Staff') {
       next({ name: 'AdminDashboard' })
     } else if (role === 'Guardian') {
-      next({ name: 'GuardianModeration' })
+      next({ name: 'GuardianHome' })
     } else {
       next({ name: 'Home' })
     }

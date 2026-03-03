@@ -114,7 +114,7 @@ async function handleRegister() {
     if (role === 'Admin' || role === 'Staff') {
       await router.push('/admin/dashboard')
     } else if (role === 'Guardian') {
-      await router.push('/guardian/moderation')
+      await router.push('/guardian/home')
     } else {
       await router.push('/')
     }
