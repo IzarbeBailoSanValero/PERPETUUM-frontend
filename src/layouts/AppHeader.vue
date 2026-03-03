@@ -49,7 +49,7 @@
 
     <v-btn
       v-if="auth.isLoggedIn && auth.userRole === 'Guardian'"
-      to="/guardian/home"
+      to="/guardian/my-memorials"
       color="indigo"
       variant="tonal"
       class="text-none ml-2"

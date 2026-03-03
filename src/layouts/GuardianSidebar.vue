@@ -3,11 +3,6 @@
     <v-list>
       <v-list-item prepend-icon="mdi-account-heart" title="PERPETUUM" subtitle="Guardián" />
       <v-divider />
-      <v-list-item
-        prepend-icon="mdi-home-outline"
-        title="Inicio Familiar"
-        to="/guardian/home"
-      />
       <v-list-item 
         prepend-icon="mdi-book-open-variant" 
         title="Mis Memoriales" 
