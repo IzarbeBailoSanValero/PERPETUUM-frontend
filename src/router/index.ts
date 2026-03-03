@@ -40,6 +40,16 @@ const routes: RouteRecordRaw[] = [
       { path: 'memories', name: 'AdminMemories', component: () => import('@/views/admin/AdminMemoriesView.vue') },
     ]
   },
+
+  {
+    path: '/guardian',
+    component: () => import('@/layouts/GuardianLayout.vue'),
+    meta: { requiresAuth: true, roles: ['Guardian'] },
+    children: [
+      { path: 'my-memorials', name: 'GuardianMyMemorials', component: () => import('@/views/guardian/MyMemorialsView.vue') },
+      { path: 'moderation', name: 'GuardianModeration', component: () => import('@/views/guardian/ModerationView.vue') }
+    ]
+  },
   // Ruta para accesos no autorizados
   {
     path: '/unauthorized',
@@ -72,6 +82,8 @@ router.beforeEach((to, from, next) => {
     const role = authStore.user?.role
     if (role === 'Admin' || role === 'Staff') {
       next({ name: 'AdminDashboard' })
+    } else if (role === 'Guardian') {
+      next({ name: 'GuardianModeration' })
     } else {
       next({ name: 'Home' })
     }

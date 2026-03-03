@@ -9,8 +9,11 @@ export interface Memory {
   deceasedName: string
   textContent: string | null
   mediaURL: string | null
-  type: string
+  authorRelation: string | null
+  type: number
   createdDate: string
+  userId: number
+  deceasedId: number
   status: number
 }
 
@@ -18,10 +21,12 @@ export const useMemoryStore = defineStore('memory', () => {
   const memories = ref<Memory[]>([])
   const loading = ref(false)
 
-  async function fetchPendingMemories() {
+  async function fetchPendingMemories(deceasedId?: number) {
     loading.value = true
     try {
-      const response = await apiClient.get('/Memory/pending')
+      const response = await apiClient.get('/Memory/pending', {
+        params: deceasedId ? { deceasedId } : undefined
+      })
       memories.value = response.data
     } catch (error) {
       console.error('Error al cargar recuerdos pendientes:', error)
