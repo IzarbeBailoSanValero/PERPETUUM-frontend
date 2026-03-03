@@ -12,7 +12,7 @@
       </v-chip>
     </td>
     
-    <td>{{ formatDate(memory.createdAt) }}</td>
+    <td>{{ formatDate(memory.createdDate) }}</td>
     
     <td>
       <div class="d-flex gap-2">
