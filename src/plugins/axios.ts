@@ -16,9 +16,7 @@ import router from '@/router'
 const apiClient = axios.create({
   // Ojo: revisar que el puerto coincida con el de la API (launchSettings.json)
   baseURL: 'http://localhost:8080/api', 
-  headers: {
-    'Content-Type': 'application/json'
-  }
+  headers: {}
 })
 
 //INTERCEPTOR DE SALIDA: Antes de que salga cualquier mensaje al servidor, miramos si tenemos el token. --> Si lo tenemos en el Store, se lo pegamos en la cabecera (Header) automáticamente.
@@ -28,6 +26,17 @@ apiClient.interceptors.request.use((config) => {
   if (authStore.token) {
     config.headers.Authorization = `Bearer ${authStore.token}`
   }
+
+  // Si enviamos FormData, dejamos que el navegador ponga el boundary correctamente.
+  if (config.data instanceof FormData) {
+    const headers: any = config.headers
+    if (headers?.set && typeof headers.set === 'function') {
+      headers.set('Content-Type', undefined)
+    } else if (headers) {
+      delete headers['Content-Type']
+    }
+  }
+
   return config
 }, (error) => {
   return Promise.reject(error)

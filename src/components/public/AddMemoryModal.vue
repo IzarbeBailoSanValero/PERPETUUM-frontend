@@ -17,8 +17,16 @@
 
         <v-textarea v-model="form.textContent" label="Tu mensaje" variant="underlined"></v-textarea>
 
-        <v-text-field v-if="selectedTypeText === 'Foto'" v-model="form.mediaURL" label="URL de la imagen"
-          variant="underlined"></v-text-field>
+        <v-file-input
+          v-if="selectedTypeText === 'Foto'"
+          v-model="photoInput"
+          label="Sube una imagen"
+          variant="underlined"
+          accept="image/*"
+          :multiple="false"
+          prepend-icon="mdi-camera"
+          show-size
+        ></v-file-input>
       </v-card-text>
 
       <v-card-actions>
@@ -44,6 +52,7 @@ const emit = defineEmits(['success'])
 const dialog = ref(false)
 const loading = ref(false)
 const selectedTypeText = ref('Condolencia') // Texto para el v-select
+const photoInput = ref<File[] | File | null>(null)
 
 // Objeto que coincide con MemoryCreateDTO de C#
 const form = reactive({
@@ -63,8 +72,26 @@ async function sendToApi() {
   if (selectedTypeText.value === 'Foto') form.type = 3
 
   try {
-    // POST /api/Memory enviando el MemoryCreateDTO
-    await apiClient.post('/Memory', form)
+    if (form.type === 3) {
+      const file = Array.isArray(photoInput.value) ? photoInput.value[0] : photoInput.value
+      if (!file) {
+        ui.notify('Selecciona una imagen antes de enviar.', 'error')
+        return
+      }
+
+      const fd = new FormData()
+      fd.append('DeceasedId', String(form.deceasedId))
+      fd.append('Type', '3')
+      fd.append('TextContent', form.textContent || '')
+      fd.append('AuthorRelation', form.authorRelation || '')
+      fd.append('Photo', file)
+
+      // POST /api/Memory/photo (multipart/form-data) -> backend -> Cloudinary
+      await apiClient.post('/Memory/photo', fd)
+    } else {
+      // POST /api/Memory enviando el MemoryCreateDTO (JSON)
+      await apiClient.post('/Memory', form)
+    }
 
     dialog.value = false
     emit('success') // Refrescamos la lista de la página
@@ -75,6 +102,7 @@ async function sendToApi() {
     // Limpiamos
     form.textContent = ''
     form.mediaURL = ''
+    photoInput.value = null
   } catch (error: any) {
     if (error.response?.status === 401) {
       ui.notify('Necesitas iniciar sesión para publicar un recuerdo.', 'error')
