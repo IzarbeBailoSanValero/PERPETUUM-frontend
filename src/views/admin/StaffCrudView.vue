@@ -2,18 +2,18 @@
   <v-container>
 
     <div class="d-flex justify-space-between align-center mb-4">
-      <h2 class="text-h4 font-weight-bold">Gestión de Empleados</h2>
+      <h2 class="text-h4 font-weight-bold">Panel de administración de empleados</h2>
       <v-btn
         v-if="auth.userRole === 'Admin'"
         color="indigo"
         prepend-icon="mdi-account-plus"
         @click="openCreateModal"
       >
-        Nuevo Empleado
+        Nuevo empleado
       </v-btn>
     </div>
 
-    <v-card v-if="auth.userRole === 'Admin' && !auth.user?.funeralHomeId" variant="tonal" class="rounded-xl mb-4 pa-4">
+    <v-card v-if="auth.userRole === 'Admin'" variant="tonal" class="rounded-xl mb-4 pa-4">
       <div class="d-flex align-center gap-3">
         <v-text-field
           v-model.number="funeralHomeSearch"
@@ -32,30 +32,34 @@
       </div>
     </v-card>
 
+    <v-alert v-else-if="auth.userRole === 'Staff'" type="info" variant="tonal" density="compact" class="mb-4">
+      Vista de solo lectura: se muestran los empleados de tu funeraria.
+    </v-alert>
+
     <v-card variant="outlined" class="rounded-xl">
       <v-data-table
         :headers="headers"
         :items="store.staffList"
         :loading="store.loading"
-        no-data-text="No hay empleados cargados"
+        no-data-text="No hay empleados. Como Admin: indica ID de funeraria y pulsa «Cargar empleados». Como Staff: se listan los de tu funeraria."
       >
         
         <template v-slot:item.name="{ item }">
           <StaffRow :item="item" />
         </template>
 
-        <!-- Columna Funeraria -->
+        <!-- Columna Funeraria / Rol -->
         <template v-slot:item.funeralHomeId="{ item }">
           <v-chip
-            v-if="item.funeralHomeId"
-            color="blue-grey"
+            v-if="item.isAdmin || !item.funeralHomeId"
+            color="indigo"
             size="small"
             variant="tonal"
           >
-            Funeraria Nº{{ item.funeralHomeId }}
-          </v-chip>
-          <v-chip v-else color="indigo" size="small" variant="tonal">
             Admin Global
+          </v-chip>
+          <v-chip v-else color="blue-grey" size="small" variant="tonal">
+            Funeraria Nº{{ item.funeralHomeId }}
           </v-chip>
         </template>
 
@@ -129,8 +133,8 @@
               />
             </Field>
 
-            <!-- ID Funeraria (solo en creación y solo si es admin sin funeraria asignada) -->
-            <Field v-if="!isEditing && !auth.user?.funeralHomeId && !form.isAdmin" name="funeralHomeId" v-slot="{ field }">
+            <!-- ID Funeraria (solo en creación: Admin debe indicar funeraria; Staff no ve el campo) -->
+            <Field v-if="!isEditing && auth.userRole === 'Admin' && !form.isAdmin" name="funeralHomeId" v-slot="{ field }">
               <v-text-field
                 v-bind="field"
                 v-model.number="form.funeralHomeId"
@@ -205,6 +209,7 @@ const funeralHomeSearch = ref<number | null>(null)
 // ─── CABECERAS DE TABLA 
 const headers = [
   { title: 'Empleado', key: 'name' },
+  { title: 'DNI', key: 'dni' },
   { title: 'Funeraria', key: 'funeralHomeId' },
   { title: 'Acciones', key: 'actions', align: 'end' as const, sortable: false }
 ]
@@ -243,7 +248,7 @@ const schema = computed(() => {
 // ─── HELPERS
 function onAdminToggle(val: boolean) {
   if (val) form.funeralHomeId = null
-  else form.funeralHomeId = auth.user?.funeralHomeId ?? null
+  else form.funeralHomeId = auth.user?.funeralHomeId ?? null // Solo Staff tiene funeraria
 }
 
 // ─── CARGA INICIAL 
@@ -366,7 +371,7 @@ async function confirmDelete(id: number) {
 
 // ─── ON MOUNTED 
 onMounted(() => {
-  // Si el usuario tiene funeraria asignada (Staff o Admin de funeraria), cargamos automáticamente
+  // Solo Staff tiene funeraria asignada; Admin global debe indicar ID de funeraria para cargar empleados
   if (auth.user?.funeralHomeId) {
     loadStaff()
   }

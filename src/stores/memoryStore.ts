@@ -10,7 +10,10 @@ export interface Memory {
   textContent: string | null
   mediaURL: string | null
   authorRelation: string | null
-  type: number
+  /** Valor numérico (1, 2, 3) o string del API (Condolence, Anecdote, Photo) */
+  type: number | string
+  /** Respuesta del API en PascalCase cuando no se usa camelCase */
+  Type?: number | string
   createdDate: string
   userId: number
   deceasedId: number
@@ -36,7 +39,7 @@ export const useMemoryStore = defineStore('memory', () => {
   }
 
   async function updateMemoryStatus(id: number, status: number) {
-    await apiClient.put(`/Memory/${id}/status`, { status })
+    await apiClient.put(`/Memory/${id}/status`, null, { params: { status } })
     await fetchPendingMemories()
   }
 

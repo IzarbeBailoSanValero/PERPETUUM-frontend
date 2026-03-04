@@ -4,6 +4,17 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import apiClient from '@/plugins/axios'
 
+function normalizeGuardian(raw: any) {
+  return {
+    id: raw?.id ?? raw?.Id,
+    name: raw?.name ?? raw?.Name ?? '',
+    dni: raw?.dni ?? raw?.Dni ?? '',
+    email: raw?.email ?? raw?.Email ?? '',
+    phoneNumber: raw?.phoneNumber ?? raw?.PhoneNumber ?? '',
+    funeralHomeId: raw?.funeralHomeId ?? raw?.FuneralHomeId ?? null
+  }
+}
+
 export const useGuardianStore = defineStore('guardian', () => {
   const guardians = ref<any[]>([])
   const loading = ref(false)
@@ -12,7 +23,8 @@ export const useGuardianStore = defineStore('guardian', () => {
     loading.value = true
     try {
       const response = await apiClient.get('/MemorialGuardian')
-      guardians.value = response.data
+      const data = Array.isArray(response.data) ? response.data : []
+      guardians.value = data.map(normalizeGuardian)
     } catch (error) {
       console.error('Error al cargar guardianes:', error)
     } finally {

@@ -2,9 +2,7 @@ import { defineStore } from 'pinia'
 import apiClient from '@/plugins/axios'
 import type { Deceased, DeceasedSummary } from '@/models/Deceased'
 
-// --- MODELOS (Interfaces) ---
-
-// Coincide con MemoryResponseDTO 
+// Coincide con MemoryResponseDTO
 export interface Memory {
   id: number
   createdDate: string
@@ -15,6 +13,49 @@ export interface Memory {
   authorRelation: string | null
   userId: number
   deceasedId: number
+}
+
+/** Normaliza objeto del API (PascalCase) a camelCase para uso en la interfaz */
+function normalizeDeceasedSummary(raw: any): DeceasedSummary {
+  return {
+    id: raw?.id ?? raw?.Id,
+    name: raw?.name ?? raw?.Name ?? '',
+    photoURL: raw?.photoURL ?? raw?.PhotoURL,
+    deathDate: raw?.deathDate ?? raw?.DeathDate ?? ''
+  }
+}
+
+function normalizeMemory(raw: any): Memory {
+  return {
+    id: raw?.id ?? raw?.Id,
+    createdDate: raw?.createdDate ?? raw?.CreatedDate ?? '',
+    type: raw?.type ?? raw?.Type ?? '',
+    status: raw?.status ?? raw?.Status ?? '',
+    textContent: raw?.textContent ?? raw?.TextContent ?? null,
+    mediaURL: raw?.mediaURL ?? raw?.MediaURL ?? null,
+    authorRelation: raw?.authorRelation ?? raw?.AuthorRelation ?? null,
+    userId: raw?.userId ?? raw?.UserId,
+    deceasedId: raw?.deceasedId ?? raw?.DeceasedId
+  }
+}
+
+function normalizeDeceased(raw: any): Deceased | null {
+  if (!raw) return null
+  const memories = raw?.memories ?? raw?.Memories
+  return {
+    id: raw?.id ?? raw?.Id,
+    name: raw?.name ?? raw?.Name ?? '',
+    dni: raw?.dni ?? raw?.Dni ?? '',
+    funeralHomeId: raw?.funeralHomeId ?? raw?.FuneralHomeId,
+    guardianId: raw?.guardianId ?? raw?.GuardianId,
+    staffId: raw?.staffId ?? raw?.StaffId,
+    biography: raw?.biography ?? raw?.Biography ?? '',
+    photoURL: raw?.photoURL ?? raw?.PhotoURL ?? '',
+    birthDate: raw?.birthDate ?? raw?.BirthDate ?? '',
+    deathDate: raw?.deathDate ?? raw?.DeathDate ?? '',
+    epitaph: raw?.epitaph ?? raw?.Epitaph ?? '',
+    memories: Array.isArray(memories) ? memories.map(normalizeMemory) : null
+  }
 }
 
 // --- STORE ---
@@ -33,26 +74,23 @@ export const useMemorialStore = defineStore('memorial', {
     // ver el detalle de un memorial
     async fetchDeceasedById(id: number) {
       this.loading = true
-      console.log('🔍 Intentando cargar difunto con ID:', id)
       try {
-        const response = await apiClient.get<Deceased>(`/Deceased/${id}`)
-        console.log('✅ Datos recibidos:', response.data)
-        this.currentDeceased = response.data
+        const response = await apiClient.get(`/Deceased/${id}`)
+        this.currentDeceased = normalizeDeceased(response.data)
       } catch (error) {
-        console.error("❌ Error al obtener el difunto:", error)
+        console.error("Error al obtener el difunto:", error)
         this.currentDeceased = null
       } finally {
         this.loading = false
       }
     },
 
-    // trae todos los difuntos iniciales 
     async fetchAllDeceased() {
       this.loading = true
       try {
-        // GET /api/Deceased (la primera página)
-        const response = await apiClient.get<DeceasedSummary[]>('/Deceased')
-        this.deceasedList = response.data
+        const response = await apiClient.get('/Deceased')
+        const data = Array.isArray(response.data) ? response.data : []
+        this.deceasedList = data.map(normalizeDeceasedSummary)
       } catch (error) {
         console.error("Error al traer el listado", error)
       } finally {
@@ -60,25 +98,24 @@ export const useMemorialStore = defineStore('memorial', {
       }
     },
 
-    // Búsqueda avanzada 
     async fetchAdvancedSearch(filters: any) {
       this.loading = true
       try {
         const response = await apiClient.get<any>('/Deceased/search', { params: filters })
-        this.deceasedList = response.data.items;       
-        this.totalPages = response.data.totalPages;    
+        const items = response.data?.items ?? []
+        this.deceasedList = items.map(normalizeDeceasedSummary)
+        this.totalPages = response.data?.totalPages ?? 1
       } catch (error: any) {
         console.error("Error en búsqueda avanzada", error)
         if (error.code === 'ERR_NETWORK' || error.code === 'ECONNREFUSED') {
-          console.log('Backend no disponible, reintentando en 2 segundos...')
           await new Promise(resolve => setTimeout(resolve, 2000))
           try {
-            const response = await apiClient.get<any>('/Deceased/search', { params: filters })
-            this.deceasedList = response.data.items
-            this.totalPages = response.data.totalPages
+            const retry = await apiClient.get<any>('/Deceased/search', { params: filters })
+            this.deceasedList = (retry.data?.items ?? []).map(normalizeDeceasedSummary)
+            this.totalPages = retry.data?.totalPages ?? 1
             return
-          } catch (retryError) {
-            console.error('Reintento fallido', retryError)
+          } catch {
+            // fall through
           }
         }
         this.deceasedList = []

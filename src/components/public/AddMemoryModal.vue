@@ -109,11 +109,11 @@ async function sendToApi() {
     if (error.response?.status === 401) {
       ui.notify(serverMessage || 'Necesitas iniciar sesión para publicar un recuerdo.', 'error')
     } else if (error.response?.status === 403) {
-      ui.notify(serverMessage || 'Tu perfil no tiene permiso para publicar recuerdos. Solo usuarios registrados (rol usuario) pueden añadir recuerdos.', 'error')
+      ui.notify(serverMessage || 'Tu perfil no tiene permiso para publicar recuerdos.', 'error')
     } else if (error.response?.status === 400) {
       ui.notify(serverMessage || 'Datos incorrectos. Comprueba el formulario.', 'error')
     } else if (error.response?.status === 500) {
-      ui.notify(serverMessage || 'Error del servidor. Comprueba que estás logueado como usuario (no staff/guardian) e inténtalo más tarde.', 'error')
+      ui.notify(serverMessage || 'Error del servidor. Inténtalo más tarde.', 'error')
     } else if (error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) {
       ui.notify('No se pudo conectar con el servidor. Comprueba que la API está en marcha (puerto 8080).', 'error')
     } else {

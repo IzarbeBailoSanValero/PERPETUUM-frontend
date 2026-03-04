@@ -36,7 +36,7 @@
             <td class="text-truncate" style="max-width: 420px;">
               {{ memory.textContent || memory.mediaURL || "Sin contenido" }}
             </td>
-            <td>{{ getTypeLabel(memory.type) }}</td>
+            <td>{{ getTypeLabel(memory.type ?? memory.Type) }}</td>
             <td>{{ formatDate(memory.createdDate) }}</td>
             <td>
               <div class="d-flex ga-2">
@@ -76,11 +76,12 @@ const filteredMemories = computed(() =>
   })
 )
 
-function getTypeLabel(type: number) {
-  if (type === 1) return 'Condolencia'
-  if (type === 2) return 'Anécdota'
-  if (type === 3) return 'Foto'
-  return 'Desconocido'
+function getTypeLabel(type: number | string | undefined) {
+  const t = type === undefined ? '' : String(type)
+  if (t === '1' || t === 'Condolence') return 'Condolencia'
+  if (t === '2' || t === 'Anecdote') return 'Anécdota'
+  if (t === '3' || t === 'Photo') return 'Foto'
+  return t ? 'Desconocido' : '—'
 }
 
 function formatDate(date: string) {

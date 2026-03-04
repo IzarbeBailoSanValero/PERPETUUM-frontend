@@ -107,7 +107,7 @@ const form = reactive<any>({
   email: '',
   phoneNumber: '',
   password: '',
-  funeralHomeId: auth.user?.funeralHomeId || 1,   //  familiar pertenece a la misma funeraria que el empleado que lo crea
+  funeralHomeId: auth.user?.funeralHomeId ?? 0,   // Staff: su funeraria; Admin global: 0 (debe elegir)
   staffId: auth.user?.id || 0
 })
 

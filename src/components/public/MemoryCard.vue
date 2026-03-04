@@ -17,20 +17,27 @@
     <v-img v-if="memory.mediaURL" :src="memory.mediaURL" max-height="300" cover
       class="rounded-lg bg-grey-lighten-2"></v-img>
 
-    <v-chip size="x-small" class="mt-2" variant="tonal"> <!--Muestra un pequeño chip indicando el tipo: texto, foto, video, etc.-->
-      {{ memory.type }}
+    <v-chip size="x-small" class="mt-2" variant="tonal">
+      {{ typeLabel }}
     </v-chip>
   </v-card>
 </template>
 
 <script setup lang="ts">
-// Importamos la interfaz  del store 
+import { computed } from 'vue'
 import type { Memory } from '@/stores/memorialStore'
 
-// PROPS: Recibo un objeto "memory" del padre, que debe cumplir la interfaz
-defineProps<{
+const props = defineProps<{
   memory: Memory
 }>()
+
+const typeLabel = computed(() => {
+  const t = props.memory?.type ?? ''
+  if (t === 'Condolence' || t === '1') return 'Condolencia'
+  if (t === 'Anecdote' || t === '2') return 'Anécdota'
+  if (t === 'Photo' || t === '3') return 'Foto'
+  return t || '—'
+})
 
 // Función sencilla para formatear la fecha que viene de C#
 const formatDate = (dateString: string) => {

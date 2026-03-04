@@ -12,15 +12,16 @@
       <v-row v-else-if="deceasedList.length > 0" class="ma-0">
         <v-col v-for="d in deceasedList" :key="d.id" cols="12" sm="6" md="4">
           <v-card border variant="tonal" class="rounded-lg">
-            <v-img
-              :src="d.photoURL || 'https://via.placeholder.com/300x180?text=Sin+imagen'"
-              height="180"
-              cover
-              class="align-end"
-              gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-            >
-              <v-card-title class="text-white">{{ d.name }}</v-card-title>
-            </v-img>
+            <div class="card-image-1-1">
+              <v-img
+                :src="d.photoURL || 'https://via.placeholder.com/400x400?text=Sin+imagen'"
+                cover
+                class="align-end"
+                gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+              >
+                <v-card-title class="text-white">{{ d.name }}</v-card-title>
+              </v-img>
+            </div>
             <v-card-subtitle class="pt-2">
               Fallecimiento: {{ formatDate(d.deathDate) }}
             </v-card-subtitle>
@@ -80,3 +81,16 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+.card-image-1-1 {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  width: 100%;
+}
+.card-image-1-1 :deep(.v-img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+</style>

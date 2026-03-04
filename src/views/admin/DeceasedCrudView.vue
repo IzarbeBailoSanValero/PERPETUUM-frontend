@@ -115,7 +115,19 @@
               ></v-textarea>
             </Field>
 
-            <Field name="photoURL" v-slot="{ field }">
+            <template v-if="!isEditing">
+              <v-file-input
+                v-model="photoFile"
+                label="Foto del difunto (obligatoria)"
+                variant="outlined"
+                prepend-icon="mdi-camera"
+                accept="image/*"
+                :clearable="true"
+                show-size
+                class="mb-3"
+              />
+            </template>
+            <Field v-else name="photoURL" v-slot="{ field }">
               <v-text-field
                 v-model="form.photoURL"
                 v-bind="field"
@@ -123,7 +135,7 @@
                 variant="outlined"
                 :error-messages="errors.photoURL"
                 class="mb-3"
-              ></v-text-field>
+              />
             </Field>
 
             <Field name="epitaph" v-slot="{ field }">
@@ -172,6 +184,7 @@ const guardians = ref<any[]>([])
 
 const isEditing = ref(false)
 const editId = ref<number | null>(null)
+const photoFile = ref<File[] | File | null>(null)
 
 // Esquema de validación condicional
 const schema = computed(() => {
@@ -221,7 +234,6 @@ const schema = computed(() => {
       }),
     guardianId: yup.number().required('Selecciona un responsable').typeError('Debes elegir un guardián'),
     biography: yup.string().required('La biografía es obligatoria').max(1000, 'Máximo 1000 caracteres'),
-    photoURL: yup.string().required('La URL es obligatoria').url('Formato de URL inválido'),
     epitaph: yup.string().required('El epitafio es obligatorio').max(255, 'Máximo 255 caracteres')
   })
 })
@@ -241,10 +253,10 @@ const form = reactive<any>({
   deathDate: '',
   birthDate: '',
   biography: '', 
-  photoURL: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+  photoURL: '',
   epitaph: '',
   // Extraemos IDs del token
-  funeralHomeId: auth.user?.funeralHomeId || 1, // Fallback a  para evitar error de FK si crea un Admin Global
+  funeralHomeId: auth.user?.funeralHomeId ?? 0, // Staff: su funeraria; Admin global: 0 (debe elegir funeraria)
   staffId: auth.user?.id || 0, // El StaffId es el ID del usuario logueado
   guardianId: 0
 })
@@ -272,9 +284,10 @@ onMounted(() => {
 function openCreateModal() {
   isEditing.value = false
   editId.value = null
+  photoFile.value = null
   Object.assign(form, { 
     name: '', dni: '', deathDate: '', birthDate: '', 
-    photoURL: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png', 
+    photoURL: '', 
     guardianId: null, biography: '', epitaph: '' 
   });
   dialog.value = true
@@ -310,21 +323,36 @@ async function openEditModal(item: any) {
 
 // funcion de POST / PUT
 async function save() {
-  // Asegurar que los IDs del Store están presentes antes de enviar
-  form.funeralHomeId = auth.user?.funeralHomeId || 1; // Fallback a 1 para Admin
-  form.staffId = auth.user?.id || 0;
+  form.funeralHomeId = auth.user?.funeralHomeId ?? 0
+  form.staffId = auth.user?.id || 0
+
+  const file = Array.isArray(photoFile.value) ? photoFile.value[0] : photoFile.value
+  const hasPhotoFile = file && file instanceof File && file.size > 0
+
+  if (!isEditing.value && !hasPhotoFile) {
+    Swal.fire('Foto obligatoria', 'Sube una imagen desde tu equipo.', 'warning')
+    return
+  }
 
   saving.value = true
   try {
-    // Persistencia de datos en backend
     if (isEditing.value && editId.value) {
-      // Si editando,  PUT e inyectamos el ID al objeto form
       await apiClient.put(`/Deceased/${editId.value}`, { ...form, id: editId.value })
-      Swal.fire({ title: '¡Actualizado!', icon: 'success', timer: 2000, showConfirmButton: false });
-    } else {
-      // Si no,  POST normal
-      await apiClient.post('/Deceased', form)
-      Swal.fire({ title: '¡Éxito!', icon: 'success', timer: 2000, showConfirmButton: false });
+      Swal.fire({ title: '¡Actualizado!', icon: 'success', timer: 2000, showConfirmButton: false })
+    } else if (hasPhotoFile) {
+      const fd = new FormData()
+      fd.append('Dni', form.dni)
+      fd.append('Name', form.name)
+      fd.append('Epitaph', form.epitaph ?? '')
+      fd.append('Biography', form.biography)
+      fd.append('BirthDate', form.birthDate)
+      fd.append('DeathDate', form.deathDate)
+      fd.append('FuneralHomeId', String(form.funeralHomeId))
+      fd.append('GuardianId', String(form.guardianId))
+      fd.append('StaffId', String(form.staffId))
+      fd.append('Photo', file)
+      await apiClient.post('/Deceased/with-photo', fd)
+      Swal.fire({ title: '¡Éxito!', icon: 'success', timer: 2000, showConfirmButton: false })
     }
 
     dialog.value = false 

@@ -30,7 +30,7 @@ export const useAuthStore = defineStore('auth', {
     //  comprobar si hay una sesión activa o rol           !! es una forma rápida de convertir cualquier valor a un booleano:Si state.token tiene un valor “verdadero” (string no vacío, número distinto de 0, etc.),true.
     isLoggedIn: (state) => !!state.token, 
     userRole: (state) => state.user?.role || null,
-    canCreateMemory: (state) => state.user?.role === 'StandardUser', // Solo usuarios de la tabla User; Guardian/Staff no pueden publicar recuerdos (Memory.UserId FK a User)
+    canCreateMemory: (state) => state.user?.role === 'StandardUser' || state.user?.role === 'Guardian', // Usuario o familiar pueden publicar recuerdos en el espacio público
   },
 
   actions: {

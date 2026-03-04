@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex align-center py-2">
     <v-avatar color="blue-grey-lighten-2" size="40" class="mr-3">
-      <v-icon color="blue-grey" :icon="item.funeralHomeId ? 'mdi-account-hard-hat' : 'mdi-shield-crown'"></v-icon>
+      <v-icon color="blue-grey" :icon="(item.isAdmin || !item.funeralHomeId) ? 'mdi-shield-crown' : 'mdi-account-hard-hat'"></v-icon>
     </v-avatar>
     
     <div>
@@ -21,6 +21,7 @@ defineProps<{
     email: string;
     dni?: string;
     funeralHomeId: number | null;
+    isAdmin?: boolean;
   }
 }>()
 </script>

@@ -72,18 +72,20 @@
             class="rounded-xl transition-swing"
             :to="'/memorial/' + item.id"
           >
-            <v-img :src="item.photoURL" height="200" cover>
-              <template v-slot:placeholder>
-                <div class="w-100 h-100 d-flex align-center justify-center bg-grey-lighten-3">
-                  <v-icon size="60" color="grey-lighten-1">mdi-image-off</v-icon>
-                </div>
-              </template>
-              <template v-slot:error>
-                <div class="w-100 h-100 d-flex align-center justify-center bg-grey-lighten-3">
-                  <v-icon size="60" color="grey-lighten-1">mdi-image-off</v-icon>
-                </div>
-              </template>
-            </v-img>
+            <div class="card-image-1-1">
+              <v-img :src="item.photoURL" cover>
+                <template v-slot:placeholder>
+                  <div class="w-100 h-100 d-flex align-center justify-center bg-grey-lighten-3">
+                    <v-icon size="60" color="grey-lighten-1">mdi-image-off</v-icon>
+                  </div>
+                </template>
+                <template v-slot:error>
+                  <div class="w-100 h-100 d-flex align-center justify-center bg-grey-lighten-3">
+                    <v-icon size="60" color="grey-lighten-1">mdi-image-off</v-icon>
+                  </div>
+                </template>
+              </v-img>
+            </div>
             <v-card-title>{{ item.name }}</v-card-title>
             <v-card-subtitle>{{ formatDate(item.deathDate) }}</v-card-subtitle>
           </v-card>
@@ -219,3 +221,16 @@ APUNTES :
 - Ordenada y Fechas: Tenemos v-select (SortBy) y un input (DeathYear) integrados en la petición.
 */
 </script>
+
+<style scoped>
+.card-image-1-1 {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  width: 100%;
+}
+.card-image-1-1 :deep(.v-img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+</style>

@@ -7,8 +7,8 @@
     </td>
     
     <td>
-      <v-chip size="small" :color="getTypeColor(memory.type)" variant="tonal">
-        {{ formatType(memory.type) }}
+      <v-chip size="small" :color="getTypeColor(memory.type ?? memory.Type)" variant="tonal">
+        {{ formatType(memory.type ?? memory.Type) }}
       </v-chip>
     </td>
     
@@ -38,16 +38,20 @@ defineEmits(['approve', 'reject'])
 
 
 const formatType = (type: any) => {
-  if (type == 1) return 'Condolencia'
-  if (type == 2) return 'Anécdota'
-  return 'Foto'
+  const t = type == null ? '' : String(type)
+  if (t === '1' || t === 'Condolence') return 'Condolencia'
+  if (t === '2' || t === 'Anecdote') return 'Anécdota'
+  if (t === '3' || t === 'Photo') return 'Foto'
+  return t ? 'Desconocido' : '—'
 }
 
-// Asigna  color por tipo
+// Asigna color por tipo
 const getTypeColor = (type: any) => {
-  if (type == 1) return 'indigo'
-  if (type == 2) return 'teal'
-  return 'orange'
+  const t = type == null ? '' : String(type)
+  if (t === '1' || t === 'Condolence') return 'indigo'
+  if (t === '2' || t === 'Anecdote') return 'teal'
+  if (t === '3' || t === 'Photo') return 'orange'
+  return 'grey'
 }
 
 
