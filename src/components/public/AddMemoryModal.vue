@@ -108,8 +108,12 @@ async function sendToApi() {
       ui.notify('Necesitas iniciar sesión para publicar un recuerdo.', 'error')
     } else if (error.response?.status === 403) {
       ui.notify('Tu perfil no tiene permiso para publicar recuerdos.', 'error')
+    } else if (error.response?.status === 500) {
+      ui.notify('Error del servidor al guardar el recuerdo. Comprueba que estás logueado y que tu usuario puede publicar recuerdos.', 'error')
+    } else if (error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) {
+      ui.notify('No se pudo conectar con el servidor. Comprueba que la API está en marcha (puerto 8080).', 'error')
     } else {
-      ui.notify("Revisa los datos. Error de conexión.", "error")
+      ui.notify('Revisa los datos o intenta de nuevo más tarde.', 'error')
     }
   }
   finally { loading.value = false }
