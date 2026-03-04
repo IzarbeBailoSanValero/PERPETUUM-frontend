@@ -2,9 +2,14 @@
   <!-- Tarjeta de un recuerdo individual (usada en el Muro) -->
   <v-card border flat class="pa-4 rounded-lg mb-4">
     <div class="d-flex justify-space-between align-center mb-2">
-      <span class="text-subtitle-2 font-weight-bold text-indigo">
-        {{ memory.authorRelation || 'Anónimo' }}
-      </span>
+      <div class="d-flex flex-column">
+        <span class="text-subtitle-2 font-weight-bold text-indigo">
+          {{ memory.authorName || 'Anónimo' }}
+        </span>
+        <span v-if="memory.authorRelation" class="text-caption text-medium-emphasis">
+          {{ memory.authorRelation }}
+        </span>
+      </div>
       <span class="text-caption text-grey">
         {{ formatDate(memory.createdDate) }}
       </span>
@@ -14,7 +19,7 @@
       {{ memory.textContent }}
     </v-card-text>
 
-    <v-img v-if="memory.mediaURL" :src="memory.mediaURL" max-height="300" cover
+    <v-img v-if="memory.mediaURL" :src="memory.mediaURL" max-height="300" cover referrerpolicy="no-referrer"
       class="rounded-lg bg-grey-lighten-2"></v-img>
 
     <v-chip size="x-small" class="mt-2" variant="tonal">

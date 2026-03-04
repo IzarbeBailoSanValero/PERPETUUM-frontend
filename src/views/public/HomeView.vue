@@ -73,7 +73,7 @@
             :to="'/memorial/' + item.id"
           >
             <div class="card-image-1-1">
-              <v-img :src="item.photoURL" cover>
+              <v-img :src="item.photoURL" cover referrerpolicy="no-referrer">
                 <template v-slot:placeholder>
                   <div class="w-100 h-100 d-flex align-center justify-center bg-grey-lighten-3">
                     <v-icon size="60" color="grey-lighten-1">mdi-image-off</v-icon>

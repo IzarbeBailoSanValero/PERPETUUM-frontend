@@ -6,6 +6,7 @@
         v-if="item.photoURL && item.photoURL.trim() !== ''"
         :src="item.photoURL"
         cover
+        referrerpolicy="no-referrer"
       />
       <v-icon
         v-else

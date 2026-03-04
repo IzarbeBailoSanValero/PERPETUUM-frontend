@@ -11,6 +11,7 @@ export interface Memory {
   textContent: string | null
   mediaURL: string | null
   authorRelation: string | null
+  authorName: string | null
   userId: number
   deceasedId: number
 }
@@ -34,6 +35,7 @@ function normalizeMemory(raw: any): Memory {
     textContent: raw?.textContent ?? raw?.TextContent ?? null,
     mediaURL: raw?.mediaURL ?? raw?.MediaURL ?? null,
     authorRelation: raw?.authorRelation ?? raw?.AuthorRelation ?? null,
+    authorName: raw?.authorName ?? raw?.AuthorName ?? null,
     userId: raw?.userId ?? raw?.UserId,
     deceasedId: raw?.deceasedId ?? raw?.DeceasedId
   }

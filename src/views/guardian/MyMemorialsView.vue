@@ -16,6 +16,7 @@
               <v-img
                 :src="d.photoURL || 'https://via.placeholder.com/400x400?text=Sin+imagen'"
                 cover
+                referrerpolicy="no-referrer"
                 class="align-end"
                 gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
               >
