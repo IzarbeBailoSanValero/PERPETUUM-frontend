@@ -1,7 +1,7 @@
 <template>
   <v-navigation-drawer permanent>
     <v-list>
-      <v-list-item prepend-icon="mdi-account-heart" :title="auth.user?.name || 'Guardián'" subtitle="Cuenta familiar" />
+      <v-list-item prepend-icon="mdi-account-heart" :title="auth.user?.name || 'Guardián'" />
       <v-divider />
       <v-list-item 
         prepend-icon="mdi-book-open-variant" 
