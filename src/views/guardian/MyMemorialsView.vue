@@ -37,10 +37,18 @@
               </v-btn>
               <v-btn
                 variant="tonal"
+                color="indigo"
+                :to="`/guardian/edit-memorial/${d.id}`"
+                prepend-icon="mdi-pencil"
+              >
+                Editar
+              </v-btn>
+              <v-btn
+                variant="text"
                 to="/guardian/moderation"
                 prepend-icon="mdi-shield-check"
               >
-                Moderar recuerdos
+                Moderar
               </v-btn>
             </v-card-actions>
           </v-card>

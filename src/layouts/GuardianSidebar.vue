@@ -8,6 +8,11 @@
         title="Mis Memoriales" 
         to="/guardian/my-memorials"
       />
+      <v-list-item
+        prepend-icon="mdi-pencil"
+        title="Editar Memorial"
+        to="/guardian/my-memorials"
+      />
       <v-list-item 
         prepend-icon="mdi-shield-check" 
         title="Moderación" 

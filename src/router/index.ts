@@ -49,7 +49,8 @@ const routes: RouteRecordRaw[] = [
       { path: '', redirect: { name: 'GuardianMyMemorials' } },
       { path: 'home', redirect: { name: 'GuardianMyMemorials' } },
       { path: 'my-memorials', name: 'GuardianMyMemorials', component: () => import('@/views/guardian/MyMemorialsView.vue') },
-      { path: 'moderation', name: 'GuardianModeration', component: () => import('@/views/guardian/ModerationView.vue') }
+      { path: 'moderation', name: 'GuardianModeration', component: () => import('@/views/guardian/ModerationView.vue') },
+      { path: 'edit-memorial/:id', name: 'GuardianEditMemorial', component: () => import('@/views/guardian/EditMemorialView.vue'), props: true }
     ]
   },
   // Ruta para accesos no autorizados
