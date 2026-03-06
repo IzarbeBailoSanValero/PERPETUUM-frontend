@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer permanent elevation="2" color="indigo-darken-4">
+  <v-navigation-drawer permanent elevation="2" color="primary">
 
     <v-list class="pa-4">
       <v-list-item title="PERPETUUM" :subtitle="t('sidebar.admin.panel')" prepend-icon="mdi-infinity" />

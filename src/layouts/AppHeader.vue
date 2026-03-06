@@ -1,7 +1,7 @@
 <template>
   <v-app-bar elevation="1">
     <v-app-bar-title
-      class="font-weight-bold text-indigo"
+      class="font-weight-bold text-primary"
       style="cursor: pointer"
       @click="router.push('/')"
     >PERPETUUM</v-app-bar-title>
@@ -14,7 +14,7 @@
       exact
       variant="text"
       class="text-none"
-      active-class="text-indigo font-weight-black bg-indigo-lighten-5"
+      active-class="text-primary font-weight-black"
     >
       {{ t('nav.home') }}
     </v-btn>
@@ -25,7 +25,7 @@
       exact
       variant="text"
       class="text-none"
-      active-class="text-indigo font-weight-black bg-indigo-lighten-5"
+      active-class="text-primary font-weight-black"
     >
       {{ t('nav.login') }}
     </v-btn>
@@ -34,7 +34,7 @@
       v-if="!auth.isLoggedIn && route.path !== '/register'"
       to="/register"
       exact
-      color="indigo"
+      color="primary"
       variant="flat"
       class="text-none ml-2"
     >
@@ -44,7 +44,7 @@
     <v-btn
       v-if="auth.isLoggedIn && (auth.userRole === 'Admin' || auth.userRole === 'Staff')"
       to="/admin/dashboard"
-      color="indigo"
+      color="primary"
       variant="tonal"
       class="text-none ml-2"
     >
@@ -54,7 +54,7 @@
     <v-btn
       v-if="auth.isLoggedIn && auth.userRole === 'Guardian'"
       to="/guardian/my-memorials"
-      color="indigo"
+      color="primary"
       variant="tonal"
       class="text-none ml-2"
     >
@@ -64,7 +64,7 @@
     <v-btn
       v-if="auth.isLoggedIn && auth.userRole === 'StandardUser'"
       to="/profile"
-      color="indigo"
+      color="primary"
       variant="tonal"
       prepend-icon="mdi-account-circle"
       class="text-none ml-2"

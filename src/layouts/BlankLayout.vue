@@ -6,7 +6,7 @@ Los Layouts son "cáscaras". Su única misión es colocar el menú y dejar un hu
 </script>
 <template>
   <v-app>
-    <v-main class="d-flex align-center justify-center bg-grey-lighten-4">
+    <v-main class="d-flex align-center justify-center bg-background">
       <router-view />
     </v-main>
   </v-app>

@@ -7,7 +7,7 @@
     <AdminTopbar />
 
     <!-- v-main es el área donde se renderiza el contenido principal. Vuetify calcula el espacio restante después del sidebar y topbar. -->
-    <v-main class="bg-grey-lighten-4">
+    <v-main class="bg-surface-variant">
 
       <!-- v-container añade márgenes y controla el ancho del contenido.fluid = ocupa todo el ancho disponible.pa-6 = padding amplio para que el contenido respire. -->
       <v-container fluid class="pa-6">
@@ -32,6 +32,3 @@
 import AdminSidebar from './AdminSidebar.vue'
 import AdminTopbar from './AdminTopbar.vue'
 </script>
-
-
-

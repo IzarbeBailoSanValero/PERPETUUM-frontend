@@ -8,3 +8,46 @@
 // @use 'vuetify/settings' with (
 //   $color-pack: false
 // );
+
+// ─── Variables CSS globales ───────────────────────────────────────────────────
+// Accesibles desde cualquier componente con var(--perp-*)
+:root {
+  // Sombras cálidas (en lugar de las grises por defecto)
+  --perp-shadow-sm:  0 1px 4px rgba(42, 31, 22, 0.10);
+  --perp-shadow-md:  0 4px 16px rgba(42, 31, 22, 0.12);
+  --perp-shadow-lg:  0 8px 32px rgba(42, 31, 22, 0.15);
+
+  // Transición estándar
+  --perp-transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// Modo oscuro: sombras más sutiles sobre fondos oscuros
+.v-theme--dark {
+  --perp-shadow-sm:  0 1px 4px rgba(0, 0, 0, 0.30);
+  --perp-shadow-md:  0 4px 16px rgba(0, 0, 0, 0.35);
+  --perp-shadow-lg:  0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+// ─── Tarjetas con sombra cálida ───────────────────────────────────────────────
+.v-card {
+  box-shadow: var(--perp-shadow-sm) !important;
+  transition: box-shadow var(--perp-transition), transform var(--perp-transition);
+}
+
+.v-card:hover {
+  box-shadow: var(--perp-shadow-md) !important;
+}
+
+// ─── Scrollbar sutil a tono con la paleta ─────────────────────────────────────
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+.v-theme--light ::-webkit-scrollbar-thumb {
+  background: #C4B09A;
+  border-radius: 3px;
+}
+
+.v-theme--dark ::-webkit-scrollbar-thumb {
+  background: #4A3E34;
+  border-radius: 3px;
+}

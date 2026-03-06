@@ -29,7 +29,7 @@
         <!-- props contiene los eventos y atributos necesarios para abrir el menú -->
         <v-btn v-bind="props" class="text-none">
           <!-- Avatar del usuario -->
-          <v-avatar size="32" color="indigo" class="mr-2">AD</v-avatar>
+          <v-avatar size="32" color="primary" class="mr-2">AD</v-avatar>
           <!-- Nombre del usuario -->
           Administrador
         </v-btn>
