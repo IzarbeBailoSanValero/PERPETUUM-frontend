@@ -4,8 +4,6 @@
       <v-list-item prepend-icon="mdi-account-heart" :title="auth.user?.name || 'Guardián'" />
       <v-divider />
       <v-list-item prepend-icon="mdi-book-open-variant" :title="t('sidebar.guardian.myMemorials')"  to="/guardian/my-memorials" />
-      <v-list-item prepend-icon="mdi-pencil"            :title="t('sidebar.guardian.editMemorial')" to="/guardian/my-memorials" />
-      <v-list-item prepend-icon="mdi-shield-check"      :title="t('sidebar.guardian.moderation')"  to="/guardian/moderation" />
       <v-list-item prepend-icon="mdi-earth"             :title="t('sidebar.guardian.publicArea')"  to="/" />
       <v-divider />
       <v-list-item prepend-icon="mdi-logout" :title="t('sidebar.guardian.logout')" @click="handleLogout" />
