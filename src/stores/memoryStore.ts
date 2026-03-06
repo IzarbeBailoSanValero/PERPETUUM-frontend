@@ -38,12 +38,10 @@ export const useMemoryStore = defineStore('memory', () => {
   const memories = ref<Memory[]>([])
   const loading = ref(false)
 
-  async function fetchPendingMemories(deceasedId?: number) {
+  async function fetchPendingMemories() {
     loading.value = true
     try {
-      const response = await apiClient.get('/Memory/pending', {
-        params: deceasedId ? { deceasedId } : undefined
-      })
+      const response = await apiClient.get('/Memory/pending')
       const data = Array.isArray(response.data) ? response.data : []
       memories.value = data.map(normalizeMemory)
     } catch (error) {
@@ -53,9 +51,9 @@ export const useMemoryStore = defineStore('memory', () => {
     }
   }
 
-  async function updateMemoryStatus(id: number, status: number, deceasedId?: number) {
+  async function updateMemoryStatus(id: number, status: number) {
     await apiClient.put(`/Memory/${id}/status`, null, { params: { status } })
-    await fetchPendingMemories(deceasedId)
+    await fetchPendingMemories()
   }
 
   return {

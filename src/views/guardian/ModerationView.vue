@@ -43,7 +43,6 @@
       <v-table v-else>
         <thead>
           <tr>
-            <!-- Ocultar columna de difunto cuando ya está filtrado -->
             <th v-if="!deceasedId">{{ t('guardian.moderation.colDeceased') }}</th>
             <th>{{ t('guardian.moderation.colMessage') }}</th>
             <th>{{ t('guardian.moderation.colType') }}</th>
@@ -93,19 +92,22 @@ const store = useMemoryStore()
 const ui = useUiStore()
 const search = ref('')
 
-// ID numérico del difunto (undefined si no se filtra)
 const numericDeceasedId = computed(() =>
   props.deceasedId ? Number(props.deceasedId) : undefined
 )
 
-// Nombre del difunto — se extrae del primer recuerdo cargado
+// Nombre del difunto — se extrae del primer recuerdo que coincida
 const deceasedName = computed(() => {
   if (!numericDeceasedId.value) return ''
-  return store.memories[0]?.deceasedName ?? ''
+  return store.memories.find(m => m.deceasedId === numericDeceasedId.value)?.deceasedName ?? ''
 })
 
 const filteredMemories = computed(() =>
   store.memories.filter(m => {
+    // Filtro por difunto en el frontend
+    if (numericDeceasedId.value && m.deceasedId !== numericDeceasedId.value) return false
+
+    // Filtro por buscador de texto
     const term = search.value.trim().toLowerCase()
     if (!term) return true
     return m.deceasedName.toLowerCase().includes(term) ||
@@ -127,18 +129,15 @@ function formatDate(date: string) {
 
 async function moderate(id: number, status: 1 | 2) {
   try {
-    // Tras moderar, refresca manteniendo el filtro del difunto actual
-    await store.updateMemoryStatus(id, status, numericDeceasedId.value)
+    await store.updateMemoryStatus(id, status)
     ui.notify(status === 1 ? t('guardian.moderation.approvedOk') : t('guardian.moderation.rejectedOk'), 'success')
   } catch {
     ui.notify(t('guardian.moderation.errorAction'), 'error')
   }
 }
 
-// Recarga si cambia el parámetro de la URL (navegación entre difuntos)
-watch(() => props.deceasedId, () => {
-  store.fetchPendingMemories(numericDeceasedId.value)
-})
+// Siempre carga todos los recuerdos pendientes, el filtrado es local
+watch(() => props.deceasedId, () => store.fetchPendingMemories())
 
-onMounted(() => store.fetchPendingMemories(numericDeceasedId.value))
+onMounted(() => store.fetchPendingMemories())
 </script>
