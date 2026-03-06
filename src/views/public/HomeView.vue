@@ -3,7 +3,7 @@
     <v-row class="text-center py-10">
       <v-col cols="12">
         <h1 class="text-h2 font-weight-bold mb-4">{{ t('home.title') }}</h1>
-        <p class="text-h6 text-grey">{{ t('home.subtitle') }}</p>
+        <p class="text-h6 text-medium-emphasis">{{ t('home.subtitle') }}</p>
       </v-col>
     </v-row>
 
@@ -59,8 +59,8 @@
             <div class="card-image-1-1">
               <v-img :src="item.photoURL" cover referrerpolicy="no-referrer">
                 <template v-slot:placeholder>
-                  <div class="w-100 h-100 d-flex align-center justify-center bg-grey-lighten-3">
-                    <v-icon size="60" color="grey-lighten-1">mdi-image-off</v-icon>
+                  <div class="w-100 h-100 d-flex align-center justify-center bg-surface-variant">
+                    <v-icon size="60" color="secondary">mdi-image-off</v-icon>
                   </div>
                 </template>
               </v-img>
@@ -79,8 +79,8 @@
 
     <v-row v-else-if="!store.loading" justify="center" class="mt-10">
       <v-col cols="12" class="text-center">
-        <v-icon size="64" color="grey-lighten-1">mdi-account-search-outline</v-icon>
-        <p class="text-grey mt-4">{{ t('home.noResults') }}</p>
+        <v-icon size="64" color="secondary">mdi-account-search-outline</v-icon>
+        <p class="text-medium-emphasis mt-4">{{ t('home.noResults') }}</p>
       </v-col>
     </v-row>
   </v-container>

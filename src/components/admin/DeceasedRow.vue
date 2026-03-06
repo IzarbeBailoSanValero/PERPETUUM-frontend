@@ -1,7 +1,7 @@
 <!--una sola fila del difunto. la pagina llama a este componente -> requisito de no mezclar el v-for y el pintado (datos y diseño)-->
 <template>
   <div class="d-flex align-center py-2">
-    <v-avatar size="45" color="grey-lighten-2" class="mr-4">
+    <v-avatar size="45" color="surface-variant" class="mr-4">
       <v-img
         v-if="item.photoURL && item.photoURL.trim() !== ''"
         :src="item.photoURL"
@@ -12,7 +12,7 @@
         v-else
         icon="mdi-account-tie"
         size="28"
-        color="grey"
+        color="secondary"
       />
     </v-avatar>
     

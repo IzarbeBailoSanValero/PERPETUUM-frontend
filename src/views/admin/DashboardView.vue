@@ -3,7 +3,7 @@
     <div class="d-flex justify-space-between align-center mb-6">
       <div>
         <h1 class="text-h4 font-weight-bold">{{ t('admin.dashboard.title') }}</h1>
-        <p class="text-subtitle-1 text-grey">{{ t('admin.dashboard.subtitle') }}</p>
+        <p class="text-subtitle-1 text-medium-emphasis">{{ t('admin.dashboard.subtitle') }}</p>
       </div>
 
       <v-col cols="12" md="6" class="d-flex justify-md-end align-center gap-3">
@@ -14,7 +14,7 @@
         >
         </v-select>
 
-        <v-btn prepend-icon="mdi-refresh" color="indigo" variant="elevated" @click="loadDashboardData" :loading="loading">
+        <v-btn prepend-icon="mdi-refresh" color="primary" variant="elevated" @click="loadDashboardData" :loading="loading">
           Actualizar 
         </v-btn>
       </v-col>
@@ -22,16 +22,16 @@
 
     <v-row v-if="!loading">
       <v-col cols="12" sm="6" md="3">
-        <KpiCard :title="t('admin.dashboard.kpi.memorials')" :value="stats.totalMemorials" icon="mdi-grave-stone" color="blue" />
+        <KpiCard :title="t('admin.dashboard.kpi.memorials')" :value="stats.totalMemorials" icon="mdi-grave-stone"  color="primary"   />
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <KpiCard :title="t('admin.dashboard.kpi.pending')" :value="stats.pendingMemories" icon="mdi-message-alert" color="orange" />
+        <KpiCard :title="t('admin.dashboard.kpi.pending')"   :value="stats.pendingMemories" icon="mdi-message-alert" color="warning"   />
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <KpiCard :title="t('admin.dashboard.kpi.guardians')" :value="stats.guardianCount" icon="mdi-account-heart" color="indigo" />
+        <KpiCard :title="t('admin.dashboard.kpi.guardians')" :value="stats.guardianCount"   icon="mdi-account-heart" color="secondary" />
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <KpiCard :title="t('admin.dashboard.kpi.avg')" :value="stats.avgMemories" icon="mdi-chart-line" color="green" />
+        <KpiCard :title="t('admin.dashboard.kpi.avg')"       :value="stats.avgMemories"     icon="mdi-chart-line"    color="success"   />
       </v-col>
     </v-row>
 
@@ -77,14 +77,46 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useTheme } from 'vuetify'
 import type { ApexOptions } from 'apexcharts'
 import KpiCard from '@/components/admin/KpiCard.vue'
 
 const { t } = useI18n()
 const loading = ref(true)
 const timeRange = ref('6months')
+
+// Paleta orgánica — mismos valores que vuetify.ts para que las gráficas
+// estén siempre alineadas con el tema visual aunque ApexCharts no acceda
+// directamente a las variables CSS de Vuetify
+const PALETTE = {
+  light: {
+    primary:   '#6B5344', // madera oscura
+    secondary: '#5C8FA3', // azul cielo
+    warning:   '#8C6230', // ámbar tierra
+    success:   '#5A7A5A', // salvia verde
+    text:      '#2A1F16', // texto oscuro cálido
+    textMuted: '#7A6A5A', // texto secundario
+    grid:      '#DDD5C8', // líneas de cuadrícula
+    bg:        'transparent'
+  },
+  dark: {
+    primary:   '#C8A882', // arena cálida
+    secondary: '#88B8CC', // cielo claro
+    warning:   '#C8A050', // ámbar dorado
+    success:   '#88B488', // salvia clara
+    text:      '#EDE5D8', // texto claro cálido
+    textMuted: '#A89880', // texto secundario oscuro
+    grid:      '#3A3028', // líneas de cuadrícula oscuras
+    bg:        'transparent'
+  }
+}
+
+// Vuetify expone el tema activo; lo usamos para sincronizar ApexCharts
+const vuetifyTheme = useTheme()
+const isDark = computed(() => vuetifyTheme.global.current.value.dark)
+const palette = computed(() => isDark.value ? PALETTE.dark : PALETTE.light)
 
 // Objeto stats: guarda los números simples
 const stats = reactive({
@@ -94,35 +126,71 @@ const stats = reactive({
   avgMemories: '0.0' // Media de recuerdos por difunto
 })
 
-//GRAFICAS CONFIG
+// ─── Opciones base de ApexCharts (se recomputan al cambiar tema) ─────────────
+
+// Opciones compartidas para que los ejes y tooltips se lean bien en ambos modos
+function baseChartTheme(): Partial<ApexOptions> {
+  const p = palette.value
+  return {
+    chart: {
+      background: p.bg,
+      foreColor: p.text,       // color de texto de ejes y labels
+      toolbar: { show: false }
+    },
+    grid: {
+      borderColor: p.grid
+    },
+    tooltip: {
+      theme: isDark.value ? 'dark' : 'light'
+    },
+    xaxis: {
+      labels: { style: { colors: p.textMuted } },
+      axisBorder: { color: p.grid },
+      axisTicks: { color: p.grid }
+    },
+    yaxis: {
+      labels: { style: { colors: p.textMuted } }
+    }
+  }
+}
 
 // A Gráfica de Barras
 const barSeries = ref([{ name: 'Memoriales', data: [] as number[] }])
-const barOptions = ref<ApexOptions>({
-  chart: { id: 'bar-growth', toolbar: { show: false } },
-  xaxis: { categories: ['Sept', 'Oct', 'Nov', 'Dic', 'Ene', 'Feb'] },
-  colors: ['#1976D2'],
+const barOptions = computed<ApexOptions>(() => ({
+  ...baseChartTheme(),
+  chart: { ...baseChartTheme().chart, id: 'bar-growth' },
+  xaxis: { ...baseChartTheme().xaxis, categories: ['Sept', 'Oct', 'Nov', 'Dic', 'Ene', 'Feb'] },
+  colors: [palette.value.primary],
   plotOptions: { bar: { borderRadius: 6 } }
-})
+}))
 
 // B Gráfica de Donut
 const donutSeries = ref([] as number[])
-const donutOptions = ref<ApexOptions>({
+const donutOptions = computed<ApexOptions>(() => ({
+  ...baseChartTheme(),
   labels: ['Condolencias', 'Anécdotas', 'Fotos'],
-  colors: ['#5C6BC0', '#26A69A', '#FFA726'],
-  legend: { position: 'bottom' }
-})
+  // Tres tonos de la paleta: madera, cielo, ámbar
+  colors: [palette.value.primary, palette.value.secondary, palette.value.warning],
+  legend: {
+    position: 'bottom',
+    labels: { colors: palette.value.text }
+  },
+  dataLabels: {
+    style: { colors: ['#fff'] }
+  }
+}))
 
 // C Gráfica de Líneas 
 const lineSeries = ref([{ name: 'Interacciones', data: [] as number[] }])
-const lineOptions = ref<ApexOptions>({
-  chart: { id: 'line-trend', toolbar: { show: false }, zoom: { enabled: false } },
+const lineOptions = computed<ApexOptions>(() => ({
+  ...baseChartTheme(),
+  chart: { ...baseChartTheme().chart, id: 'line-trend', zoom: { enabled: false } },
   stroke: { curve: 'smooth', width: 4 },
-  xaxis: { categories: ['Sept', 'Oct', 'Nov', 'Dic', 'Ene', 'Feb'] },
-  colors: ['#E91E63'], 
+  xaxis: { ...baseChartTheme().xaxis, categories: ['Sept', 'Oct', 'Nov', 'Dic', 'Ene', 'Feb'] },
+  colors: [palette.value.secondary],
   dataLabels: { enabled: false },
-  markers: { size: 5 }
-})
+  markers: { size: 5, colors: [palette.value.secondary] }
+}))
 
 // --- (SIMULACIÓN DE API / MOCK DATA) ---
 //Uso una función asíncrona para simular la espera del servidor
@@ -177,5 +245,4 @@ onMounted(() => {
 
 <style scoped>
 .gap-3 { gap: 12px; }
-.apexcharts-tooltip { color: #000 !important; }/* fuerzo el color del texto dentro del tooltip de ApexCharts por porblema de conltraste */
 </style>

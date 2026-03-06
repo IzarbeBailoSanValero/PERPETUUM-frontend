@@ -9,7 +9,7 @@
     <!-- Encabezado -->
     <div class="d-flex justify-space-between align-center mb-3">
       <div class="d-flex flex-column">
-        <span class="text-subtitle-2 font-weight-bold text-indigo">
+        <span class="text-subtitle-2 font-weight-bold text-primary">
           {{ memory.authorName || 'Anónimo' }}
         </span>
         <span
@@ -20,7 +20,7 @@
         </span>
       </div>
 
-      <span class="text-caption text-grey">
+      <span class="text-caption text-medium-emphasis">
         {{ formatDate(memory.createdDate) }}
       </span>
     </div>

@@ -16,7 +16,7 @@
     <!-- Botón de notificaciones -->
     <v-btn icon="mdi-bell-outline" class="mr-2">
       <!-- Badge: punto rojo indicando notificaciones -->
-      <v-badge dot color="red">
+      <v-badge dot color="error">
         <!-- El icono se renderiza dentro del badge -->
         <v-icon></v-icon>
       </v-badge>

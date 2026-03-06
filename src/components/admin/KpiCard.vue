@@ -1,4 +1,4 @@
-    <!-- Tarjeta de estadística para el Dashboard -->
+<!-- Tarjeta de estadística para el Dashboard -->
 <template>
   <v-card class="rounded-xl pa-4" elevation="2" border>
     <div class="d-flex align-center">
@@ -7,7 +7,7 @@
       </v-avatar>
 
       <div>
-        <div class="text-overline text-grey-darken-1 line-height-1 mb-1">
+        <div class="text-overline text-medium-emphasis line-height-1 mb-1">
           {{ title }}
         </div>
         <div class="text-h4 font-weight-bold">
@@ -31,4 +31,3 @@ defineProps<{
   color: string
 }>()
 </script>
-

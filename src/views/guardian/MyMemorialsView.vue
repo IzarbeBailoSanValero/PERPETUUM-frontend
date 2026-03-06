@@ -29,7 +29,7 @@
               <v-btn color="primary" variant="flat" :to="`/memorial/${d.id}`" prepend-icon="mdi-eye">
                 {{ t('guardian.myMemorials.viewBtn') }}
               </v-btn>
-              <v-btn variant="tonal" color="indigo" :to="`/guardian/edit-memorial/${d.id}`" prepend-icon="mdi-pencil">
+              <v-btn variant="tonal" color="primary" :to="`/guardian/edit-memorial/${d.id}`" prepend-icon="mdi-pencil">
                 {{ t('guardian.myMemorials.editBtn') }}
               </v-btn>
               <v-btn variant="text" to="/guardian/moderation" prepend-icon="mdi-shield-check">

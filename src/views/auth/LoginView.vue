@@ -23,7 +23,7 @@
           <v-btn block variant="text" class="mt-2 text-none" to="/register">
             {{ t('auth.goToRegister') }}
           </v-btn>
-          <v-btn block variant="text" class="mt-1 text-none text-grey" to="/" prepend-icon="mdi-home-outline">
+          <v-btn block variant="text" class="mt-1 text-none text-medium-emphasis" to="/" prepend-icon="mdi-home-outline">
             {{ t('auth.backHome') }}
           </v-btn>
         </v-card-actions>

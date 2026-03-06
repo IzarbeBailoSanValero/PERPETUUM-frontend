@@ -3,16 +3,16 @@
     
     <v-row justify="center" class="mb-10 text-center">
       <v-col cols="12" md="8">
-        <v-avatar size="150" class="mb-4 border-lg" color="grey-lighten-2">
+        <v-avatar size="150" class="mb-4 border-lg" color="surface-variant">
           <v-img :src="store.currentDeceased.photoURL" referrerpolicy="no-referrer">
             <template v-slot:placeholder>
               <div class="w-100 h-100 d-flex align-center justify-center">
-                <v-icon size="80" color="grey-lighten-1">mdi-image-off</v-icon>
+                <v-icon size="80" color="secondary">mdi-image-off</v-icon>
               </div>
             </template>
             <template v-slot:error>
               <div class="w-100 h-100 d-flex align-center justify-center">
-                <v-icon size="80" color="grey-lighten-1">mdi-image-off</v-icon>
+                <v-icon size="80" color="secondary">mdi-image-off</v-icon>
               </div>
             </template>
           </v-img>
@@ -70,6 +70,3 @@ onMounted(() => {     //para ejecutar código al cargar la vista
 
 })
 </script>
-
-
-

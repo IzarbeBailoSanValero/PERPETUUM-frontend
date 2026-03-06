@@ -2,10 +2,10 @@
   <v-container>
 
     <div class="d-flex justify-space-between align-center mb-4">
-      <h2 class="text-h4 font-weight-bold">{{ t('admin.staff.title') }}</h2>
+      <h2 class="text-h4 font-weight-bold ">{{ t('admin.staff.title') }}</h2>
       <v-btn
         v-if="auth.userRole === 'Admin'"
-        color="indigo"
+        color="primary"
         prepend-icon="mdi-account-plus"
         @click="openCreateModal"
       >
@@ -26,7 +26,7 @@
           class="max-w-xs"
           style="max-width: 220px"
         />
-        <v-btn color="indigo" variant="tonal" @click="loadStaff" :loading="store.loading">
+        <v-btn color="primary" variant="tonal" @click="loadStaff" :loading="store.loading">
           Cargar empleados
         </v-btn>
       </div>
@@ -52,13 +52,13 @@
         <template v-slot:item.funeralHomeId="{ item }">
           <v-chip
             v-if="item.isAdmin || !item.funeralHomeId"
-            color="indigo"
+            color="primary"
             size="small"
             variant="tonal"
           >
             Admin Global
           </v-chip>
-          <v-chip v-else color="blue-grey" size="small" variant="tonal">
+          <v-chip v-else color="secondary" size="small" variant="tonal">
             Funeraria Nº{{ item.funeralHomeId }}
           </v-chip>
         </template>
@@ -66,10 +66,10 @@
         <!-- Columna Acciones (solo Admin) -->
         <template v-slot:item.actions="{ item }">
           <template v-if="auth.userRole === 'Admin'">
-            <v-btn icon="mdi-pencil" variant="text" color="blue" @click="openEditModal(item)" />
+            <v-btn icon="mdi-pencil" variant="text" color="primary" @click="openEditModal(item)" />
             <v-btn icon="mdi-delete" variant="text" color="error" @click="confirmDelete(item.id)" />
           </template>
-          <v-chip v-else color="grey" size="x-small" variant="tonal">{{ t('admin.staff.readOnly') }}</v-chip>
+          <v-chip v-else color="surface-variant" size="x-small" variant="tonal">{{ t('admin.staff.readOnly') }}</v-chip>
         </template>
       </v-data-table>
     </v-card>
@@ -151,7 +151,7 @@
               v-if="!isEditing"
               v-model="form.isAdmin"
               :label="t('admin.staff.isAdmin')"
-              color="indigo"
+              color="primary"
               inset
               class="mb-2"
               @update:modelValue="onAdminToggle"
@@ -171,7 +171,7 @@
           <v-card-actions>
             <v-spacer />
             <v-btn variant="text" @click="dialog = false">{{ t('admin.staff.cancel') }}</v-btn>
-            <v-btn color="indigo" type="submit" :loading="saving">
+            <v-btn color="primary" type="submit" :loading="saving">
               {{ isEditing ? 'Actualizar' : 'Crear' }}
             </v-btn>
           </v-card-actions>

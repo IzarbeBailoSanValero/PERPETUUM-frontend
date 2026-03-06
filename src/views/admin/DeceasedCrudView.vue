@@ -1,8 +1,8 @@
 <template>
   <v-container>
     <div class="d-flex justify-space-between align-center mb-4">
-      <h2 class="text-h4 font-weight-bold">{{ t('admin.deceased.title') }}</h2>
-      <v-btn color="indigo" prepend-icon="mdi-plus" @click="openCreateModal">
+      <h2 class="text-h4 font-weight-bold ">{{ t('admin.deceased.title') }}</h2>
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreateModal">
         Nuevo Difunto
       </v-btn>
     </div>
@@ -15,11 +15,11 @@
         </template>
 
         <template v-slot:item.deathDate="{ value }">
-          <v-chip size="small" variant="outlined" color="indigo">{{ value }}</v-chip>
+          <v-chip size="small" variant="outlined" color="primary">{{ value }}</v-chip>
         </template>
 
         <template v-slot:item.actions="{ item }">
-          <v-btn icon="mdi-pencil" variant="text" color="blue" @click="openEditModal(item)"></v-btn>
+          <v-btn icon="mdi-pencil" variant="text" color="primary" @click="openEditModal(item)"></v-btn>
           <v-btn icon="mdi-delete" variant="text" color="error" @click="deleteItem(item.id)"></v-btn>
         </template>
 
@@ -170,7 +170,7 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn variant="text" @click="dialog = false">{{ t('admin.deceased.cancel') }}</v-btn>
-            <v-btn color="indigo" type="submit" :loading="saving">{{ t('admin.deceased.save') }}</v-btn>
+            <v-btn color="primary" type="submit" :loading="saving">{{ t('admin.deceased.save') }}</v-btn>
           </v-card-actions>
         </VForm>
       </v-card>

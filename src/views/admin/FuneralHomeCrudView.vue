@@ -1,8 +1,8 @@
 <template>
   <v-container>
     <div class="d-flex justify-space-between align-center mb-4">
-      <h2 class="text-h4 font-weight-bold">{{ t('admin.funeralHomes.title') }}</h2>
-      <v-btn color="indigo" prepend-icon="mdi-plus" @click="openCreateModal">
+      <h2 class="text-h4 font-weight-bold  ">{{ t('admin.funeralHomes.title') }}</h2>
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreateModal">
         {{ t('admin.funeralHomes.newBtn') }}
       </v-btn>
     </div>
@@ -13,7 +13,7 @@
           <FuneralHomeRow :item="item" />
         </template>
         <template v-slot:item.actions="{ item }">
-          <v-btn icon="mdi-pencil" variant="text" color="blue"  @click="openEditModal(item)"></v-btn>
+          <v-btn icon="mdi-pencil" variant="text" color="primary"  @click="openEditModal(item)"></v-btn>
           <v-btn icon="mdi-delete" variant="text" color="error" @click="confirmDelete(item.id)"></v-btn>
         </template>
       </v-data-table>
@@ -42,7 +42,7 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn variant="text" @click="dialog = false">{{ t('admin.funeralHomes.cancel') }}</v-btn>
-            <v-btn color="indigo" type="submit" :loading="saving">{{ t('admin.funeralHomes.save') }}</v-btn>
+            <v-btn color="primary" type="submit" :loading="saving">{{ t('admin.funeralHomes.save') }}</v-btn>
           </v-card-actions>
         </VForm>
       </v-card>

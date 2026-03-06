@@ -5,11 +5,11 @@
     <v-row justify="center" class="mb-10">
       <v-col cols="12" md="7">
         <div class="d-flex align-center ga-4">
-          <v-icon size="34" color="indigo">mdi-account-circle</v-icon>
+          <v-icon size="34" color="primary">mdi-account-circle</v-icon>
 
           <div>
             <h2 class="text-h5 font-weight-bold mb-1">Mi Perfil</h2>
-            <p class="text-body-2 text-grey">
+            <p class="text-body-2 text-medium-emphasis">
               Gestiona tu cuenta de Perpetuum
             </p>
           </div>
@@ -20,7 +20,7 @@
     <!-- Cargando -->
     <v-row justify="center" v-if="loading">
       <v-col cols="12" md="7">
-        <v-progress-linear indeterminate color="indigo" class="rounded" />
+        <v-progress-linear indeterminate color="primary" class="rounded" />
       </v-col>
     </v-row>
 
@@ -45,17 +45,17 @@
           flat
           class="rounded-xl pa-7 mb-6 d-flex align-center ga-5"
         >
-          <v-avatar size="72" color="indigo-lighten-4">
-            <span class="text-h5 font-weight-bold text-indigo">
+          <v-avatar size="72" color="surface-variant">
+            <span class="text-h5 font-weight-bold text-primary">
               {{ initials }}
             </span>
           </v-avatar>
 
           <div>
             <p class="text-h6 font-weight-bold mb-1">{{ profile?.name }}</p>
-            <p class="text-body-2 text-grey mb-3">{{ profile?.email }}</p>
+            <p class="text-body-2 text-medium-emphasis mb-3">{{ profile?.email }}</p>
 
-            <v-chip size="small" color="indigo" variant="tonal">
+            <v-chip size="small" color="primary" variant="tonal">
               <v-icon start size="14">mdi-shield-account</v-icon>
               {{ roleLabel }}
             </v-chip>
@@ -65,7 +65,7 @@
         <!-- Formulario -->
         <v-card border flat class="rounded-xl pa-7 mb-6">
 
-          <p class="text-subtitle-1 font-weight-bold text-grey-darken-2 mb-6">
+          <p class="text-subtitle-1 font-weight-bold mb-6">
             <v-icon size="18" class="mr-2">mdi-pencil-outline</v-icon>
             Editar datos personales
           </p>
@@ -129,7 +129,7 @@
 
             <div class="d-flex justify-end mt-2">
               <v-btn
-                color="indigo"
+                color="primary"
                 type="submit"
                 :loading="saving"
                 prepend-icon="mdi-content-save"
@@ -156,7 +156,7 @@
             Zona de peligro
           </p>
 
-          <p class="text-body-2 text-grey-darken-1 mb-5">
+          <p class="text-body-2 text-medium-emphasis mb-5">
             Eliminar tu cuenta es una acción permanente. Se borrarán todos tus datos y no podrás recuperarlos.
           </p>
 

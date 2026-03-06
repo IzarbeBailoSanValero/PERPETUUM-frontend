@@ -10,7 +10,7 @@
       />
       <div>
         <h2 class="text-h5 font-weight-bold">{{ t('guardian.editMemorial.title') }}</h2>
-        <p class="text-caption text-grey">
+        <p class="text-caption text-medium-emphasis">
           {{ deceased?.name || '...' }} · Solo puedes editar la información personal del memorial
         </p>
       </div>
@@ -33,39 +33,39 @@
       <!-- Columna izquierda: previsualización en tiempo real -->
       <v-col cols="12" md="4">
         <v-card border flat class="rounded-xl pa-4 text-center">
-          <v-avatar size="160" class="mb-4" color="grey-lighten-3">
+          <v-avatar size="160" class="mb-4" color="surface-variant">
             <v-img
               :src="form.photoURL || 'https://via.placeholder.com/400x400?text=Sin+imagen'"
               cover
               referrerpolicy="no-referrer"
             >
               <template v-slot:error>
-                <v-icon size="60" color="grey-lighten-1">mdi-image-off</v-icon>
+                <v-icon size="60" color="secondary">mdi-image-off</v-icon>
               </template>
             </v-img>
           </v-avatar>
 
           <h3 class="text-h6 font-weight-bold mb-1">{{ deceased.name }}</h3>
-          <p class="text-caption text-grey mb-3">
+          <p class="text-caption text-medium-emphasis mb-3">
             {{ formatDate(deceased.birthDate) }} — {{ formatDate(deceased.deathDate) }}
           </p>
 
           <v-divider class="mb-3" />
 
-          <p class="text-body-2 font-italic text-grey-darken-1 mb-2" v-if="form.epitaph">
+          <p class="text-body-2 font-italic text-medium-emphasis mb-2" v-if="form.epitaph">
             "{{ form.epitaph }}"
           </p>
-          <p class="text-caption text-grey" v-else>Sin epitafio todavía</p>
+          <p class="text-caption text-medium-emphasis" v-else>Sin epitafio todavía</p>
 
           <v-divider class="my-3" />
 
           <!-- Datos de solo lectura -->
           <div class="text-left">
-            <p class="text-caption text-grey mb-1">
+            <p class="text-caption text-medium-emphasis mb-1">
               <v-icon size="14" class="mr-1">mdi-office-building</v-icon>
               Funeraria ID: {{ deceased.funeralHomeId }}
             </p>
-            <p class="text-caption text-grey">
+            <p class="text-caption text-medium-emphasis">
               <v-icon size="14" class="mr-1">mdi-card-account-details</v-icon>
               DNI: {{ deceased.dni }}
             </p>
@@ -80,7 +80,7 @@
           <VForm @submit="save" :validation-schema="schema" :initial-values="initialValues" v-slot="{ errors }">
 
             <!-- Foto -->
-            <p class="text-subtitle-2 font-weight-bold text-grey-darken-2 mb-3">
+            <p class="text-subtitle-2 font-weight-bold mb-3">
               <v-icon size="16" class="mr-1">mdi-camera</v-icon>
               Foto del memorial
             </p>
@@ -102,7 +102,7 @@
             <v-divider class="mb-5" />
 
             <!-- Epitafio -->
-            <p class="text-subtitle-2 font-weight-bold text-grey-darken-2 mb-3">
+            <p class="text-subtitle-2 font-weight-bold mb-3">
               <v-icon size="16" class="mr-1">mdi-format-quote-close</v-icon>
               Epitafio
             </p>
@@ -125,7 +125,7 @@
             <v-divider class="mb-5" />
 
             <!-- Biografía -->
-            <p class="text-subtitle-2 font-weight-bold text-grey-darken-2 mb-3">
+            <p class="text-subtitle-2 font-weight-bold mb-3">
               <v-icon size="16" class="mr-1">mdi-text-box-outline</v-icon>
               Biografía
             </p>

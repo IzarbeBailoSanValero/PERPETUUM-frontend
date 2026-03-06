@@ -21,7 +21,7 @@
 
 
     <!--como requisito del enunciado, hago un footer distinto para admin-->
-    <v-footer app border class="bg-white justify-center text-caption text-grey">
+    <v-footer app border class="bg-surface justify-center text-caption text-medium-emphasis">
       PERPETUUM Management System ; {{ new Date().getFullYear() }} — Panel de Control Interno
     </v-footer>
 
