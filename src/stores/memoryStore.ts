@@ -53,9 +53,9 @@ export const useMemoryStore = defineStore('memory', () => {
     }
   }
 
-  async function updateMemoryStatus(id: number, status: number) {
+  async function updateMemoryStatus(id: number, status: number, deceasedId?: number) {
     await apiClient.put(`/Memory/${id}/status`, null, { params: { status } })
-    await fetchPendingMemories()
+    await fetchPendingMemories(deceasedId)
   }
 
   return {

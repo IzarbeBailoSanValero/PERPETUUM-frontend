@@ -326,5 +326,11 @@
     "addressRequired": "Address is required",
     "phoneRequired": "Phone is required",
     "funeralHomeRequired": "Funeral home ID is required for staff"
+  },
+  "notFound": {
+    "title": "This page doesn't exist",
+    "subtitle": "The address you're looking for was not found. It may have been removed or you may have mistyped the URL.",
+    "homeBtn": "Go home",
+    "backBtn": "Go back"
   }
 }

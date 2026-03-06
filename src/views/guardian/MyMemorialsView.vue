@@ -32,7 +32,7 @@
               <v-btn variant="tonal" color="primary" :to="`/guardian/edit-memorial/${d.id}`" prepend-icon="mdi-pencil">
                 {{ t('guardian.myMemorials.editBtn') }}
               </v-btn>
-              <v-btn variant="text" to="/guardian/moderation" prepend-icon="mdi-shield-check">
+              <v-btn variant="text" :to="`/guardian/moderation/${d.id}`" prepend-icon="mdi-shield-check">
                 {{ t('guardian.myMemorials.moderateBtn') }}
               </v-btn>
             </v-card-actions>

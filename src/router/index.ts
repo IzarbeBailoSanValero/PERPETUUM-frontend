@@ -51,7 +51,7 @@ const routes: RouteRecordRaw[] = [
       { path: '', redirect: { name: 'GuardianMyMemorials' } },
       { path: 'home', redirect: { name: 'GuardianMyMemorials' } },
       { path: 'my-memorials', name: 'GuardianMyMemorials', component: () => import('@/views/guardian/MyMemorialsView.vue') },
-      { path: 'moderation', name: 'GuardianModeration', component: () => import('@/views/guardian/ModerationView.vue') },
+      { path: 'moderation/:deceasedId?', name: 'GuardianModeration', component: () => import('@/views/guardian/ModerationView.vue'), props: true },
       { path: 'edit-memorial/:id', name: 'GuardianEditMemorial', component: () => import('@/views/guardian/EditMemorialView.vue'), props: true }
     ]
   },
@@ -60,6 +60,12 @@ const routes: RouteRecordRaw[] = [
     path: '/unauthorized',
     name: 'Unauthorized',
     component: () => import('@/views/public/UnauthorizedView.vue')
+  },
+  // Ruta 404 — debe ir siempre al final
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('@/views/public/NotFoundView.vue')
   }
 ]
 

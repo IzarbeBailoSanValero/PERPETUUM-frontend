@@ -326,5 +326,11 @@
     "addressRequired": "La dirección es obligatoria",
     "phoneRequired": "El teléfono es obligatorio",
     "funeralHomeRequired": "ID de funeraria obligatorio para empleados"
+  },
+  "notFound": {
+    "title": "Esta página no existe",
+    "subtitle": "La dirección que buscas no se encontró. Puede que haya sido eliminada o que hayas escrito mal la URL.",
+    "homeBtn": "Ir al inicio",
+    "backBtn": "Volver atrás"
   }
 }
