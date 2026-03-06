@@ -26,7 +26,7 @@
     <v-dialog v-model="dialog" max-width="500">
       <v-card :title="isEditing ? 'Editar Funeraria' : 'Registrar Funeraria'" class="pa-4 rounded-lg">
 
-        <VForm @submit="save" :validation-schema="schema" v-slot="{ errors }">
+        <VForm @submit="save" :validation-schema="schema" :initial-values="initialValues" v-slot="{ errors }">
           <v-card-text>
 
             <Field name="name" v-slot="{ field }">
@@ -65,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { Form as VForm, Field } from 'vee-validate'
 import * as yup from 'yup'
 import Swal from 'sweetalert2'
@@ -94,6 +94,10 @@ const form = reactive<any>({
   address:      '',
   phoneNumber:  ''
 })
+
+// initialValues sincroniza vee-validate con los datos pre-cargados al editar.
+// Sin esto, v-bind="field" muestra los campos vacíos aunque form.x ya tenga valor.
+const initialValues = computed(() => ({ ...form }))
 
 const schema = yup.object({
   name:         yup.string().required('Nombre obligatorio').max(100, 'Máximo 100 caracteres'),

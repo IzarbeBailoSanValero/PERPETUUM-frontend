@@ -29,8 +29,7 @@
     <v-dialog v-model="dialog" max-width="500">
       <v-card :title="isEditing ? 'Editar Difunto' : 'Registrar Difunto'" class="pa-4 rounded-lg">
         
-        <VForm @submit="save" :validation-schema="schema" v-slot="{ errors }">
-          <v-card-text>
+        <VForm @submit="save" :validation-schema="schema" :initial-values="initialValues" v-slot="{ errors }">          <v-card-text>
             
             <Field name="name" v-slot="{ field }">
               <v-text-field 
@@ -260,6 +259,10 @@ const form = reactive<any>({
   staffId: auth.user?.id || 0, // El StaffId es el ID del usuario logueado
   guardianId: 0
 })
+
+// Sincroniza el estado interno de vee-validate con los datos cargados al editar.
+// Sin esto, v-bind="field" muestra los campos vacíos aunque form.x ya tenga valor.
+const initialValues = computed(() => ({ ...form }))
 
 // traer familiares desde el backend
 async function fetchGuardians() {

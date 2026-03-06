@@ -38,6 +38,10 @@
           <v-btn block variant="text" class="mt-2 text-none" to="/register">
             ¿No tienes cuenta? Regístrate
           </v-btn>
+
+          <v-btn block variant="text" class="mt-1 text-none text-grey" to="/" prepend-icon="mdi-home-outline">
+            Volver al inicio
+          </v-btn>
         </v-card-actions>
       </VForm>
 

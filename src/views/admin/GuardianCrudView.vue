@@ -26,8 +26,7 @@
     <v-dialog v-model="dialog" max-width="500">
       <v-card :title="isEditing ? 'Editar Guardián' : 'Registrar Guardián'" class="pa-4 rounded-lg">
         
-        <VForm @submit="save" :validation-schema="schema" v-slot="{ errors }">
-          <v-card-text>
+        <VForm @submit="save" :validation-schema="schema" :initial-values="initialValues" v-slot="{ errors }">          <v-card-text>
             
             <Field name="name" v-slot="{ field }">
               <v-text-field v-bind="field" v-model="form.name" label="Nombre Completo" variant="outlined" :error-messages="errors.name" class="mb-3" />
@@ -110,6 +109,8 @@ const form = reactive<any>({
   funeralHomeId: auth.user?.funeralHomeId ?? 0,   // Staff: su funeraria; Admin global: 0 (debe elegir)
   staffId: auth.user?.id || 0
 })
+
+const initialValues = computed(() => ({ ...form }))
 
 // VALIDACIÓN
 const schema = computed(() => {

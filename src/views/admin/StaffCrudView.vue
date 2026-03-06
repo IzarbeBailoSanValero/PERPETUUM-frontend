@@ -77,8 +77,7 @@
     <v-dialog v-model="dialog" max-width="520">
       <v-card :title="isEditing ? 'Editar Empleado' : 'Registrar Empleado'" class="pa-4 rounded-lg">
 
-        <VForm @submit="save" :validation-schema="schema" v-slot="{ errors }">
-          <v-card-text>
+        <VForm @submit="save" :validation-schema="schema" :initial-values="initialValues" v-slot="{ errors }">          <v-card-text>
 
             <!-- Nombre -->
             <Field name="name" v-slot="{ field }">
@@ -223,6 +222,8 @@ const form = reactive<any>({
   funeralHomeId: auth.user?.funeralHomeId ?? null,
   isAdmin: false
 })
+
+const initialValues = computed(() => ({ ...form }))
 
 // ─── ESQUEMA DE VALIDACIÓN 
 

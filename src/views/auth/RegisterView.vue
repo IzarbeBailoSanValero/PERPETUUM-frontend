@@ -61,6 +61,16 @@
           >
             ¿Ya tienes cuenta? Inicia sesión
           </v-btn>
+
+          <v-btn
+            block
+            variant="text"
+            class="mt-1 text-none text-grey"
+            to="/"
+            prepend-icon="mdi-home-outline"
+          >
+            Volver al inicio
+          </v-btn>
         </v-card-actions>
       </VForm>
 
