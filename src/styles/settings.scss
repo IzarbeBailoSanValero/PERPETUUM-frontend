@@ -4,41 +4,94 @@
  * Configures SASS variables and Vuetify overwrites
  */
 
-// https://vuetifyjs.com/features/sass-variables/`
+// https://vuetifyjs.com/features/sass-variables/
 // @use 'vuetify/settings' with (
 //   $color-pack: false
 // );
 
-// ─── Variables CSS globales ───────────────────────────────────────────────────
+// ───────────────────────────────────────────────────────────────
+// Variables CSS globales
 // Accesibles desde cualquier componente con var(--perp-*)
+// ───────────────────────────────────────────────────────────────
+
 :root {
   // Sombras cálidas (en lugar de las grises por defecto)
-  --perp-shadow-sm:  0 1px 4px rgba(42, 31, 22, 0.10);
-  --perp-shadow-md:  0 4px 16px rgba(42, 31, 22, 0.12);
-  --perp-shadow-lg:  0 8px 32px rgba(42, 31, 22, 0.15);
+  --perp-shadow-sm: 0 1px 4px rgba(42, 31, 22, 0.10);
+  --perp-shadow-md: 0 4px 16px rgba(42, 31, 22, 0.12);
+  --perp-shadow-lg: 0 8px 32px rgba(42, 31, 22, 0.15);
 
   // Transición estándar
   --perp-transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  // Superficies y texto (modo claro)
+  --perp-surface: #FDFAF5;               // fondo tarjetas claro
+  --perp-surface-variant: #EDE5D8;       // fondo tarjetas secundarias
+  --perp-on-surface: #2A1F16;            // texto sobre superficies claras
 }
 
-// Modo oscuro: sombras más sutiles sobre fondos oscuros
+// ───────────────────────────────────────────────────────────────
+// Modo oscuro
+// Sombras más sutiles sobre fondos oscuros
+// Superficies y texto adaptados
+// ───────────────────────────────────────────────────────────────
+
 .v-theme--dark {
-  --perp-shadow-sm:  0 1px 4px rgba(0, 0, 0, 0.30);
-  --perp-shadow-md:  0 4px 16px rgba(0, 0, 0, 0.35);
-  --perp-shadow-lg:  0 8px 32px rgba(0, 0, 0, 0.45);
+  --perp-shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.30);
+  --perp-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --perp-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.45);
+
+  --perp-surface: #242019;               // fondo tarjetas oscuro
+  --perp-surface-variant: #2E2820;       // fondo tarjetas secundarias
+  --perp-on-surface: #EDE5D8;            // texto sobre superficies oscuras
 }
 
-// ─── Tarjetas con sombra cálida ───────────────────────────────────────────────
+// ───────────────────────────────────────────────────────────────
+// Elevations globales de Vuetify
+// Hace que TODOS los componentes usen las sombras cálidas
+// ───────────────────────────────────────────────────────────────
+
+.elevation-0 { box-shadow: none !important; }
+
+.elevation-1 { box-shadow: var(--perp-shadow-sm) !important; }
+
+.elevation-2,
+.elevation-3 { box-shadow: var(--perp-shadow-md) !important; }
+
+.elevation-4,
+.elevation-5,
+.elevation-6 { box-shadow: var(--perp-shadow-lg) !important; }
+
+// ───────────────────────────────────────────────────────────────
+// Tarjetas con sombra cálida + microinteracción
+// ───────────────────────────────────────────────────────────────
+
 .v-card {
   box-shadow: var(--perp-shadow-sm) !important;
-  transition: box-shadow var(--perp-transition), transform var(--perp-transition);
+  background-color: var(--perp-surface) !important;
+  color: var(--perp-on-surface) !important;
+  transition: box-shadow var(--perp-transition),
+              transform var(--perp-transition);
 }
 
 .v-card:hover {
   box-shadow: var(--perp-shadow-md) !important;
+  transform: translateY(-2px);
 }
 
-// ─── Scrollbar sutil a tono con la paleta ─────────────────────────────────────
+// ───────────────────────────────────────────────────────────────
+// Clases de fondo variante
+// Para tarjetas secundarias o secciones con overlay
+// ───────────────────────────────────────────────────────────────
+
+.bg-surface-variant {
+  background-color: var(--perp-surface-variant) !important;
+  color: var(--perp-on-surface) !important;
+}
+
+// ───────────────────────────────────────────────────────────────
+// Scrollbar sutil a tono con la paleta
+// ───────────────────────────────────────────────────────────────
+
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 
@@ -47,7 +100,15 @@
   border-radius: 3px;
 }
 
+.v-theme--light ::-webkit-scrollbar-thumb:hover {
+  background: #A89078;
+}
+
 .v-theme--dark ::-webkit-scrollbar-thumb {
   background: #4A3E34;
   border-radius: 3px;
+}
+
+.v-theme--dark ::-webkit-scrollbar-thumb:hover {
+  background: #6A5A4D;
 }

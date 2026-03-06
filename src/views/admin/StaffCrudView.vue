@@ -2,7 +2,7 @@
   <v-container>
 
     <div class="d-flex justify-space-between align-center mb-4">
-      <h2 class="text-h4 font-weight-bold ">{{ t('admin.staff.title') }}</h2>
+      <h2 class="text-h4 font-weight-bold por">{{ t('admin.staff.title') }}</h2>
       <v-btn
         v-if="auth.userRole === 'Admin'"
         color="primary"
