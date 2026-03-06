@@ -30,6 +30,7 @@
         <v-list-item prepend-icon="mdi-grave-stone" title="Difuntos" to="/admin/deceased"></v-list-item>
         <v-list-item prepend-icon="mdi-account-heart" title="Familiares" to="/admin/guardians"></v-list-item>
         <v-list-item prepend-icon="mdi-account-hard-hat" title="Empleados" to="/admin/staff"></v-list-item>
+        <v-list-item prepend-icon="mdi-office-building" title="Funerarias" to="/admin/funeral-homes"></v-list-item>
       </v-list-group>
     </v-list>
 

@@ -8,7 +8,8 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/layouts/PublicLayout.vue'), //Cuando el usuario entra a /, se carga PublicLayout.vue. Dentro de ese layout, se renderizan las rutas hijas:
     children: [
       { path: '', name: 'Home', component: () => import('@/views/public/HomeView.vue') },
-      { path: 'memorial/:id', component: () => import('@/views/public/MemorialDetailView.vue'), props: true } //props en true sirve para que el componente pueda recibir parámetor de la ruta dinámica
+      { path: 'memorial/:id', component: () => import('@/views/public/MemorialDetailView.vue'), props: true },
+      { path: 'profile', name: 'Profile', component: () => import('@/views/public/ProfileView.vue'), meta: { requiresAuth: true, roles: ['StandardUser'] } }
     ]
   },
   // 2. RUTAS DE AUTENTICACIÓN
@@ -38,6 +39,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'guardians', name: 'AdminGuardians', component: () => import('@/views/admin/GuardianCrudView.vue') },   //crud 2 entidad
       { path: 'staff', name: 'AdminStaff', component: () => import('@/views/admin/StaffCrudView.vue') },
       { path: 'memories', name: 'AdminMemories', component: () => import('@/views/admin/AdminMemoriesView.vue') },
+      { path: 'funeral-homes', name: 'AdminFuneralHomes', component: () => import('@/views/admin/FuneralHomeCrudView.vue') },
     ]
   },
 

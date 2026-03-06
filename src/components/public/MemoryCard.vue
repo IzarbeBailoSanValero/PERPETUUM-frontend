@@ -1,28 +1,63 @@
 <template>
-  <!-- Tarjeta de un recuerdo individual (usada en el Muro) -->
-  <v-card border flat class="pa-4 rounded-lg mb-4">
-    <div class="d-flex justify-space-between align-center mb-2">
+  <!-- Tarjeta de un recuerdo individual (estilo red social) -->
+  <v-card
+    border
+    flat
+    class="pa-4 rounded-xl mb-4"
+    elevation="3"
+  >
+    <!-- Encabezado -->
+    <div class="d-flex justify-space-between align-center mb-3">
       <div class="d-flex flex-column">
         <span class="text-subtitle-2 font-weight-bold text-indigo">
           {{ memory.authorName || 'Anónimo' }}
         </span>
-        <span v-if="memory.authorRelation" class="text-caption text-medium-emphasis">
+        <span
+          v-if="memory.authorRelation"
+          class="text-caption text-medium-emphasis"
+        >
           {{ memory.authorRelation }}
         </span>
       </div>
+
       <span class="text-caption text-grey">
         {{ formatDate(memory.createdDate) }}
       </span>
     </div>
 
-    <v-card-text v-if="memory.textContent" class="pa-0 text-body-1 mxb-3">
+    <!-- Texto -->
+    <v-card-text
+      v-if="memory.textContent"
+      class="pa-0 text-body-1 mb-3"
+    >
       {{ memory.textContent }}
     </v-card-text>
 
-    <v-img v-if="memory.mediaURL" :src="memory.mediaURL" max-height="300" cover referrerpolicy="no-referrer"
-      class="rounded-lg bg-grey-lighten-2"></v-img>
+    <!-- Imagen  -->
+   <v-sheet
+  v-if="memory.mediaURL"
+  class="overflow-hidden rounded-lg mb-3 mx-auto"
+  elevation="2"
+  max-width="280"
+>
+  <v-img
+    :src="memory.mediaURL"
+    :aspect-ratio="1"
+    cover
+    class="rounded-lg"
+    referrerpolicy="no-referrer"
+  ></v-img>
+</v-sheet>
 
-    <v-chip size="x-small" class="mt-2" variant="tonal">
+
+
+    <!-- Tipo -->
+    <v-chip
+      size="x-small"
+      class="mt-1"
+      variant="tonal"
+      color="primary"
+    >
       {{ typeLabel }}
     </v-chip>
   </v-card>

@@ -1,8 +1,7 @@
 <template>
   <!-- Barra superior principal del layout -->
   <v-app-bar flat border>
-    <!-- Icono típico de menú burger -> Normalmente sirve para abrir/cerrar el sidebar en pantallas pequeñas -->
-    <v-app-bar-nav-icon variant="text"></v-app-bar-nav-icon>
+    
     
     <!-- Título de la barra.
          Muestra "Admin / NombreDeLaRutaActual".

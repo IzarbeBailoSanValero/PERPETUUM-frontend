@@ -56,6 +56,17 @@
     >
       Espacio Familiar
     </v-btn>
+
+    <v-btn
+      v-if="auth.isLoggedIn && auth.userRole === 'StandardUser'"
+      to="/profile"
+      color="indigo"
+      variant="tonal"
+      prepend-icon="mdi-account-circle"
+      class="text-none ml-2"
+    >
+      Mi Perfil
+    </v-btn>
       
     <v-btn 
       v-if="auth.isLoggedIn"
