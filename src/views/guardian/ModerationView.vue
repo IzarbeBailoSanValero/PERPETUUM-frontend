@@ -34,7 +34,7 @@
             <td class="text-truncate" style="max-width: 420px;">
               {{ memory.textContent || memory.mediaURL || t('common.noContent') }}
             </td>
-            <td>{{ getTypeLabel(memory.type ?? memory.Type) }}</td>
+            <td>{{ getTypeLabel(memory.type) }}</td>
             <td>{{ formatDate(memory.createdDate) }}</td>
             <td>
               <div class="d-flex ga-2">

@@ -126,6 +126,25 @@
                 class="mb-3"
               />
             </template>
+
+            <!-- Selector de funeraria: solo el Admin global lo necesita (Staff ya tiene la suya en el token) -->
+            <template v-if="isAdmin && !isEditing">
+              <Field name="funeralHomeId" v-slot="{ field }">
+                <v-select
+                  v-model="form.funeralHomeId"
+                  v-bind="field"
+                  :items="funeralHomeStore.funeralHomes"
+                  item-title="name"
+                  item-value="id"
+                  label="Funeraria *"
+                  prepend-inner-icon="mdi-office-building"
+                  variant="outlined"
+                  :loading="funeralHomeStore.loading"
+                  :error-messages="errors.funeralHomeId"
+                  class="mb-3"
+                />
+              </Field>
+            </template>
             <Field v-else name="photoURL" v-slot="{ field }">
               <v-text-field
                 v-model="form.photoURL"
@@ -164,6 +183,7 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useMemorialStore } from '@/stores/memorialStore'
 import { useAuthStore } from '@/stores/authStore'
+import { useFuneralHomeStore } from '@/stores/funeralHomeStore'
 import apiClient from '@/plugins/axios'
 import Swal from 'sweetalert2'
 
@@ -176,6 +196,10 @@ import * as yup from 'yup'
 const { t } = useI18n()
 const store = useMemorialStore()
 const auth = useAuthStore()
+const funeralHomeStore = useFuneralHomeStore()
+
+// true cuando el rol es Admin global (sin funeralHomeId en el token)
+const isAdmin = computed(() => auth.user?.role === 'Admin')
 
 const dialog = ref(false)
 const saving = ref(false)
@@ -235,7 +259,14 @@ const schema = computed(() => {
       }),
     guardianId: yup.number().required('Selecciona un responsable').typeError('Debes elegir un guardián'),
     biography: yup.string().required('La biografía es obligatoria').max(1000, 'Máximo 1000 caracteres'),
-    epitaph: yup.string().required('El epitafio es obligatorio').max(255, 'Máximo 255 caracteres')
+    epitaph: yup.string().required('El epitafio es obligatorio').max(255, 'Máximo 255 caracteres'),
+    funeralHomeId: yup.number()
+      .test('required-for-admin', 'Selecciona una funeraria', function(value) {
+        // Solo obligatorio si el usuario es Admin (Staff ya lo tiene del token)
+        if (auth.user?.role !== 'Admin') return true
+        return !!value && value > 0
+      })
+      .typeError('Debes elegir una funeraria')
   })
 })
 
@@ -283,6 +314,9 @@ async function fetchGuardians() {
 onMounted(() => {
   store.fetchAllDeceased() // Pide datos de difuntos al backend a través del Store
   fetchGuardians()         // Carga los guardianes para el selector
+  if (isAdmin.value) {
+    funeralHomeStore.fetchAll() // Admin necesita elegir funeraria al crear
+  }
 })
 
 // limpiar o preparar el form al crear
@@ -328,7 +362,10 @@ async function openEditModal(item: any) {
 
 // funcion de POST / PUT
 async function save() {
-  form.funeralHomeId = auth.user?.funeralHomeId ?? 0
+  // Staff: usa su funeraria del token. Admin: usa la elegida en el selector (form.funeralHomeId)
+  if (!isAdmin.value) {
+    form.funeralHomeId = auth.user?.funeralHomeId ?? 0
+  }
   form.staffId = auth.user?.id || 0
 
   const file = Array.isArray(photoFile.value) ? photoFile.value[0] : photoFile.value

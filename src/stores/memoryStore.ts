@@ -12,12 +12,26 @@ export interface Memory {
   authorRelation: string | null
   /** Valor numérico (1, 2, 3) o string del API (Condolence, Anecdote, Photo) */
   type: number | string
-  /** Respuesta del API en PascalCase cuando no se usa camelCase */
-  Type?: number | string
   createdDate: string
   userId: number
   deceasedId: number
   status: number
+}
+
+/** Normaliza la respuesta del API (PascalCase o camelCase) al formato uniforme del store */
+function normalizeMemory(raw: any): Memory {
+  return {
+    id:            raw?.id            ?? raw?.Id,
+    deceasedName:  raw?.deceasedName  ?? raw?.DeceasedName  ?? '',
+    textContent:   raw?.textContent   ?? raw?.TextContent   ?? null,
+    mediaURL:      raw?.mediaURL      ?? raw?.MediaURL      ?? null,
+    authorRelation:raw?.authorRelation ?? raw?.AuthorRelation ?? null,
+    type:          raw?.type          ?? raw?.Type          ?? '',
+    createdDate:   raw?.createdDate   ?? raw?.CreatedDate   ?? '',
+    userId:        raw?.userId        ?? raw?.UserId        ?? 0,
+    deceasedId:    raw?.deceasedId    ?? raw?.DeceasedId    ?? 0,
+    status:        raw?.status        ?? raw?.Status        ?? 0,
+  }
 }
 
 export const useMemoryStore = defineStore('memory', () => {
@@ -30,7 +44,8 @@ export const useMemoryStore = defineStore('memory', () => {
       const response = await apiClient.get('/Memory/pending', {
         params: deceasedId ? { deceasedId } : undefined
       })
-      memories.value = response.data
+      const data = Array.isArray(response.data) ? response.data : []
+      memories.value = data.map(normalizeMemory)
     } catch (error) {
       console.error('Error al cargar recuerdos pendientes:', error)
     } finally {
