@@ -3,7 +3,7 @@
     <v-card border flat class="rounded-xl pa-4">
       <v-card-title class="d-flex align-center">
         <v-icon icon="mdi-book-open-variant" class="mr-3" />
-        Mis memoriales (difuntos a mi cargo)
+        {{ t('guardian.myMemorials.title') }}
       </v-card-title>
       <v-divider class="my-4" />
 
@@ -15,8 +15,7 @@
             <div class="card-image-1-1">
               <v-img
                 :src="d.photoURL || 'https://via.placeholder.com/400x400?text=Sin+imagen'"
-                cover
-                referrerpolicy="no-referrer"
+                cover referrerpolicy="no-referrer"
                 class="align-end"
                 gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
               >
@@ -24,31 +23,17 @@
               </v-img>
             </div>
             <v-card-subtitle class="pt-2">
-              Fallecimiento: {{ formatDate(d.deathDate) }}
+              {{ t('guardian.myMemorials.deathDate') }} {{ formatDate(d.deathDate) }}
             </v-card-subtitle>
             <v-card-actions>
-              <v-btn
-                color="primary"
-                variant="flat"
-                :to="`/memorial/${d.id}`"
-                prepend-icon="mdi-eye"
-              >
-                Ver memorial
+              <v-btn color="primary" variant="flat" :to="`/memorial/${d.id}`" prepend-icon="mdi-eye">
+                {{ t('guardian.myMemorials.viewBtn') }}
               </v-btn>
-              <v-btn
-                variant="tonal"
-                color="indigo"
-                :to="`/guardian/edit-memorial/${d.id}`"
-                prepend-icon="mdi-pencil"
-              >
-                Editar
+              <v-btn variant="tonal" color="indigo" :to="`/guardian/edit-memorial/${d.id}`" prepend-icon="mdi-pencil">
+                {{ t('guardian.myMemorials.editBtn') }}
               </v-btn>
-              <v-btn
-                variant="text"
-                to="/guardian/moderation"
-                prepend-icon="mdi-shield-check"
-              >
-                Moderar
+              <v-btn variant="text" to="/guardian/moderation" prepend-icon="mdi-shield-check">
+                {{ t('guardian.myMemorials.moderateBtn') }}
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -56,7 +41,7 @@
       </v-row>
 
       <v-alert v-else type="info" variant="tonal" class="mt-4">
-        No tienes ningún memorial asignado. Contacta con la funeraria si crees que deberías tener acceso.
+        {{ t('guardian.myMemorials.noMemorials') }}
       </v-alert>
     </v-card>
   </v-container>
@@ -64,17 +49,18 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/authStore'
 import apiClient from '@/plugins/axios'
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const loading = ref(true)
 const deceasedList = ref<{ id: number; name: string; photoURL?: string; deathDate: string }[]>([])
 
-function formatDate (dateStr: string) {
+function formatDate(dateStr: string) {
   if (!dateStr) return '—'
-  const d = new Date(dateStr)
-  return d.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })
+  return new Date(dateStr).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
 onMounted(async () => {
@@ -92,14 +78,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.card-image-1-1 {
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
-  width: 100%;
-}
-.card-image-1-1 :deep(.v-img) {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+.card-image-1-1 { aspect-ratio: 1 / 1; overflow: hidden; width: 100%; }
+.card-image-1-1 :deep(.v-img) { width: 100%; height: 100%; object-fit: cover; }
 </style>

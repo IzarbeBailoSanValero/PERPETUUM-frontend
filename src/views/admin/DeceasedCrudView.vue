@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <div class="d-flex justify-space-between align-center mb-4">
-      <h2 class="text-h4 font-weight-bold">Listado de Difuntos</h2>
+      <h2 class="text-h4 font-weight-bold">{{ t('admin.deceased.title') }}</h2>
       <v-btn color="indigo" prepend-icon="mdi-plus" @click="openCreateModal">
         Nuevo Difunto
       </v-btn>
@@ -27,7 +27,7 @@
     </v-card>
 
     <v-dialog v-model="dialog" max-width="500">
-      <v-card :title="isEditing ? 'Editar Difunto' : 'Registrar Difunto'" class="pa-4 rounded-lg">
+      <v-card :title="isEditing ? t('admin.deceased.editTitle') : t('admin.deceased.createTitle')" class="pa-4 rounded-lg">
         
         <VForm @submit="save" :validation-schema="schema" :initial-values="initialValues" v-slot="{ errors }">          <v-card-text>
             
@@ -150,8 +150,8 @@
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn variant="text" @click="dialog = false">Cancelar</v-btn>
-            <v-btn color="indigo" type="submit" :loading="saving">Guardar</v-btn>
+            <v-btn variant="text" @click="dialog = false">{{ t('admin.deceased.cancel') }}</v-btn>
+            <v-btn color="indigo" type="submit" :loading="saving">{{ t('admin.deceased.save') }}</v-btn>
           </v-card-actions>
         </VForm>
       </v-card>
@@ -161,6 +161,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useMemorialStore } from '@/stores/memorialStore'
 import { useAuthStore } from '@/stores/authStore'
 import apiClient from '@/plugins/axios'
@@ -172,6 +173,7 @@ import DeceasedRow from '@/components/admin/DeceasedRow.vue'
 import { Form as VForm, Field } from 'vee-validate'
 import * as yup from 'yup'
 
+const { t } = useI18n()
 const store = useMemorialStore()
 const auth = useAuthStore()
 
@@ -237,12 +239,12 @@ const schema = computed(() => {
   })
 })
 
-const headers = [
-  { title: 'Nombre y Foto', key: 'name', align: 'start' as const }, 
-  { title: 'DNI', key: 'dni', align: 'start' as const },
-  { title: 'Fecha', key: 'deathDate', align: 'end' as const },
-  { title: 'Acciones', key: 'actions', sortable: false, align: 'center' as const }
-]
+const headers = computed(() => [
+  { title: t('admin.deceased.colName'),    key: 'name',      align: 'start'  as const },
+  { title: t('admin.deceased.colDni'),     key: 'dni',       align: 'start'  as const },
+  { title: t('admin.deceased.colDate'),    key: 'deathDate', align: 'end'    as const },
+  { title: t('admin.deceased.colActions'), key: 'actions',   align: 'center' as const, sortable: false }
+])
 
 // Gestión de estado con Pinia ( DeceasedCreateDTO)
 // Le ponemos any para poder inyectarle el Id luego al editar sin que TypeScript se queje
@@ -320,7 +322,7 @@ async function openEditModal(item: any) {
     
     dialog.value = true
   } catch (error) {
-    Swal.fire('Error', 'No se pudieron cargar los datos del difunto', 'error')
+    Swal.fire('Error', t('common.error'), 'error')
   }
 }
 
@@ -333,7 +335,7 @@ async function save() {
   const hasPhotoFile = file && file instanceof File && file.size > 0
 
   if (!isEditing.value && !hasPhotoFile) {
-    Swal.fire('Foto obligatoria', 'Sube una imagen desde tu equipo.', 'warning')
+    Swal.fire(t('common.error'), t('admin.deceased.errorPhoto'), 'warning')
     return
   }
 
@@ -341,7 +343,7 @@ async function save() {
   try {
     if (isEditing.value && editId.value) {
       await apiClient.put(`/Deceased/${editId.value}`, { ...form, id: editId.value })
-      Swal.fire({ title: '¡Actualizado!', icon: 'success', timer: 2000, showConfirmButton: false })
+      Swal.fire({ title: t('admin.deceased.updatedOk'), icon: 'success', timer: 2000, showConfirmButton: false })
     } else if (hasPhotoFile) {
       const fd = new FormData()
       fd.append('Dni', form.dni)
@@ -355,7 +357,7 @@ async function save() {
       fd.append('StaffId', String(form.staffId))
       fd.append('Photo', file)
       await apiClient.post('/Deceased/with-photo', fd)
-      Swal.fire({ title: '¡Éxito!', icon: 'success', timer: 2000, showConfirmButton: false })
+      Swal.fire({ title: t('admin.deceased.createdOk'), icon: 'success', timer: 2000, showConfirmButton: false })
     }
 
     dialog.value = false 
@@ -367,9 +369,9 @@ async function save() {
 
   } catch (error: any) {
     if (error.response?.status === 403) {
-      Swal.fire('Acceso denegado', 'No tienes permiso para modificar este difunto.', 'error')
+      Swal.fire('Acceso denegado', t('admin.deceased.errorForbidden'), 'error')
     } else {
-      Swal.fire({ title: 'Error', text: 'Revisa que todos los campos obligatorios estén llenos o el DNI no esté duplicado.', icon: 'error' });
+      Swal.fire({ title: 'Error', text: t('admin.deceased.errorSave'), icon: 'error' });
     }
   } finally {
     saving.value = false
@@ -379,24 +381,24 @@ async function save() {
 //  borrar
 async function deleteItem(id: number) {
   const result = await Swal.fire({
-    title: '¿Eliminar difunto?',
-    text: "Esta acción no se puede deshacer.",
+    title: t('admin.deceased.deleteTitle'),
+    text: t('admin.deceased.deleteText'),
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#d33',
-    confirmButtonText: 'Sí, borrar'
+    confirmButtonText: t('admin.deceased.deleteBtn')
   })
 
   if (result.isConfirmed) {
     try {
       await apiClient.delete(`/Deceased/${id}`)
       store.fetchAllDeceased() //sicnronizo cn tabla
-      Swal.fire('Eliminado', 'El difunto ha sido borrado.', 'success')
+      Swal.fire('Eliminado', t('admin.deceased.deletedOk'), 'success')
     } catch (e: any) {
       if (e.response?.status === 403) {
-        Swal.fire('Acceso denegado', 'No tienes permiso para borrar este difunto.', 'error')
+        Swal.fire('Acceso denegado', t('admin.deceased.errorForbidden'), 'error')
       } else {
-        Swal.fire('Error', 'No se pudo eliminar el registro.', 'error')
+        Swal.fire('Error', t('admin.deceased.errorDelete'), 'error')
       }
     }
   }

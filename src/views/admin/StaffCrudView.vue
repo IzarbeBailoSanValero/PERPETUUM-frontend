@@ -2,7 +2,7 @@
   <v-container>
 
     <div class="d-flex justify-space-between align-center mb-4">
-      <h2 class="text-h4 font-weight-bold">Panel de administración de empleados</h2>
+      <h2 class="text-h4 font-weight-bold">{{ t('admin.staff.title') }}</h2>
       <v-btn
         v-if="auth.userRole === 'Admin'"
         color="indigo"
@@ -17,7 +17,7 @@
       <div class="d-flex align-center gap-3">
         <v-text-field
           v-model.number="funeralHomeSearch"
-          label="ID de Funeraria"
+          :label="t('admin.staff.fieldFuneralHomeId')"
           prepend-inner-icon="mdi-office-building"
           variant="outlined"
           type="number"
@@ -69,13 +69,13 @@
             <v-btn icon="mdi-pencil" variant="text" color="blue" @click="openEditModal(item)" />
             <v-btn icon="mdi-delete" variant="text" color="error" @click="confirmDelete(item.id)" />
           </template>
-          <v-chip v-else color="grey" size="x-small" variant="tonal">Solo lectura</v-chip>
+          <v-chip v-else color="grey" size="x-small" variant="tonal">{{ t('admin.staff.readOnly') }}</v-chip>
         </template>
       </v-data-table>
     </v-card>
 
     <v-dialog v-model="dialog" max-width="520">
-      <v-card :title="isEditing ? 'Editar Empleado' : 'Registrar Empleado'" class="pa-4 rounded-lg">
+      <v-card :title="isEditing ? t('admin.staff.editTitle') : t('admin.staff.createTitle')" class="pa-4 rounded-lg">
 
         <VForm @submit="save" :validation-schema="schema" :initial-values="initialValues" v-slot="{ errors }">          <v-card-text>
 
@@ -150,7 +150,7 @@
             <v-switch
               v-if="!isEditing"
               v-model="form.isAdmin"
-              label="Es Administrador Global"
+              :label="t('admin.staff.isAdmin')"
               color="indigo"
               inset
               class="mb-2"
@@ -162,7 +162,7 @@
               type="info"
               variant="tonal"
               density="compact"
-              text="Los administradores globales no pertenecen a ninguna funeraria."
+              :text="t('admin.staff.adminNote')"
               class="mb-2"
             />
 
@@ -170,7 +170,7 @@
 
           <v-card-actions>
             <v-spacer />
-            <v-btn variant="text" @click="dialog = false">Cancelar</v-btn>
+            <v-btn variant="text" @click="dialog = false">{{ t('admin.staff.cancel') }}</v-btn>
             <v-btn color="indigo" type="submit" :loading="saving">
               {{ isEditing ? 'Actualizar' : 'Crear' }}
             </v-btn>
@@ -185,6 +185,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import apiClient from '@/plugins/axios'
 import Swal from 'sweetalert2'
 import { useAuthStore } from '@/stores/authStore'
@@ -195,6 +196,7 @@ import { Form as VForm, Field } from 'vee-validate'
 import * as yup from 'yup'
 
 // ─── STORES 
+const { t } = useI18n()
 const auth = useAuthStore()
 const store = useStaffStore()
 
@@ -206,12 +208,12 @@ const editId = ref<number | null>(null)
 const funeralHomeSearch = ref<number | null>(null)
 
 // ─── CABECERAS DE TABLA 
-const headers = [
-  { title: 'Empleado', key: 'name' },
-  { title: 'DNI', key: 'dni' },
-  { title: 'Funeraria', key: 'funeralHomeId' },
-  { title: 'Acciones', key: 'actions', align: 'end' as const, sortable: false }
-]
+const headers = computed(() => [
+  { title: t('admin.staff.colName'),        key: 'name' },
+  { title: t('admin.staff.colDni'),         key: 'dni' },
+  { title: t('admin.staff.colFuneralHome'), key: 'funeralHomeId' },
+  { title: t('admin.staff.colActions'),     key: 'actions', align: 'end' as const, sortable: false }
+])
 
 // ─── FORMULARIO 
 const form = reactive<any>({
@@ -222,6 +224,9 @@ const form = reactive<any>({
   funeralHomeId: auth.user?.funeralHomeId ?? null,
   isAdmin: false
 })
+
+// initialValues sincroniza vee-validate con los datos pre-cargados al editar.
+// Sin esto, v-bind="field" muestra los campos vacíos aunque form.x ya tenga valor.
 
 const initialValues = computed(() => ({ ...form }))
 
@@ -311,7 +316,7 @@ async function save(values: any, { resetForm }: any) {
         dni: form.dni
       })
 
-      Swal.fire({ title: '¡Actualizado!', icon: 'success', timer: 1500, showConfirmButton: false })
+      Swal.fire({ title: t('admin.staff.updatedOk'), icon: 'success', timer: 1500, showConfirmButton: false })
     } else {
       // POST: create staff
       const createPayload: any = {
@@ -330,7 +335,7 @@ async function save(values: any, { resetForm }: any) {
         await loadStaff()
       }
 
-      Swal.fire({ title: '¡Empleado creado!', icon: 'success', timer: 1500, showConfirmButton: false })
+      Swal.fire({ title: t('admin.staff.createdOk'), icon: 'success', timer: 1500, showConfirmButton: false })
     }
 
     dialog.value = false
@@ -339,8 +344,8 @@ async function save(values: any, { resetForm }: any) {
     console.error('Error al guardar empleado:', error.response?.data || error)
     const msg = error.response?.data?.message
       || error.response?.data
-      || 'El Email o DNI puede que ya estén registrados.'
-    Swal.fire('Error al guardar', String(msg), 'error')
+      || t('admin.staff.errorSave')
+    Swal.fire(t('common.error'), String(msg), 'error')
   } finally {
     saving.value = false
   }
@@ -349,22 +354,22 @@ async function save(values: any, { resetForm }: any) {
 // ─── ELIMINAR
 async function confirmDelete(id: number) {
   const result = await Swal.fire({
-    title: '¿Eliminar empleado?',
-    text: 'Esta acción no se puede deshacer.',
+    title: t('admin.staff.deleteTitle'),
+    text: t('admin.staff.deleteText'),
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#d33',
     cancelButtonText: 'Cancelar',
-    confirmButtonText: 'Sí, eliminar'
+    confirmButtonText: t('admin.staff.deleteBtn')
   })
 
   if (result.isConfirmed) {
     try {
       await apiClient.delete(`/Staff/${id}`)
       store.removeFromList(id)
-      Swal.fire({ title: 'Eliminado', icon: 'success', timer: 1200, showConfirmButton: false })
+      Swal.fire({ title: t('admin.staff.deletedOk'), icon: 'success', timer: 1200, showConfirmButton: false })
     } catch (e: any) {
-      const msg = e.response?.data?.message || 'No se pudo eliminar el empleado.'
+      const msg = e.response?.data?.message || t('admin.staff.errorDelete')
       Swal.fire('Error', String(msg), 'error')
     }
   }

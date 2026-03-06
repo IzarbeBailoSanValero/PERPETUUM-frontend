@@ -2,14 +2,14 @@
   <v-container fluid>
     <div class="d-flex justify-space-between align-center mb-6">
       <div>
-        <h1 class="text-h4 font-weight-bold">Dashboard de Gestión</h1>
-        <p class="text-subtitle-1 text-grey">Análisis de la plataforma Perpetuum</p>
+        <h1 class="text-h4 font-weight-bold">{{ t('admin.dashboard.title') }}</h1>
+        <p class="text-subtitle-1 text-grey">{{ t('admin.dashboard.subtitle') }}</p>
       </div>
 
       <v-col cols="12" md="6" class="d-flex justify-md-end align-center gap-3">
         <v-select 
-          v-model="timeRange" :items="['Últimos 7 días', 'Último mes', 'Últimos 6 meses', 'Todo el año']"
-          label="Periodo" variant="outlined" density="compact" hide-details style="max-width: 200px;" class="mr-4"
+          v-model="timeRange" :items="periodItems"
+          :label="t('admin.dashboard.period')" variant="outlined" density="compact" hide-details style="max-width: 200px;" class="mr-4"
           @update:model-value="loadDashboardData"
         >
         </v-select>
@@ -22,16 +22,16 @@
 
     <v-row v-if="!loading">
       <v-col cols="12" sm="6" md="3">
-        <KpiCard title="Memoriales Activos" :value="stats.totalMemorials" icon="mdi-grave-stone" color="blue" />
+        <KpiCard :title="t('admin.dashboard.kpi.memorials')" :value="stats.totalMemorials" icon="mdi-grave-stone" color="blue" />
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <KpiCard title="RecUerdos Pendientes" :value="stats.pendingMemories" icon="mdi-message-alert" color="orange" />
+        <KpiCard :title="t('admin.dashboard.kpi.pending')" :value="stats.pendingMemories" icon="mdi-message-alert" color="orange" />
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <KpiCard title="Guardianes Registrados" :value="stats.guardianCount" icon="mdi-account-heart" color="indigo" />
+        <KpiCard :title="t('admin.dashboard.kpi.guardians')" :value="stats.guardianCount" icon="mdi-account-heart" color="indigo" />
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <KpiCard title="Media de Recuerdos" :value="stats.avgMemories" icon="mdi-chart-line" color="green" />
+        <KpiCard :title="t('admin.dashboard.kpi.avg')" :value="stats.avgMemories" icon="mdi-chart-line" color="green" />
       </v-col>
     </v-row>
 
@@ -42,7 +42,7 @@
     <v-row class="mt-4">
       <v-col cols="12" md="8">
         <v-card border flat class="rounded-xl pa-4">
-          <v-card-title class="text-subtitle-1 font-weight-bold">Nuevos Memoriales (Histórico)</v-card-title>
+          <v-card-title class="text-subtitle-1 font-weight-bold">{{ t('admin.dashboard.charts.growth') }}</v-card-title>
           <apexchart
             type="bar"
             height="300" 
@@ -54,7 +54,7 @@
 
       <v-col cols="12" md="4">
         <v-card border flat class="rounded-xl pa-4">
-          <v-card-title class="text-subtitle-1 font-weight-bold">Tipos de contenido</v-card-title>
+          <v-card-title class="text-subtitle-1 font-weight-bold">{{ t('admin.dashboard.charts.content') }}</v-card-title>
           <apexchart type="donut" height="300" :options="donutOptions" :series="donutSeries"></apexchart>
         </v-card>
       </v-col>
@@ -62,7 +62,7 @@
       <v-col cols="12">
         <v-card border flat class="rounded-xl pa-4">
           <v-card-title class="text-subtitle-1 font-weight-bold">
-            Interacciones en el tiempo (Recuerdos creados)
+            {{ t('admin.dashboard.charts.trend') }}
           </v-card-title>
           <apexchart
             type="line"
@@ -77,12 +77,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { ApexOptions } from 'apexcharts'
 import KpiCard from '@/components/admin/KpiCard.vue'
 
+const { t } = useI18n()
 const loading = ref(true)
-const timeRange = ref('Últimos 6 meses')
+const timeRange = ref('6months')
 
 // Objeto stats: guarda los números simples
 const stats = reactive({
@@ -124,6 +126,13 @@ const lineOptions = ref<ApexOptions>({
 
 // --- (SIMULACIÓN DE API / MOCK DATA) ---
 //Uso una función asíncrona para simular la espera del servidor
+const periodItems = computed(() => [
+  { title: t('admin.dashboard.periods.7days'),  value: '7days'  },
+  { title: t('admin.dashboard.periods.month'),  value: 'month'  },
+  { title: t('admin.dashboard.periods.6months'),value: '6months'},
+  { title: t('admin.dashboard.periods.year'),   value: 'year'   }
+])
+
 async function loadDashboardData() {
   loading.value = true
   

@@ -1,46 +1,30 @@
 <template>
   <v-container class="fill-height justify-center">
     <v-card width="400" class="pa-6 rounded-lg" elevation="3">
-      <v-card-title class="text-center text-h5 mb-4">Acceso a Perpetuum</v-card-title>
-
-
-      <!--apuntes de vee-validate:
-        Vuetify NO sabe validar por sí mismo. Entonces Vee‑Validate te da un objeto field que contiene porpiedades y se lo pasamos a v-text-field>
-
-
-      piezas: 
-      - Form:El contenedor del formulario. Controla el estado general (si es válido, si se envió, etc.).
-      - Representa un campo individual. Se conecta a la validación y te da: value, errors...
-      -  v-slot="{ field, errors }" -_> aqui se reciben herramientas par aconectar input
-
-      flujo: 
-      <Form> controla el envío. -> <Field> controla la validación del campo. -> -slot="{ field, errors }" te da: (field → eventos + valor   Y.  errors → lista de errores). -> v-bind="field" conecta el input con Vee‑Validate.
-      -->
+      <v-card-title class="text-center text-h5 mb-4">{{ t('auth.loginTitle') }}</v-card-title>
 
       <VForm @submit="handleLogin" :validation-schema="schema" v-slot="{ errors }">
         <v-card-text>
           <Field name="email" v-model="form.email" v-slot="{ field }">
-            <v-text-field v-bind="field" label="Correo Electrónico" variant="outlined" prepend-inner-icon="mdi-email"
-              :error-messages="errors.email" class="mb-2"></v-text-field>
+            <v-text-field v-bind="field" :label="t('auth.email')" variant="outlined"
+              prepend-inner-icon="mdi-email" :error-messages="errors.email" class="mb-2" />
           </Field>
 
           <Field name="password" v-model="form.password" v-slot="{ field }">
-            <v-text-field v-bind="field" label="Contraseña" type="password" variant="outlined"
-              prepend-inner-icon="mdi-lock" :error-messages="errors.password"></v-text-field>
+            <v-text-field v-bind="field" :label="t('auth.password')" type="password" variant="outlined"
+              prepend-inner-icon="mdi-lock" :error-messages="errors.password" />
           </Field>
         </v-card-text>
 
         <v-card-actions class="flex-column">
           <v-btn block color="primary" size="large" variant="elevated" :loading="loading" type="submit">
-            Entrar
+            {{ t('auth.loginBtn') }}
           </v-btn>
-
           <v-btn block variant="text" class="mt-2 text-none" to="/register">
-            ¿No tienes cuenta? Regístrate
+            {{ t('auth.goToRegister') }}
           </v-btn>
-
           <v-btn block variant="text" class="mt-1 text-none text-grey" to="/" prepend-icon="mdi-home-outline">
-            Volver al inicio
+            {{ t('auth.backHome') }}
           </v-btn>
         </v-card-actions>
       </VForm>
@@ -54,14 +38,14 @@
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/authStore'
 import { useRouter } from 'vue-router'
 import apiClient from '@/plugins/axios'
-
-// componentes de validación
 import { Form as VForm, Field } from 'vee-validate'
 import * as yup from 'yup'
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const router = useRouter()
 const loading = ref(false)
@@ -69,25 +53,17 @@ const errorMessage = ref('')
 
 const form = reactive({ email: '', password: '' })
 
-// teoria: Esquema de Validación yup
-// Aquí definimos las reglas de negocio.
 const schema = yup.object({
-  email: yup.string().required('El email es obligatorio').email('Formato de email inválido'), //Yup se encarga de verificar que los datos cumplen con tus requisitos antes de que el formulario se envíe.
-  password: yup.string().required('La contraseña es obligatoria').min(6, 'Mínimo 6 caracteres')
+  email:    yup.string().required(() => t('validation.emailRequired')).email(() => t('validation.emailInvalid')),
+  password: yup.string().required(() => t('validation.passwordRequired')).min(6, () => t('validation.passwordMin', { min: 6 }))
 })
 
 async function handleLogin() {
   loading.value = true
   errorMessage.value = ''
-
   try {
-    // 1. credenciales al backend
     const response = await apiClient.post('/Auth/login', form)
-
-    // 2. guardar el token y decodificar automáticamente 
     auth.setToken(response.data.token)
-
-    // 3. redirijo según rol decodificado
     if (auth.userRole === 'Admin' || auth.userRole === 'Staff') {
       router.push('/admin/dashboard')
     } else if (auth.userRole === 'Guardian') {
@@ -95,13 +71,10 @@ async function handleLogin() {
     } else {
       router.push('/')
     }
-
   } catch (error: any) {
-    if (error.response?.status === 401) {
-      errorMessage.value = "Correo o contraseña incorrectos."
-    } else {
-      errorMessage.value = "Error de conexión con el servidor."
-    }
+    errorMessage.value = error.response?.status === 401
+      ? t('auth.errorCredentials')
+      : t('auth.errorConnection')
   } finally {
     loading.value = false
   }

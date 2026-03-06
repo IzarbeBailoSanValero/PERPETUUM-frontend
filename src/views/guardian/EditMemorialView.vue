@@ -9,7 +9,7 @@
         @click="$router.push('/guardian/my-memorials')"
       />
       <div>
-        <h2 class="text-h5 font-weight-bold">Editar Memorial</h2>
+        <h2 class="text-h5 font-weight-bold">{{ t('guardian.editMemorial.title') }}</h2>
         <p class="text-caption text-grey">
           {{ deceased?.name || '...' }} · Solo puedes editar la información personal del memorial
         </p>
@@ -23,7 +23,7 @@
     <v-alert v-else-if="loadError" type="error" variant="tonal" class="mb-6">
       No se pudo cargar el memorial. Comprueba tu conexión o vuelve a intentarlo.
       <template v-slot:append>
-        <v-btn variant="text" @click="loadDeceased">Reintentar</v-btn>
+        <v-btn variant="text" @click="loadDeceased">{{ t('guardian.editMemorial.retryBtn') }}</v-btn>
       </template>
     </v-alert>
 
@@ -180,10 +180,14 @@ import * as yup from 'yup'
 import apiClient from '@/plugins/axios'
 import { useUiStore } from '@/stores/uiStore'
 import type { Deceased } from '@/models/Deceased'
+import { useI18n } from 'vue-i18n'
+
+
 
 const route  = useRoute()
 const router = useRouter()
 const ui     = useUiStore()
+const { t } = useI18n()
 
 const deceasedId = Number(route.params.id)
 
@@ -290,20 +294,20 @@ async function save() {
 
   try {
     await apiClient.put(`/Deceased/${deceasedId}`, payload)
-    ui.notify('Memorial actualizado correctamente.', 'success')
+    ui.notify(t('guardian.editMemorial.savedOk'), 'success')
     router.push('/guardian/my-memorials')
   } catch (err: any) {
     const status = err.response?.status
     const msg    = err.response?.data?.message ?? err.response?.data
 
     if (status === 403) {
-      ui.notify('No tienes permiso para editar este memorial.', 'error')
+      ui.notify(t('guardian.editMemorial.errorForbidden'), 'error')
     } else if (status === 404) {
-      ui.notify('El memorial no existe o fue eliminado.', 'error')
+      ui.notify(t('guardian.editMemorial.errorNotFound'), 'error')
     } else if (status === 409) {
-      ui.notify(typeof msg === 'string' ? msg : 'Conflicto al guardar los datos.', 'error')
+      ui.notify(typeof msg === 'string' ? msg : t('guardian.editMemorial.errorConflict'), 'error')
     } else {
-      ui.notify('Error del servidor. Inténtalo de nuevo más tarde.', 'error')
+      ui.notify(t('guardian.editMemorial.errorServer'), 'error')
     }
     console.error('Error al guardar memorial:', err)
   } finally {

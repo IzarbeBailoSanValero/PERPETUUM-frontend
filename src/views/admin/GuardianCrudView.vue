@@ -24,35 +24,35 @@
     </v-card>
 
     <v-dialog v-model="dialog" max-width="500">
-      <v-card :title="isEditing ? 'Editar Guardián' : 'Registrar Guardián'" class="pa-4 rounded-lg">
+      <v-card :title="isEditing ? t('admin.guardians.editTitle') : t('admin.guardians.createTitle')" class="pa-4 rounded-lg">
         
         <VForm @submit="save" :validation-schema="schema" :initial-values="initialValues" v-slot="{ errors }">          <v-card-text>
             
             <Field name="name" v-slot="{ field }">
-              <v-text-field v-bind="field" v-model="form.name" label="Nombre Completo" variant="outlined" :error-messages="errors.name" class="mb-3" />
+              <v-text-field v-bind="field" v-model="form.name" :label="t('admin.guardians.fieldName')" variant="outlined" :error-messages="errors.name" class="mb-3" />
             </Field>
 
             <Field name="dni" v-slot="{ field }">
-              <v-text-field v-bind="field" v-model="form.dni" label="DNI" variant="outlined" :error-messages="errors.dni" class="mb-3" />
+              <v-text-field v-bind="field" v-model="form.dni" :label="t('admin.guardians.fieldDni')" variant="outlined" :error-messages="errors.dni" class="mb-3" />
             </Field>
 
             <Field name="email" v-slot="{ field }">
-              <v-text-field v-bind="field" v-model="form.email" label="Correo Electrónico" variant="outlined" :error-messages="errors.email" class="mb-3" />
+              <v-text-field v-bind="field" v-model="form.email" :label="t('admin.guardians.fieldEmail')" variant="outlined" :error-messages="errors.email" class="mb-3" />
             </Field>
 
             <Field name="phone" v-slot="{ field }">
-              <v-text-field v-bind="field" v-model="form.phoneNumber" label="Teléfono" variant="outlined" :error-messages="errors.phone" class="mb-3" />
+              <v-text-field v-bind="field" v-model="form.phoneNumber" :label="t('admin.guardians.fieldPhone')" variant="outlined" :error-messages="errors.phone" class="mb-3" />
             </Field>
 
             <Field v-if="!isEditing" name="password" v-slot="{ field }">
-              <v-text-field v-bind="field" v-model="form.password" label="Contraseña" type="password" variant="outlined" :error-messages="errors.password" />
+              <v-text-field v-bind="field" v-model="form.password" :label="t('admin.guardians.fieldPassword')" type="password" variant="outlined" :error-messages="errors.password" />
             </Field>
           </v-card-text>
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn variant="text" @click="dialog = false">Cancelar</v-btn>
-            <v-btn color="indigo" type="submit" :loading="saving">Guardar</v-btn>
+            <v-btn variant="text" @click="dialog = false">{{ t('admin.guardians.cancel') }}</v-btn>
+            <v-btn color="indigo" type="submit" :loading="saving">{{ t('admin.guardians.save') }}</v-btn>
           </v-card-actions>
         </VForm>
 
@@ -62,7 +62,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed} from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import apiClient from '@/plugins/axios'
 import Swal from 'sweetalert2' 
 import { useAuthStore } from '@/stores/authStore'
@@ -82,6 +83,7 @@ interface Guardian {
   phoneNumber: string;
   funeralHomeId: number | null;
 }
+const { t } = useI18n()
 const auth = useAuthStore()
 const store = useGuardianStore()
 const dialog = ref(false)
@@ -93,11 +95,11 @@ const editId = ref<number | null>(null) // id de elemento que estamos editando
 
 
 // CONFIGURACIÓN DE TABLA + FORMULARIO
-const headers = [
-  { title: 'Familiar', key: 'name' },
-  { title: 'Teléfono', key: 'phoneNumber' },
-  { title: 'Acciones', key: 'actions', align: 'end' as const, sortable: false }
-]
+const headers = computed(() => [
+  { title: t('admin.guardians.colName'),    key: 'name' },
+  { title: t('admin.guardians.colPhone'),   key: 'phoneNumber' },
+  { title: t('admin.guardians.colActions'), key: 'actions', align: 'end' as const, sortable: false }
+])
 
 // Objeto reactivo enlazado a los inputs x v-model
 const form = reactive<any>({
@@ -173,11 +175,11 @@ async function save(values: any, { resetForm }: any) {
       if (form.phoneNumber && form.phoneNumber.trim()) updateData.phoneNumber = form.phoneNumber
       
       await apiClient.put(`/MemorialGuardian/${editId.value}`, updateData)
-      Swal.fire({ title: '¡Actualizado!', icon: 'success', timer: 1500, showConfirmButton: false })
+      Swal.fire({ title: t('admin.guardians.updatedOk'), icon: 'success', timer: 1500, showConfirmButton: false })
     } else {
       // MODO CREACIÓN POST
       await apiClient.post('/MemorialGuardian', form)
-      Swal.fire({ title: '¡Creado!', icon: 'success', timer: 1500, showConfirmButton: false })
+      Swal.fire({ title: t('admin.guardians.createdOk'), icon: 'success', timer: 1500, showConfirmButton: false })
     }
     
     // cerramos modal y recargamos la lista
@@ -185,7 +187,7 @@ async function save(values: any, { resetForm }: any) {
     store.fetchAllGuardians()
   } catch (error: any) {
     console.error('Error al guardar:', error.response?.data || error)
-    const errorMsg = error.response?.data?.message || error.response?.data || 'Revisa los datos, puede que el Email o DNI ya existan.'
+    const errorMsg = error.response?.data?.message || error.response?.data || t('admin.guardians.errorSave')
     Swal.fire('Error', errorMsg, 'error')
   } finally { saving.value = false }
 }
@@ -193,21 +195,21 @@ async function save(values: any, { resetForm }: any) {
 // DELETE ->Alerta antes 
 async function confirmDelete(id: number) {
   const result = await Swal.fire({
-    title: '¿Eliminar familiar?',
-    text: "Esto puede afectar a los difuntos asignados",
+    title: t('admin.guardians.deleteTitle'),
+    text: t('admin.guardians.deleteText'),
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#d33',
-    confirmButtonText: 'Sí, borrar'
+    confirmButtonText: t('admin.guardians.deleteBtn')
   })
 
   if (result.isConfirmed) {
     try {
       await apiClient.delete(`/MemorialGuardian/${id}`)
       store.fetchAllGuardians()
-      Swal.fire('Eliminado', '', 'success')
+      Swal.fire(t('admin.guardians.deletedOk'), '', 'success')
     } catch (e) {
-      Swal.fire('Error', 'No se puede eliminar porque tiene difuntos a su cargo', 'error')
+      Swal.fire('Error', t('admin.guardians.errorDelete'), 'error')
     }
   }
 }
