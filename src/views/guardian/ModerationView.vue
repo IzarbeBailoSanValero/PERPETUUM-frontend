@@ -1,145 +1,187 @@
 <template>
-  <v-container fluid>
-    <v-card border flat class="rounded-xl pa-4">
-      <v-card-title class="d-flex align-center flex-wrap ga-2">
-        <v-btn
-          v-if="deceasedId"
-          icon="mdi-arrow-left"
-          variant="text"
-          size="small"
-          class="mr-1"
-          to="/guardian/my-memorials"
-        />
-        <v-icon icon="mdi-shield-check" class="mr-2" />
-        <span>{{ t('guardian.moderation.title') }}</span>
+  <v-container>
 
-        <!-- Chip con el nombre del difunto cuando se filtra -->
-        <v-chip
-          v-if="deceasedName"
-          color="primary"
-          variant="tonal"
-          size="small"
-          class="ml-2"
-          prepend-icon="mdi-account"
-        >
-          {{ deceasedName }}
-        </v-chip>
+    <div class="d-flex justify-space-between align-center flex-wrap ga-3 mb-4">
+      <h2 class="text-h4 font-weight-bold">
+        {{ t('guardian.moderation.title') }}
+      </h2>
+    </div>
 
-        <v-spacer />
+    <v-card class="rounded-xl pa-4">
 
-        <v-text-field
-          v-model="search"
-          prepend-inner-icon="mdi-magnify"
-          :label="t('guardian.moderation.filter')"
-          density="compact" hide-details
-          class="w-100 w-sm-auto" style="max-width: 320px;"
-          variant="solo"
-        />
-      </v-card-title>
-
-      <v-divider class="my-4" />
-      <v-progress-linear v-if="store.loading" indeterminate color="primary" class="mb-4" />
-
-      <div style="overflow-x: auto;">
-      <v-table v-else>
-        <thead>
-          <tr>
-            <th v-if="!deceasedId">{{ t('guardian.moderation.colDeceased') }}</th>
-            <th>{{ t('guardian.moderation.colMessage') }}</th>
-            <th>{{ t('guardian.moderation.colType') }}</th>
-            <th>{{ t('guardian.moderation.colDate') }}</th>
-            <th>{{ t('guardian.moderation.colActions') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="memory in filteredMemories" :key="memory.id">
-            <td v-if="!deceasedId">{{ memory.deceasedName }}</td>
-            <td class="text-truncate" style="max-width: 420px;">
-              {{ memory.textContent || memory.mediaURL || t('common.noContent') }}
-            </td>
-            <td>{{ getTypeLabel(memory.type) }}</td>
-            <td>{{ formatDate(memory.createdDate) }}</td>
-            <td>
-              <div class="d-flex ga-2">
-                <v-btn size="small" color="success" @click="moderate(memory.id, 1)">
-                  {{ t('guardian.moderation.approve') }}
-                </v-btn>
-                <v-btn size="small" color="error" variant="tonal" @click="moderate(memory.id, 2)">
-                  {{ t('guardian.moderation.reject') }}
-                </v-btn>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </v-table>
+      <!-- SIN MEMORIAS -->
+      <div v-if="filteredMemories.length === 0">
+        <v-alert type="info" variant="tonal">
+          {{ t('guardian.moderation.noMemories') }}
+        </v-alert>
       </div>
 
-      <v-alert v-if="!store.loading && filteredMemories.length === 0" type="info" variant="tonal" class="mt-4">
-        {{ t('guardian.moderation.noPending') }}
-      </v-alert>
+      <!-- TABLA -->
+      <div v-else style="overflow-x:auto;">
+        <v-table>
+
+          <thead>
+            <tr>
+              <th v-if="!deceasedId">
+                {{ t('guardian.moderation.colDeceased') }}
+              </th>
+
+              <th>
+                {{ t('guardian.moderation.colMessage') }}
+              </th>
+
+              <th>
+                {{ t('guardian.moderation.colType') }}
+              </th>
+
+              <th>
+                {{ t('guardian.moderation.colDate') }}
+              </th>
+
+              <th>
+                {{ t('guardian.moderation.colActions') }}
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr
+              v-for="memory in filteredMemories"
+              :key="memory.id"
+            >
+
+              <td v-if="!deceasedId">
+                {{ memory.deceasedName }}
+              </td>
+
+              <td class="text-truncate" style="max-width:420px;">
+                {{
+                  memory.textContent ||
+                  memory.mediaURL ||
+                  t('common.noContent')
+                }}
+              </td>
+
+              <td>
+                {{ getTypeLabel(memory.type) }}
+              </td>
+
+              <td>
+                {{ formatDate(memory.createdDate) }}
+              </td>
+
+              <td>
+                <div class="d-flex ga-2">
+
+                  <v-btn
+                    size="small"
+                    color="success"
+                    @click="moderate(memory.id, 1)"
+                  >
+                    {{ t('guardian.moderation.approve') }}
+                  </v-btn>
+
+                  <v-btn
+                    size="small"
+                    color="error"
+                    variant="tonal"
+                    @click="moderate(memory.id, 2)"
+                  >
+                    {{ t('guardian.moderation.reject') }}
+                  </v-btn>
+
+                </div>
+              </td>
+
+            </tr>
+          </tbody>
+
+        </v-table>
+      </div>
+
     </v-card>
+
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useMemoryStore } from '@/stores/memoryStore'
-import { useUiStore } from '@/stores/uiStore'
-
-const props = defineProps<{ deceasedId?: string }>()
+import apiClient from '@/plugins/axios'
+import Swal from 'sweetalert2'
 
 const { t } = useI18n()
-const store = useMemoryStore()
-const ui = useUiStore()
-const search = ref('')
 
-const numericDeceasedId = computed(() =>
-  props.deceasedId ? Number(props.deceasedId) : undefined
-)
+const memories = ref<any[]>([])
+const loading = ref(false)
 
-// Nombre del difunto — se extrae del primer recuerdo que coincida
-const deceasedName = computed(() => {
-  if (!numericDeceasedId.value) return ''
-  return store.memories.find(m => m.deceasedId === numericDeceasedId.value)?.deceasedName ?? ''
+const deceasedId = ref<number | null>(null)
+
+const filteredMemories = computed(() => {
+  if (!deceasedId.value) return memories.value
+  return memories.value.filter(m => m.deceasedId === deceasedId.value)
 })
 
-const filteredMemories = computed(() =>
-  store.memories.filter(m => {
-    // Filtro por difunto en el frontend
-    if (numericDeceasedId.value && m.deceasedId !== numericDeceasedId.value) return false
+function getTypeLabel(type: number) {
+  const types: any = {
+    0: 'Texto',
+    1: 'Imagen',
+    2: 'Video',
+    3: 'Audio'
+  }
 
-    // Filtro por buscador de texto
-    const term = search.value.trim().toLowerCase()
-    if (!term) return true
-    return m.deceasedName.toLowerCase().includes(term) ||
-      (m.textContent ?? '').toLowerCase().includes(term)
-  })
-)
-
-function getTypeLabel(type: number | string | undefined) {
-  const val = type === undefined ? '' : String(type)
-  if (val === '1' || val === 'Condolence') return t('common.condolence')
-  if (val === '2' || val === 'Anecdote')   return t('common.anecdote')
-  if (val === '3' || val === 'Photo')      return t('common.photo')
-  return val ? t('common.unknown') : '—'
+  return types[type] || 'Otro'
 }
 
 function formatDate(date: string) {
   return new Date(date).toLocaleDateString()
 }
 
-async function moderate(id: number, status: 1 | 2) {
+async function fetchMemories() {
+  loading.value = true
+
   try {
-    await store.updateMemoryStatus(id, status)
-    ui.notify(status === 1 ? t('guardian.moderation.approvedOk') : t('guardian.moderation.rejectedOk'), 'success')
-  } catch {
-    ui.notify(t('guardian.moderation.errorAction'), 'error')
+    const res = await apiClient.get('/MemorialMemory/pending')
+    memories.value = res.data || []
+  } catch (err) {
+    console.error(err)
+
+    Swal.fire(
+      'Error',
+      t('guardian.moderation.errorLoad'),
+      'error'
+    )
+  } finally {
+    loading.value = false
   }
 }
 
-// Siempre carga todos los recuerdos pendientes, el filtrado es local
-watch(() => props.deceasedId, () => store.fetchPendingMemories())
+async function moderate(id: number, status: number) {
+  try {
+    await apiClient.put(`/MemorialMemory/moderate/${id}`, { status })
 
-onMounted(() => store.fetchPendingMemories())
+    memories.value = memories.value.filter(m => m.id !== id)
+
+    Swal.fire({
+      title:
+        status === 1
+          ? t('guardian.moderation.approved')
+          : t('guardian.moderation.rejected'),
+      icon: 'success',
+      timer: 1200,
+      showConfirmButton: false
+    })
+
+  } catch (err) {
+    console.error(err)
+
+    Swal.fire(
+      'Error',
+      t('guardian.moderation.errorModerate'),
+      'error'
+    )
+  }
+}
+
+onMounted(fetchMemories)
 </script>
