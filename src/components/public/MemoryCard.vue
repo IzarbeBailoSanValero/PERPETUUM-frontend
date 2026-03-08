@@ -7,7 +7,7 @@
     elevation="3"
   >
     <!-- Encabezado -->
-    <div class="d-flex justify-space-between align-center mb-3">
+    <div class="d-flex justify-space-between align-start flex-wrap ga-1 mb-3">
       <div class="d-flex flex-column">
         <span class="text-subtitle-2 font-weight-bold text-primary">
           {{ memory.authorName || 'Anónimo' }}

@@ -17,8 +17,8 @@
             </template>
           </v-img>
         </v-avatar>
-        <h1 class="text-h3 font-serif mb-2">{{ store.currentDeceased.name }}</h1>
-        <p class="text-h6 opacity-60 italic">"{{ store.currentDeceased.epitaph }}"</p>
+        <h1 class="text-h5 text-sm-h4 text-md-h3 font-serif mb-2">{{ store.currentDeceased.name }}</h1>
+        <p class="text-body-1 text-sm-h6 opacity-60 italic">"{{ store.currentDeceased.epitaph }}"</p>
       </v-col>
     </v-row>
 
@@ -29,8 +29,8 @@
         
         <v-divider class="mb-10"></v-divider>
 
-        <div class="d-flex justify-space-between align-center mb-6">
-          <h2 class="text-h4">Muro de Recuerdos</h2>
+        <div class="d-flex flex-column flex-sm-row justify-space-between align-start align-sm-center ga-3 mb-6">
+          <h2 class="text-h5 text-sm-h4">Muro de Recuerdos</h2>
           <v-btn color="primary" prepend-icon="mdi-heart">Dejar recuerdo</v-btn>
         </div>
 

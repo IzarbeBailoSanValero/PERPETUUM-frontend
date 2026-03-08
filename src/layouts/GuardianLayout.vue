@@ -26,12 +26,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useDisplay } from 'vuetify'
 import GuardianSidebar from './GuardianSidebar.vue'
 
 const { mobile } = useDisplay()
 
-// En escritorio el drawer arranca abierto; en móvil arranca cerrado
-const drawer = ref(!mobile.value)
+// Arranca cerrado siempre; onMounted lo abre en escritorio una vez que
+// useDisplay() ya tiene el tamaño real de la ventana
+const drawer = ref(false)
+
+onMounted(() => {
+  if (!mobile.value) drawer.value = true
+})
 </script>

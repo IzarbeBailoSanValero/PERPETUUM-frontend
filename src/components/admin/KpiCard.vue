@@ -2,7 +2,7 @@
 <template>
   <v-card class="rounded-xl pa-4" elevation="2" border>
     <div class="d-flex align-center">
-      <v-avatar :color="color" variant="tonal" size="56" class="mr-4">
+      <v-avatar :color="color" variant="tonal" size="44" class="mr-3">
         <v-icon :icon="icon" size="28"></v-icon>
       </v-avatar>
 
@@ -10,7 +10,7 @@
         <div class="text-overline text-medium-emphasis line-height-1 mb-1">
           {{ title }}
         </div>
-        <div class="text-h4 font-weight-bold">
+        <div class="text-h5 text-sm-h4 font-weight-bold">
           {{ value }}
         </div>
       </div>

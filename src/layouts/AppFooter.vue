@@ -1,5 +1,5 @@
 <template>
-  <v-footer class="bg-primary py-10">
+  <v-footer class="bg-primary py-6 py-sm-10">
     <v-container>
       <v-row justify="space-between">
         
@@ -15,7 +15,7 @@
           </div>
         </v-col>
 
-        <v-col cols="6" md="2">
+        <v-col cols="12" sm="6" md="2">
           <h4 class="text-subtitle-1 font-weight-bold text-on-primary mb-4">Empresa</h4>
           <nav class="d-flex flex-column ga-2">
             <router-link to="/about" class="footer-link">Acerca de</router-link>
@@ -24,7 +24,7 @@
           </nav>
         </v-col>
 
-        <v-col cols="6" md="3">
+        <v-col cols="12" sm="6" md="3">
           <h4 class="text-subtitle-1 font-weight-bold text-on-primary mb-4">Asistencia</h4>
           <p class="text-caption footer-body-text d-flex align-center mb-2">
             <v-icon icon="mdi-email-outline" start size="small"></v-icon>
