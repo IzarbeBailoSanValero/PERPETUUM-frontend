@@ -25,14 +25,15 @@
             <v-card-subtitle class="pt-2">
               {{ t('guardian.myMemorials.deathDate') }} {{ formatDate(d.deathDate) }}
             </v-card-subtitle>
-            <v-card-actions>
-              <v-btn color="primary" variant="flat" :to="`/memorial/${d.id}`" prepend-icon="mdi-eye">
+            <!-- flex-wrap: los botones se reorganizan en móvil si no caben en una línea -->
+            <v-card-actions class="flex-wrap gap-1 pa-2">
+              <v-btn color="primary" variant="flat" :to="`/memorial/${d.id}`" prepend-icon="mdi-eye" size="small">
                 {{ t('guardian.myMemorials.viewBtn') }}
               </v-btn>
-              <v-btn variant="tonal" color="primary" :to="`/guardian/edit-memorial/${d.id}`" prepend-icon="mdi-pencil">
+              <v-btn variant="tonal" color="primary" :to="`/guardian/edit-memorial/${d.id}`" prepend-icon="mdi-pencil" size="small">
                 {{ t('guardian.myMemorials.editBtn') }}
               </v-btn>
-              <v-btn variant="text" :to="`/guardian/moderation/${d.id}`" prepend-icon="mdi-shield-check">
+              <v-btn variant="text" :to="`/guardian/moderation/${d.id}`" prepend-icon="mdi-shield-check" size="small">
                 {{ t('guardian.myMemorials.moderateBtn') }}
               </v-btn>
             </v-card-actions>

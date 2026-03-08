@@ -1,24 +1,24 @@
 <template>
   <v-container fluid>
-    <div class="d-flex justify-space-between align-center mb-6">
-      <div>
+    <!-- Header responsive: título a la izquierda, controles a la derecha en desktop / abajo en móvil -->
+    <v-row align="center" class="mb-6">
+      <v-col cols="12" md="6">
         <h1 class="text-h4 font-weight-bold">{{ t('admin.dashboard.title') }}</h1>
         <p class="text-subtitle-1 text-medium-emphasis">{{ t('admin.dashboard.subtitle') }}</p>
-      </div>
+      </v-col>
 
-      <v-col cols="12" md="6" class="d-flex justify-md-end align-center gap-3">
-        <v-select 
+      <v-col cols="12" md="6" class="d-flex align-center gap-3 justify-md-end flex-wrap">
+        <v-select
           v-model="timeRange" :items="periodItems"
-          :label="t('admin.dashboard.period')" variant="outlined" density="compact" hide-details style="max-width: 200px;" class="mr-4"
+          :label="t('admin.dashboard.period')" variant="outlined" density="compact" hide-details
+          style="max-width: 200px; min-width: 150px;"
           @update:model-value="loadDashboardData"
-        >
-        </v-select>
-
+        />
         <v-btn prepend-icon="mdi-refresh" color="primary" variant="elevated" @click="loadDashboardData" :loading="loading">
-          Actualizar 
+          Actualizar
         </v-btn>
       </v-col>
-    </div>
+    </v-row>
 
     <v-row v-if="!loading">
       <v-col cols="12" sm="6" md="3">

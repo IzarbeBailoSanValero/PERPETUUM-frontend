@@ -1,8 +1,15 @@
 <template>
   <!-- Barra superior principal del layout -->
   <v-app-bar flat border>
-    
-    
+
+    <!-- Botón hamburguesa: solo visible en móvil (oculto en md+) -->
+    <v-btn
+      icon="mdi-menu"
+      class="d-flex d-md-none"
+      @click="emit('toggle-drawer')"
+      aria-label="Abrir menú"
+    />
+
     <!-- Título de la barra.
          Muestra "Admin / NombreDeLaRutaActual".
          $route.name viene del router y cambia automáticamente según la vista. -->
@@ -15,56 +22,41 @@
 
     <!-- Botón de notificaciones -->
     <v-btn icon="mdi-bell-outline" class="mr-2">
-      <!-- Badge: punto rojo indicando notificaciones -->
       <v-badge dot color="error">
-        <!-- El icono se renderiza dentro del badge -->
         <v-icon></v-icon>
       </v-badge>
     </v-btn>
 
     <!-- Menú desplegable del usuario -->
     <v-menu>
-      <!-- Activador del menú: el botón que al hacer clic abre el menú -->
       <template v-slot:activator="{ props }">
-        <!-- props contiene los eventos y atributos necesarios para abrir el menú -->
         <v-btn v-bind="props" class="text-none">
-          <!-- Avatar del usuario -->
           <v-avatar size="32" color="primary" class="mr-2">AD</v-avatar>
-          <!-- Nombre del usuario -->
-          Administrador
+          <!-- Nombre oculto en pantallas muy pequeñas -->
+          <span class="d-none d-sm-inline">Administrador</span>
         </v-btn>
       </template>
 
-      <!-- Contenido del menú -->
       <v-list>
-        <!-- Opción: ir al perfil -->
         <v-list-item prepend-icon="mdi-account" title="Perfil"></v-list-item>
-
-        <!-- Opción: cerrar sesión -->
         <v-list-item prepend-icon="mdi-logout" title="Cerrar Sesión" color="error" @click="handleLogout"></v-list-item>
       </v-list>
     </v-menu>
   </v-app-bar>
 </template>
 
-
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/authStore'
 import { useRouter } from 'vue-router'
 
-
-/*
-1. Llama al store de autenticación (authStore)
-2. Ejecuta logout() → borra token, usuario, etc.
-3. Redirige a la ruta "Login"
-*/
 const auth = useAuthStore()
 const router = useRouter()
+
+// Emite al AdminLayout para que toglee el drawer
+const emit = defineEmits<{ (e: 'toggle-drawer'): void }>()
 
 function handleLogout() {
   auth.logout()
   router.push({ name: 'Login' })
 }
-
-
 </script>

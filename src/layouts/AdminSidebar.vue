@@ -1,5 +1,19 @@
 <template>
-  <v-navigation-drawer permanent elevation="2" color="primary">
+  <!--
+    :model-value / @update:model-value: controlado desde AdminLayout para poder
+    abrirlo/cerrarlo con el botón hamburguesa en móvil.
+
+    :permanent="mdAndUp"  → En desktop (md+) siempre visible, no puede cerrarse.
+    :temporary="!mdAndUp" → En móvil es un overlay que se cierra al pulsar fuera.
+  -->
+  <v-navigation-drawer
+    :model-value="open"
+    @update:model-value="emit('update:open', $event)"
+    :permanent="mdAndUp"
+    :temporary="!mdAndUp"
+    elevation="2"
+    color="primary"
+  >
 
     <v-list class="pa-4">
       <v-list-item title="PERPETUUM" :subtitle="t('sidebar.admin.panel')" prepend-icon="mdi-infinity" />
@@ -37,8 +51,14 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { useDisplay } from 'vuetify'
 import ThemeToggle from '@/components/ui/ThemeToggle.vue'
 import LangToggle from '@/components/ui/LangToggle.vue'
 
 const { t } = useI18n()
+const { mdAndUp } = useDisplay()
+
+// Recibimos el estado abierto/cerrado desde AdminLayout
+defineProps<{ open: boolean }>()
+const emit = defineEmits<{ (e: 'update:open', value: boolean): void }>()
 </script>

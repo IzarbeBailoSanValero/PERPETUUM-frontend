@@ -1,8 +1,8 @@
 <template>
   <v-container>
-    <div class="d-flex justify-space-between align-center mb-4">
-      <h2 class="text-h4 font-weight-bold  ">{{ t('admin.funeralHomes.title') }}</h2>
-      <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreateModal">
+    <div class="d-flex flex-wrap justify-space-between align-center gap-2 mb-4">
+      <h2 class="text-h4 font-weight-bold">{{ t('admin.funeralHomes.title') }}</h2>
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreateModal" class="flex-shrink-0">
         {{ t('admin.funeralHomes.newBtn') }}
       </v-btn>
     </div>

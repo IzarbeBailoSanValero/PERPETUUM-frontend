@@ -29,7 +29,8 @@
         
         <v-divider class="mb-10"></v-divider>
 
-        <div class="d-flex justify-space-between align-center mb-6">
+        <!-- flex-wrap: el botón baja a segunda línea en móvil si no hay espacio -->
+        <div class="d-flex flex-wrap justify-space-between align-center gap-2 mb-6">
           <h2 class="text-h4">Muro de Recuerdos</h2>
           <AddMemoryModal
             v-if="auth.canCreateMemory"
@@ -41,6 +42,7 @@
             to="/login"
             color="primary"
             prepend-icon="mdi-login"
+            class="flex-shrink-0"
           >
             Inicia sesión para comentar
           </v-btn>

@@ -1,13 +1,15 @@
 <template>
   <v-container>
 
-    <div class="d-flex justify-space-between align-center mb-4">
-      <h2 class="text-h4 font-weight-bold por">{{ t('admin.staff.title') }}</h2>
+    <!-- Header responsive: el botón baja a nueva línea en móvil si no hay espacio -->
+    <div class="d-flex flex-wrap justify-space-between align-center gap-2 mb-4">
+      <h2 class="text-h4 font-weight-bold">{{ t('admin.staff.title') }}</h2>
       <v-btn
         v-if="auth.userRole === 'Admin'"
         color="primary"
         prepend-icon="mdi-account-plus"
         @click="openCreateModal"
+        class="flex-shrink-0"
       >
         Nuevo empleado
       </v-btn>
