@@ -3,7 +3,7 @@
     <v-row>
       <v-col cols="12">
         <v-card border flat class="rounded-xl">
-          <v-card-title class="d-flex align-center pa-4">
+          <v-card-title class="d-flex align-center flex-wrap ga-2 pa-4">
             <v-icon icon="mdi-message-draw" class="mr-3" />
             {{ t('admin.memories.title') }}
             <v-spacer />
@@ -12,10 +12,11 @@
               prepend-inner-icon="mdi-magnify"
               :label="t('admin.memories.filter')"
               hide-details variant="solo" density="compact"
-              style="max-width: 300px;"
+              class="w-100 w-sm-auto" style="max-width: 300px;"
             />
           </v-card-title>
 
+          <div style="overflow-x: auto;">
           <v-table class="pa-2">
             <thead>
               <tr>
@@ -36,6 +37,7 @@
               />
             </tbody>
           </v-table>
+          </div>
 
           <v-alert v-if="store.memories.length === 0 && !store.loading" type="info" variant="tonal" class="ma-4">
             {{ t('admin.memories.noPending') }}

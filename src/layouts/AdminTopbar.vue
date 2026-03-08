@@ -1,8 +1,17 @@
 <template>
   <!-- Barra superior principal del layout -->
   <v-app-bar flat border>
-    
-    
+
+    <!-- Botón hamburguesa: abre/cierra el sidebar en móvil.
+         En escritorio el sidebar es permanent y no lo necesita, pero dejarlo
+         visible no hace daño (permite colapsar el sidebar si se prefiere). -->
+    <v-btn
+      icon="mdi-menu"
+      variant="text"
+      class="mr-1"
+      @click="$emit('toggle-drawer')"
+    />
+
     <!-- Título de la barra.
          Muestra "Admin / NombreDeLaRutaActual".
          $route.name viene del router y cambia automáticamente según la vista. -->
@@ -11,7 +20,7 @@
     </v-toolbar-title>
 
     <!-- Empuja los elementos siguientes hacia la derecha -->
-    <v-spacer></v-spacer>
+    <v-spacer />
 
     <!-- Botón de notificaciones -->
     <v-btn icon="mdi-bell-outline" class="mr-2">
@@ -30,8 +39,8 @@
         <v-btn v-bind="props" class="text-none">
           <!-- Avatar del usuario -->
           <v-avatar size="32" color="primary" class="mr-2">AD</v-avatar>
-          <!-- Nombre del usuario -->
-          Administrador
+          <!-- Nombre del usuario: oculto en móvil para ahorrar espacio -->
+          <span class="d-none d-sm-inline">Administrador</span>
         </v-btn>
       </template>
 
@@ -44,14 +53,16 @@
         <v-list-item prepend-icon="mdi-logout" title="Cerrar Sesión" color="error" @click="handleLogout"></v-list-item>
       </v-list>
     </v-menu>
+
   </v-app-bar>
 </template>
-
 
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/authStore'
 import { useRouter } from 'vue-router'
 
+// Evento que el padre (AdminLayout) escucha para abrir/cerrar el drawer
+defineEmits(['toggle-drawer'])
 
 /*
 1. Llama al store de autenticación (authStore)
@@ -65,6 +76,4 @@ function handleLogout() {
   auth.logout()
   router.push({ name: 'Login' })
 }
-
-
 </script>

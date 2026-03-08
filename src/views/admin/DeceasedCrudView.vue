@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <div class="d-flex justify-space-between align-center mb-4">
+    <div class="d-flex justify-space-between align-center flex-wrap ga-3 mb-4">
       <h2 class="text-h4 font-weight-bold ">{{ t('admin.deceased.title') }}</h2>
       <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreateModal">
         Nuevo Difunto

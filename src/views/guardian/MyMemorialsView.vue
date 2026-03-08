@@ -25,7 +25,7 @@
             <v-card-subtitle class="pt-2">
               {{ t('guardian.myMemorials.deathDate') }} {{ formatDate(d.deathDate) }}
             </v-card-subtitle>
-            <v-card-actions>
+            <v-card-actions class="flex-wrap">
               <v-btn color="primary" variant="flat" :to="`/memorial/${d.id}`" prepend-icon="mdi-eye">
                 {{ t('guardian.myMemorials.viewBtn') }}
               </v-btn>

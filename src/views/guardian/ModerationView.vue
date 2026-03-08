@@ -32,7 +32,7 @@
           prepend-inner-icon="mdi-magnify"
           :label="t('guardian.moderation.filter')"
           density="compact" hide-details
-          style="max-width: 320px;"
+          class="w-100 w-sm-auto" style="max-width: 320px;"
           variant="solo"
         />
       </v-card-title>
@@ -40,6 +40,7 @@
       <v-divider class="my-4" />
       <v-progress-linear v-if="store.loading" indeterminate color="primary" class="mb-4" />
 
+      <div style="overflow-x: auto;">
       <v-table v-else>
         <thead>
           <tr>
@@ -71,6 +72,7 @@
           </tr>
         </tbody>
       </v-table>
+      </div>
 
       <v-alert v-if="!store.loading && filteredMemories.length === 0" type="info" variant="tonal" class="mt-4">
         {{ t('guardian.moderation.noPending') }}
