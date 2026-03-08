@@ -1,3 +1,4 @@
+```vue
 <template>
   <v-container>
 
@@ -13,15 +14,11 @@
 
       <v-data-table
         :headers="headers"
-        :items="store.guardians"
-        :loading="store.loading"
+        :items="guardians"
+        :loading="loading"
       >
 
-        <template v-slot:item.name="{ item }">
-          <GuardianRow :item="item" />
-        </template>
-
-        <template v-slot:item.actions="{ item }">
+        <template #item.actions="{ item }">
           <v-btn icon="mdi-pencil" variant="text" color="primary" @click="openEditModal(item)" />
           <v-btn icon="mdi-delete" variant="text" color="error" @click="confirmDelete(item.id)" />
         </template>
@@ -30,246 +27,174 @@
 
     </v-card>
 
+    <!-- MODAL -->
     <v-dialog v-model="dialog" max-width="500">
+
       <v-card
-        :title="isEditing ? t('admin.guardians.editTitle') : t('admin.guardians.createTitle')"
+        :title="isEditing ? 'Editar Guardián' : 'Crear Guardián'"
         class="pa-4 rounded-lg"
       >
 
-        <VForm
-          @submit="save"
-          :validation-schema="schema"
-          :initial-values="initialValues"
-          v-slot="{ errors }"
-        >
+        <v-card-text>
 
-          <v-card-text>
+          <v-text-field
+            v-model="form.name"
+            label="Nombre"
+            variant="outlined"
+            class="mb-3"
+          />
 
-            <Field name="name" v-slot="{ field }">
-              <v-text-field
-                v-bind="field"
-                v-model="form.name"
-                :label="t('admin.guardians.fieldName')"
-                variant="outlined"
-                :error-messages="errors.name"
-                class="mb-3"
-              />
-            </Field>
+          <v-text-field
+            v-model="form.dni"
+            label="DNI"
+            variant="outlined"
+            class="mb-3"
+          />
 
-            <Field name="dni" v-slot="{ field }">
-              <v-text-field
-                v-bind="field"
-                v-model="form.dni"
-                :label="t('admin.guardians.fieldDni')"
-                variant="outlined"
-                :error-messages="errors.dni"
-                class="mb-3"
-              />
-            </Field>
+          <v-text-field
+            v-model="form.email"
+            label="Email"
+            variant="outlined"
+            class="mb-3"
+          />
 
-            <Field name="email" v-slot="{ field }">
-              <v-text-field
-                v-bind="field"
-                v-model="form.email"
-                :label="t('admin.guardians.fieldEmail')"
-                variant="outlined"
-                :error-messages="errors.email"
-                class="mb-3"
-              />
-            </Field>
+          <v-text-field
+            v-model="form.phoneNumber"
+            label="Teléfono"
+            variant="outlined"
+            class="mb-3"
+          />
 
-            <Field name="phoneNumber" v-slot="{ field }">
-              <v-text-field
-                v-bind="field"
-                v-model="form.phoneNumber"
-                :label="t('admin.guardians.fieldPhone')"
-                variant="outlined"
-                :error-messages="errors.phoneNumber"
-                class="mb-3"
-              />
-            </Field>
+          <v-text-field
+            v-if="!isEditing"
+            v-model="form.password"
+            label="Contraseña"
+            type="password"
+            variant="outlined"
+          />
 
-            <Field v-if="!isEditing" name="password" v-slot="{ field }">
-              <v-text-field
-                v-bind="field"
-                v-model="form.password"
-                :label="t('admin.guardians.fieldPassword')"
-                type="password"
-                variant="outlined"
-                :error-messages="errors.password"
-              />
-            </Field>
+        </v-card-text>
 
-          </v-card-text>
-
-          <v-card-actions>
-            <v-spacer />
-            <v-btn variant="text" @click="dialog = false">
-              {{ t('admin.guardians.cancel') }}
-            </v-btn>
-            <v-btn color="primary" type="submit" :loading="saving">
-              {{ t('admin.guardians.save') }}
-            </v-btn>
-          </v-card-actions>
-
-        </VForm>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" @click="dialog = false">
+            Cancelar
+          </v-btn>
+          <v-btn color="primary" @click="save" :loading="saving">
+            Guardar
+          </v-btn>
+        </v-card-actions>
 
       </v-card>
+
     </v-dialog>
 
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { ref, reactive, onMounted } from 'vue'
 import apiClient from '@/plugins/axios'
 import Swal from 'sweetalert2'
-import { useAuthStore } from '@/stores/authStore'
-import { useGuardianStore } from '@/stores/guardianStore'
-import GuardianRow from '@/components/admin/GuardianRow.vue'
 
-import { Form as VForm, Field } from 'vee-validate'
-import * as yup from 'yup'
-
-// ─── INTERFACES
 interface Guardian {
   id: number
   name: string
   dni: string
   email: string
   phoneNumber: string
-  funeralHomeId: number | null
 }
 
-const { t } = useI18n()
-const auth = useAuthStore()
-const store = useGuardianStore()
+const guardians = ref<Guardian[]>([])
+const loading = ref(false)
 
 const dialog = ref(false)
 const saving = ref(false)
 
-// Controladores de modo Edición
 const isEditing = ref(false)
 const editId = ref<number | null>(null)
 
-// CONFIGURACIÓN DE TABLA + FORMULARIO
-const headers = computed(() => [
-  { title: t('admin.guardians.colName'), key: 'name' },
-  { title: t('admin.guardians.colPhone'), key: 'phoneNumber' },
-  { title: t('admin.guardians.colActions'), key: 'actions', align: 'end', sortable: false }
-])
+/* HEADERS TIPADOS PARA VUETIFY 3 */
+const headers = [
+  { title: 'Nombre', key: 'name' },
+  { title: 'Teléfono', key: 'phoneNumber' },
+  { title: 'Acciones', key: 'actions', align: 'end' as const, sortable: false }
+]
 
-// Objeto reactivo enlazado a los inputs
-const form = reactive<any>({
+const form = reactive({
   name: '',
   dni: '',
   email: '',
   phoneNumber: '',
-  password: '',
-  funeralHomeId: auth.user?.funeralHomeId ?? 0,
-  staffId: auth.user?.id || 0
+  password: ''
 })
 
-const initialValues = computed(() => ({ ...form }))
-
-// VALIDACIÓN
-const schema = computed(() => {
-  if (isEditing.value) {
-    return yup.object({
-      name: yup.string().min(3, 'Nombre demasiado corto'),
-      dni: yup.string(),
-      email: yup.string().email('Email inválido'),
-      phoneNumber: yup.string(),
-      password: yup.string().nullable()
-    })
-  }
-
-  return yup.object({
-    name: yup.string().required('Nombre obligatorio').min(3, 'Nombre demasiado corto'),
-    dni: yup.string().required('DNI obligatorio'),
-    email: yup.string().email('Email inválido').required('Email obligatorio'),
-    phoneNumber: yup.string().required('Teléfono obligatorio'),
-    password: yup.string().required('Contraseña obligatoria').min(6, 'Mínimo 6 caracteres')
-  })
-})
-
-// CRUD
+function resetForm() {
+  form.name = ''
+  form.dni = ''
+  form.email = ''
+  form.phoneNumber = ''
+  form.password = ''
+}
 
 function openCreateModal() {
+  resetForm()
   isEditing.value = false
-  editId.value = null
-
-  Object.assign(form, {
-    name: '',
-    dni: '',
-    email: '',
-    phoneNumber: '',
-    password: ''
-  })
-
   dialog.value = true
 }
 
-function openEditModal(item: any) {
+function openEditModal(item: Guardian) {
   isEditing.value = true
   editId.value = item.id
 
-  Object.assign(form, {
-    name: item.name,
-    dni: item.dni,
-    email: item.email,
-    phoneNumber: item.phoneNumber,
-    password: ''
-  })
+  form.name = item.name
+  form.dni = item.dni
+  form.email = item.email
+  form.phoneNumber = item.phoneNumber
+  form.password = ''
 
   dialog.value = true
 }
 
-async function save(values: any, { resetForm }: any) {
+async function fetchGuardians() {
+  loading.value = true
+
+  try {
+    const res = await apiClient.get('/MemorialGuardian')
+    guardians.value = res.data
+  } catch (err) {
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
+}
+
+async function save() {
   saving.value = true
 
   try {
+
     if (isEditing.value && editId.value) {
-      const updateData: any = { id: editId.value }
 
-      if (form.name?.trim()) updateData.name = form.name
-      if (form.dni?.trim()) updateData.dni = form.dni
-      if (form.email?.trim()) updateData.email = form.email
-      if (form.phoneNumber?.trim()) updateData.phoneNumber = form.phoneNumber
+      await apiClient.put(`/MemorialGuardian/${editId.value}`, form)
 
-      await apiClient.put(`/MemorialGuardian/${editId.value}`, updateData)
-
-      Swal.fire({
-        title: t('admin.guardians.updatedOk'),
-        icon: 'success',
-        timer: 1500,
-        showConfirmButton: false
-      })
+      Swal.fire('Actualizado', '', 'success')
 
     } else {
+
       await apiClient.post('/MemorialGuardian', form)
 
-      Swal.fire({
-        title: t('admin.guardians.createdOk'),
-        icon: 'success',
-        timer: 1500,
-        showConfirmButton: false
-      })
+      Swal.fire('Creado', '', 'success')
+
     }
 
     dialog.value = false
-    store.fetchAllGuardians()
+    fetchGuardians()
 
-  } catch (error: any) {
-    console.error('Error al guardar:', error.response?.data || error)
+  } catch (err) {
 
-    const errorMsg =
-      error.response?.data?.message ||
-      error.response?.data ||
-      t('admin.guardians.errorSave')
-
-    Swal.fire('Error', errorMsg, 'error')
+    console.error(err)
+    Swal.fire('Error', 'No se pudo guardar', 'error')
 
   } finally {
     saving.value = false
@@ -277,27 +202,31 @@ async function save(values: any, { resetForm }: any) {
 }
 
 async function confirmDelete(id: number) {
+
   const result = await Swal.fire({
-    title: t('admin.guardians.deleteTitle'),
-    text: t('admin.guardians.deleteText'),
+    title: '¿Eliminar guardián?',
     icon: 'warning',
     showCancelButton: true,
-    confirmButtonColor: '#d33',
-    confirmButtonText: t('admin.guardians.deleteBtn')
+    confirmButtonColor: '#d33'
   })
 
-  if (result.isConfirmed) {
-    try {
-      await apiClient.delete(`/MemorialGuardian/${id}`)
-      store.fetchAllGuardians()
-      Swal.fire(t('admin.guardians.deletedOk'), '', 'success')
-    } catch {
-      Swal.fire('Error', t('admin.guardians.errorDelete'), 'error')
-    }
+  if (!result.isConfirmed) return
+
+  try {
+
+    await apiClient.delete(`/MemorialGuardian/${id}`)
+
+    fetchGuardians()
+
+    Swal.fire('Eliminado', '', 'success')
+
+  } catch {
+
+    Swal.fire('Error', 'No se pudo eliminar', 'error')
+
   }
 }
 
-onMounted(() => {
-  store.fetchAllGuardians()
-})
+onMounted(fetchGuardians)
 </script>
+```
