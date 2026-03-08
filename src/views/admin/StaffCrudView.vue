@@ -1,7 +1,7 @@
 <template>
   <v-container>
 
-    <div class="d-flex justify-space-between align-center mb-4">
+    <div class="d-flex justify-space-between align-center flex-wrap ga-3 mb-4">
       <h2 class="text-h4 font-weight-bold por">{{ t('admin.staff.title') }}</h2>
       <v-btn
         v-if="auth.userRole === 'Admin'"
@@ -14,7 +14,7 @@
     </div>
 
     <v-card v-if="auth.userRole === 'Admin'" variant="tonal" class="rounded-xl mb-4 pa-4">
-      <div class="d-flex align-center gap-3">
+      <div class="d-flex align-center flex-wrap gap-3">
         <v-text-field
           v-model.number="funeralHomeSearch"
           :label="t('admin.staff.fieldFuneralHomeId')"
@@ -24,7 +24,7 @@
           density="compact"
           hide-details
           class="max-w-xs"
-          style="max-width: 220px"
+          class="flex-grow-1 flex-sm-grow-0" style="max-width: 220px"
         />
         <v-btn color="primary" variant="tonal" @click="loadStaff" :loading="store.loading">
           Cargar empleados

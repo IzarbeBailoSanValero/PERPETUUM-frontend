@@ -29,7 +29,7 @@
         
         <v-divider class="mb-10"></v-divider>
 
-        <div class="d-flex justify-space-between align-center mb-6">
+        <div class="d-flex justify-space-between align-center flex-wrap ga-3 mb-6">
           <h2 class="text-h4">Muro de Recuerdos</h2>
           <AddMemoryModal
             v-if="auth.canCreateMemory"

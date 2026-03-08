@@ -1,24 +1,28 @@
 <template>
   <v-container fluid>
-    <div class="d-flex justify-space-between align-center mb-6">
-      <div>
-        <h1 class="text-h4 font-weight-bold">{{ t('admin.dashboard.title') }}</h1>
-        <p class="text-subtitle-1 text-medium-emphasis">{{ t('admin.dashboard.subtitle') }}</p>
-      </div>
 
-      <v-col cols="12" md="6" class="d-flex justify-md-end align-center gap-3">
-        <v-select 
+    <!-- Cabecera: título a la izquierda y controles a la derecha.
+         En móvil se apilan verticalmente gracias a v-row / v-col. -->
+    <v-row align="center" class="mb-6">
+      <v-col cols="12" sm="6">
+        <!-- text-h5 en móvil, text-h4 en escritorio -->
+        <h1 class="text-h5 text-sm-h4 font-weight-bold">{{ t('admin.dashboard.title') }}</h1>
+        <p class="text-subtitle-2 text-sm-subtitle-1 text-medium-emphasis">{{ t('admin.dashboard.subtitle') }}</p>
+      </v-col>
+
+      <!-- justify-sm-end alinea a la derecha en escritorio -->
+      <v-col cols="12" sm="6" class="d-flex justify-sm-end align-center flex-wrap ga-3">
+        <v-select
           v-model="timeRange" :items="periodItems"
-          :label="t('admin.dashboard.period')" variant="outlined" density="compact" hide-details style="max-width: 200px;" class="mr-4"
+          :label="t('admin.dashboard.period')" variant="outlined" density="compact" hide-details
+          style="max-width: 200px; min-width: 140px;"
           @update:model-value="loadDashboardData"
-        >
-        </v-select>
-
+        />
         <v-btn prepend-icon="mdi-refresh" color="primary" variant="elevated" @click="loadDashboardData" :loading="loading">
-          Actualizar 
+          Actualizar
         </v-btn>
       </v-col>
-    </div>
+    </v-row>
 
     <v-row v-if="!loading">
       <v-col cols="12" sm="6" md="3">
@@ -45,7 +49,7 @@
           <v-card-title class="text-subtitle-1 font-weight-bold">{{ t('admin.dashboard.charts.growth') }}</v-card-title>
           <apexchart
             type="bar"
-            height="300" 
+            height="300"
             :options="barOptions"
             :series="barSeries"
           ></apexchart>
@@ -77,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed, watch } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTheme } from 'vuetify'
 import type { ApexOptions } from 'apexcharts'
@@ -180,7 +184,7 @@ const donutOptions = computed<ApexOptions>(() => ({
   }
 }))
 
-// C Gráfica de Líneas 
+// C Gráfica de Líneas
 const lineSeries = ref([{ name: 'Interacciones', data: [] as number[] }])
 const lineOptions = computed<ApexOptions>(() => ({
   ...baseChartTheme(),
@@ -193,19 +197,19 @@ const lineOptions = computed<ApexOptions>(() => ({
 }))
 
 // --- (SIMULACIÓN DE API / MOCK DATA) ---
-//Uso una función asíncrona para simular la espera del servidor
+// Uso una función asíncrona para simular la espera del servidor
 const periodItems = computed(() => [
-  { title: t('admin.dashboard.periods.7days'),  value: '7days'  },
-  { title: t('admin.dashboard.periods.month'),  value: 'month'  },
-  { title: t('admin.dashboard.periods.6months'),value: '6months'},
-  { title: t('admin.dashboard.periods.year'),   value: 'year'   }
+  { title: t('admin.dashboard.periods.7days'),  value: '7days'   },
+  { title: t('admin.dashboard.periods.month'),  value: 'month'   },
+  { title: t('admin.dashboard.periods.6months'),value: '6months' },
+  { title: t('admin.dashboard.periods.year'),   value: 'year'    }
 ])
 
 async function loadDashboardData() {
   loading.value = true
-  
+
   try {
-    // Simulo un retraso de red 
+    // Simulo un retraso de red
     await new Promise(resolve => setTimeout(resolve, 800))
 
     // Estos datos son estáticos (HARCODEADOS!)
@@ -214,19 +218,19 @@ async function loadDashboardData() {
       pendingMemories: 14,
       totalGuardians: 89,
       avgMemories: "4.2",
-      monthlyGrowth: [15, 25, 18, 42, 30, 56],// Datos para las barras
-      interactionTrend: [45, 52, 38, 91, 60, 110], // Datos para la línea
-      contentDistribution: [200, 85, 120]// Datos para el donut (Condolencias, Anécdotas, Fotos)
+      monthlyGrowth: [15, 25, 18, 42, 30, 56],          // Datos para las barras
+      interactionTrend: [45, 52, 38, 91, 60, 110],       // Datos para la línea
+      contentDistribution: [200, 85, 120]                 // Datos para el donut (Condolencias, Anécdotas, Fotos)
     }
 
     // ACTUALIZACIÓN DEL ESTADO --> (Vue detecta estos cambios y repinta la pantalla)
-    stats.totalMemorials = mockData.totalDeceased
+    stats.totalMemorials  = mockData.totalDeceased
     stats.pendingMemories = mockData.pendingMemories
-    stats.guardianCount = mockData.totalGuardians
-    stats.avgMemories = mockData.avgMemories
-    
+    stats.guardianCount   = mockData.totalGuardians
+    stats.avgMemories     = mockData.avgMemories
+
     // Actualización de series con tipado correcto
-    barSeries.value = [{ name: 'Memoriales', data: mockData.monthlyGrowth }]
+    barSeries.value  = [{ name: 'Memoriales',    data: mockData.monthlyGrowth    }]
     lineSeries.value = [{ name: 'Interacciones', data: mockData.interactionTrend }]
     donutSeries.value = mockData.contentDistribution
 
@@ -242,7 +246,3 @@ onMounted(() => {
   loadDashboardData()
 })
 </script>
-
-<style scoped>
-.gap-3 { gap: 12px; }
-</style>

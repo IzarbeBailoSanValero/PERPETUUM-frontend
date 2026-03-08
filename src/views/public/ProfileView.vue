@@ -43,7 +43,7 @@
         <v-card
           border
           flat
-          class="rounded-xl pa-7 mb-6 d-flex align-center ga-5"
+          class="rounded-xl pa-5 pa-sm-7 mb-6 d-flex align-center flex-wrap ga-4"
         >
           <v-avatar size="72" color="surface-variant">
             <span class="text-h5 font-weight-bold text-primary">
@@ -63,7 +63,7 @@
         </v-card>
 
         <!-- Formulario -->
-        <v-card border flat class="rounded-xl pa-7 mb-6">
+        <v-card border flat class="rounded-xl pa-4 pa-sm-7 mb-6">
 
           <p class="text-subtitle-1 font-weight-bold mb-6">
             <v-icon size="18" class="mr-2">mdi-pencil-outline</v-icon>
@@ -145,7 +145,7 @@
         <v-card
           border
           flat
-          class="rounded-xl pa-7"
+          class="rounded-xl pa-4 pa-sm-7"
           color="error-lighten-5"
         >
 

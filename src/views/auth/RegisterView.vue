@@ -1,6 +1,8 @@
 <template>
-  <v-container class="fill-height justify-center">
-    <v-card width="450" class="pa-6 rounded-lg" elevation="3">
+  <!-- pa-4 añade padding en móvil para que la card no toque los bordes -->
+  <v-container class="fill-height justify-center pa-4">
+    <!-- w-100 + max-width en lugar de width fijo: fluido en móvil, acotado en escritorio -->
+    <v-card class="w-100 pa-6 rounded-lg" style="max-width: 450px" elevation="3">
       <v-card-title class="text-center text-h5 mb-4">{{ t('auth.registerTitle') }}</v-card-title>
 
       <VForm @submit="handleRegister" :validation-schema="schema" v-slot="{ errors }">
