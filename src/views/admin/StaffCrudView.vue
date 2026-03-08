@@ -23,8 +23,7 @@
           type="number"
           density="compact"
           hide-details
-          class="max-w-xs"
-          class="flex-grow-1 flex-sm-grow-0" style="max-width: 220px"
+          class="max-w-xs flex-grow-1 flex-sm-grow-0" style="max-width: 220px"
         />
         <v-btn color="primary" variant="tonal" @click="loadStaff" :loading="store.loading">
           Cargar empleados
