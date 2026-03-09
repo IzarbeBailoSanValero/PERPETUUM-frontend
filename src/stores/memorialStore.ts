@@ -19,61 +19,58 @@ export interface Memory {
 /** Normaliza objeto del API (PascalCase) a camelCase para uso en la interfaz */
 function normalizeDeceasedSummary(raw: any): DeceasedSummary {
   return {
-    id: raw?.id ?? raw?.Id,
-    name: raw?.name ?? raw?.Name ?? '',
-    photoURL: raw?.photoURL ?? raw?.PhotoURL,
-    deathDate: raw?.deathDate ?? raw?.DeathDate ?? ''
+    id: raw?.Id ?? raw?.id,
+    name: raw?.Name ?? raw?.name ?? '',
+    photoURL: raw?.PhotoURL ?? raw?.photoURL,
+    deathDate: raw?.DeathDate ?? raw?.deathDate ?? ''
   }
 }
 
 function normalizeMemory(raw: any): Memory {
   return {
-    id: raw?.id ?? raw?.Id,
-    createdDate: raw?.createdDate ?? raw?.CreatedDate ?? '',
-    type: raw?.type ?? raw?.Type ?? '',
-    status: raw?.status ?? raw?.Status ?? '',
-    textContent: raw?.textContent ?? raw?.TextContent ?? null,
-    mediaURL: raw?.mediaURL ?? raw?.MediaURL ?? null,
-    authorRelation: raw?.authorRelation ?? raw?.AuthorRelation ?? null,
-    authorName: raw?.authorName ?? raw?.AuthorName ?? null,
-    userId: raw?.userId ?? raw?.UserId,
-    deceasedId: raw?.deceasedId ?? raw?.DeceasedId
+    id: raw?.Id ?? raw?.id,
+    createdDate: raw?.CreatedDate ?? raw?.createdDate ?? '',
+    type: raw?.Type ?? raw?.type ?? '',
+    status: raw?.Status ?? raw?.status ?? '',
+    textContent: raw?.TextContent ?? raw?.textContent ?? null,
+    mediaURL: raw?.MediaURL ?? raw?.mediaURL ?? null,
+    authorRelation: raw?.AuthorRelation ?? raw?.authorRelation ?? null,
+    authorName: raw?.AuthorName ?? raw?.authorName ?? null,
+    userId: raw?.UserId ?? raw?.userId,
+    deceasedId: raw?.DeceasedId ?? raw?.deceasedId
   }
 }
 
 function normalizeDeceased(raw: any): Deceased | null {
   if (!raw) return null
-  const memories = raw?.memories ?? raw?.Memories
+  const memories = raw?.Memories ?? raw?.memories
   return {
-    id: raw?.id ?? raw?.Id,
-    name: raw?.name ?? raw?.Name ?? '',
-    dni: raw?.dni ?? raw?.Dni ?? '',
-    funeralHomeId: raw?.funeralHomeId ?? raw?.FuneralHomeId,
-    guardianId: raw?.guardianId ?? raw?.GuardianId,
-    staffId: raw?.staffId ?? raw?.StaffId,
-    biography: raw?.biography ?? raw?.Biography ?? '',
-    photoURL: raw?.photoURL ?? raw?.PhotoURL ?? '',
-    birthDate: raw?.birthDate ?? raw?.BirthDate ?? '',
-    deathDate: raw?.deathDate ?? raw?.DeathDate ?? '',
-    epitaph: raw?.epitaph ?? raw?.Epitaph ?? '',
+    id: raw?.Id ?? raw?.id,
+    name: raw?.Name ?? raw?.name ?? '',
+    dni: raw?.Dni ?? raw?.dni ?? '',
+    funeralHomeId: raw?.FuneralHomeId ?? raw?.funeralHomeId,
+    guardianId: raw?.GuardianId ?? raw?.guardianId,
+    staffId: raw?.StaffId ?? raw?.staffId,
+    biography: raw?.Biography ?? raw?.biography ?? '',
+    photoURL: raw?.PhotoURL ?? raw?.photoURL ?? '',
+    birthDate: raw?.BirthDate ?? raw?.birthDate ?? '',
+    deathDate: raw?.DeathDate ?? raw?.deathDate ?? '',
+    epitaph: raw?.Epitaph ?? raw?.epitaph ?? '',
     memories: Array.isArray(memories) ? memories.map(normalizeMemory) : null
   }
 }
 
 // --- STORE ---
-//  es como una base de datos local y reactiva. si los datos en el Store cambian, los componentes que los usan se repintan automáticamente.
-
 export const useMemorialStore = defineStore('memorial', {
-  state: () => ({     // función flecha que devuelve un objeto --> para que cada vez que se use el store los datos empiecen limpios y tipados
-    deceasedList: [] as DeceasedSummary[],    //  DeceasedSummary ( DTO ligero) -  listado general
-    currentDeceased: null as Deceased | null, // memorial individual
+  state: () => ({
+    deceasedList: [] as DeceasedSummary[],
+    currentDeceased: null as Deceased | null,
     loading: false,
-    totalPages: 1                             // x defecto
+    totalPages: 1
   }),
 
-  actions: { //  funciones que modifican el estado
-    
-    // ver el detalle de un memorial
+  actions: {
+
     async fetchDeceasedById(id: number) {
       this.loading = true
       try {

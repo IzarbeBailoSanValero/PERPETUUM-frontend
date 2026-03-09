@@ -1,18 +1,22 @@
 <template>
   <v-container>
-    <!-- Header responsive: el botón baja a nueva línea en móvil si no hay espacio -->
     <div class="d-flex flex-wrap justify-space-between align-center gap-2 mb-4">
       <h2 class="text-h4 font-weight-bold">{{ t('admin.deceased.title') }}</h2>
-      <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreateModal" class="flex-shrink-0">
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreateModal">
         Nuevo Difunto
       </v-btn>
     </div>
 
-    <v-card variant="outlined" class="rounded-xl">
+    <v-card variant="outlined" class="rounded-xl overflow-x-auto">
       <v-data-table :headers="headers" :items="store.deceasedList" :loading="store.loading" no-data-text="No hay difuntos cargados">
-        
+
         <template v-slot:item.name="{ item }">
           <DeceasedRow :item="{ name: item.name, photoURL: item.photoURL }" />
+        </template>
+
+        <!-- Columna ID -->
+        <template v-slot:item.id="{ item }">
+          <v-chip size="small" variant="tonal" color="secondary">{{ item.id }}</v-chip>
         </template>
 
         <template v-slot:item.deathDate="{ value }">
@@ -29,13 +33,14 @@
 
     <v-dialog v-model="dialog" max-width="500">
       <v-card :title="isEditing ? t('admin.deceased.editTitle') : t('admin.deceased.createTitle')" class="pa-4 rounded-lg">
-        
-        <VForm @submit="save" :validation-schema="schema" :initial-values="initialValues" v-slot="{ errors }">          <v-card-text>
-            
+
+        <VForm @submit="save" :validation-schema="schema" :initial-values="initialValues" v-slot="{ errors }">
+          <v-card-text>
+
             <Field name="name" v-slot="{ field }">
-              <v-text-field 
+              <v-text-field
                 v-model="form.name"
-                v-bind="field" 
+                v-bind="field"
                 label="Nombre Completo"
                 prepend-inner-icon="mdi-account"
                 variant="outlined"
@@ -45,9 +50,9 @@
             </Field>
 
             <Field name="dni" v-slot="{ field }">
-              <v-text-field 
+              <v-text-field
                 v-model="form.dni"
-                v-bind="field" 
+                v-bind="field"
                 label="DNI"
                 prepend-inner-icon="mdi-card-account-details"
                 variant="outlined"
@@ -57,9 +62,9 @@
             </Field>
 
             <Field name="deathDate" v-slot="{ field }">
-              <v-text-field 
+              <v-text-field
                 v-model="form.deathDate"
-                v-bind="field" 
+                v-bind="field"
                 label="Fecha de Defunción"
                 prepend-inner-icon="mdi-calendar-check"
                 type="date"
@@ -70,9 +75,9 @@
             </Field>
 
             <Field name="birthDate" v-slot="{ field }">
-              <v-text-field 
+              <v-text-field
                 v-model="form.birthDate"
-                v-bind="field" 
+                v-bind="field"
                 label="Fecha de Nacimiento"
                 prepend-inner-icon="mdi-calendar"
                 type="date"
@@ -83,11 +88,11 @@
             </Field>
 
             <Field name="guardianId" v-slot="{ field }">
-              <v-select 
+              <v-select
                 v-model="form.guardianId"
-                v-bind="field" 
-                :items="guardians" 
-                item-title="name" 
+                v-bind="field"
+                :items="guardians"
+                item-title="name"
                 item-value="id"
                 label="Familiar Responsable"
                 prepend-inner-icon="mdi-account-multiple"
@@ -207,7 +212,6 @@ const saving = ref(false)
 const loadingGuardians = ref(false)
 const guardians = ref<any[]>([])
 
-
 const isEditing = ref(false)
 const editId = ref<number | null>(null)
 const photoFile = ref<File[] | File | null>(null)
@@ -215,7 +219,6 @@ const photoFile = ref<File[] | File | null>(null)
 // Esquema de validación condicional
 const schema = computed(() => {
   if (isEditing.value) {
-    // Al editar, campos opcionales (solo validamos formato si se proporciona)
     return yup.object({
       name: yup.string().max(100, 'Máximo 100 caracteres'),
       dni: yup.string(),
@@ -240,7 +243,6 @@ const schema = computed(() => {
       epitaph: yup.string().max(255, 'Máximo 255 caracteres')
     })
   }
-  // Al crear, campos requeridos
   return yup.object({
     name: yup.string().required('El nombre es obligatorio').max(100, 'Máximo 100 caracteres'),
     dni: yup.string().required('DNI requerido'),
@@ -263,7 +265,6 @@ const schema = computed(() => {
     epitaph: yup.string().required('El epitafio es obligatorio').max(255, 'Máximo 255 caracteres'),
     funeralHomeId: yup.number()
       .test('required-for-admin', 'Selecciona una funeraria', function(value) {
-        // Solo obligatorio si el usuario es Admin (Staff ya lo tiene del token)
         if (auth.user?.role !== 'Admin') return true
         return !!value && value > 0
       })
@@ -273,32 +274,26 @@ const schema = computed(() => {
 
 const headers = computed(() => [
   { title: t('admin.deceased.colName'),    key: 'name',      align: 'start'  as const },
-  { title: t('admin.deceased.colDni'),     key: 'dni',       align: 'start'  as const },
+  { title: 'ID',                           key: 'id',        align: 'start'  as const },
   { title: t('admin.deceased.colDate'),    key: 'deathDate', align: 'end'    as const },
   { title: t('admin.deceased.colActions'), key: 'actions',   align: 'center' as const, sortable: false }
 ])
 
-// Gestión de estado con Pinia ( DeceasedCreateDTO)
-// Le ponemos any para poder inyectarle el Id luego al editar sin que TypeScript se queje
 const form = reactive<any>({
   name: '',
   dni: '',
   deathDate: '',
   birthDate: '',
-  biography: '', 
+  biography: '',
   photoURL: '',
   epitaph: '',
-  // Extraemos IDs del token
-  funeralHomeId: auth.user?.funeralHomeId ?? 0, // Staff: su funeraria; Admin global: 0 (debe elegir funeraria)
-  staffId: auth.user?.id || 0, // El StaffId es el ID del usuario logueado
+  funeralHomeId: auth.user?.funeralHomeId ?? 0,
+  staffId: auth.user?.id || 0,
   guardianId: 0
 })
 
-// Sincroniza el estado interno de vee-validate con los datos cargados al editar.
-// Sin esto, v-bind="field" muestra los campos vacíos aunque form.x ya tenga valor.
 const initialValues = computed(() => ({ ...form }))
 
-// traer familiares desde el backend
 async function fetchGuardians() {
   loadingGuardians.value = true
   try {
@@ -311,39 +306,34 @@ async function fetchGuardians() {
   }
 }
 
-//  Carga de datos inicial
 onMounted(() => {
-  store.fetchAllDeceased() // Pide datos de difuntos al backend a través del Store
-  fetchGuardians()         // Carga los guardianes para el selector
+  store.fetchAllDeceased()
+  fetchGuardians()
   if (isAdmin.value) {
-    funeralHomeStore.fetchAll() // Admin necesita elegir funeraria al crear
+    funeralHomeStore.fetchAll()
   }
 })
 
-// limpiar o preparar el form al crear
 function openCreateModal() {
   isEditing.value = false
   editId.value = null
   photoFile.value = null
-  Object.assign(form, { 
-    name: '', dni: '', deathDate: '', birthDate: '', 
-    photoURL: '', 
-    guardianId: null, biography: '', epitaph: '' 
+  Object.assign(form, {
+    name: '', dni: '', deathDate: '', birthDate: '',
+    photoURL: '',
+    guardianId: null, biography: '', epitaph: ''
   });
   dialog.value = true
 }
 
-// rellenar los datos al editar
 async function openEditModal(item: any) {
   isEditing.value = true
   editId.value = item.id
-  
+
   try {
-    // Pedimos los datos completos del difunto al backend
     const response = await apiClient.get(`/Deceased/${item.id}`)
     const data = response.data
-    
-    // Rellenamos el form y recortamos la hora de la fecha 
+
     Object.assign(form, {
       name: data.name,
       dni: data.dni,
@@ -354,16 +344,14 @@ async function openEditModal(item: any) {
       epitaph: data.epitaph,
       guardianId: data.guardianId
     })
-    
+
     dialog.value = true
   } catch (error) {
     Swal.fire('Error', t('common.error'), 'error')
   }
 }
 
-// funcion de POST / PUT
 async function save() {
-  // Staff: usa su funeraria del token. Admin: usa la elegida en el selector (form.funeralHomeId)
   if (!isAdmin.value) {
     form.funeralHomeId = auth.user?.funeralHomeId ?? 0
   }
@@ -398,12 +386,11 @@ async function save() {
       Swal.fire({ title: t('admin.deceased.createdOk'), icon: 'success', timer: 2000, showConfirmButton: false })
     }
 
-    dialog.value = false 
-    store.fetchAllDeceased() // sincronizo pinia
+    dialog.value = false
+    store.fetchAllDeceased()
 
-    // Limpieza  manteniendo  id del usuario logueado
-    openCreateModal() // Llama a la función que ya limpia todo y lo deja listo
-    dialog.value = false //lo cierro porque openCreateModal lo abre
+    openCreateModal()
+    dialog.value = false
 
   } catch (error: any) {
     if (error.response?.status === 403) {
@@ -416,7 +403,6 @@ async function save() {
   }
 }
 
-//  borrar
 async function deleteItem(id: number) {
   const result = await Swal.fire({
     title: t('admin.deceased.deleteTitle'),
@@ -430,7 +416,7 @@ async function deleteItem(id: number) {
   if (result.isConfirmed) {
     try {
       await apiClient.delete(`/Deceased/${id}`)
-      store.fetchAllDeceased() //sicnronizo cn tabla
+      store.fetchAllDeceased()
       Swal.fire('Eliminado', t('admin.deceased.deletedOk'), 'success')
     } catch (e: any) {
       if (e.response?.status === 403) {
