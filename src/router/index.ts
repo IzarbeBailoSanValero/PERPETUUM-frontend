@@ -112,6 +112,8 @@ router.beforeEach((to, from, next) => {
       next({ name: 'AdminDashboard' })
     } else if (role === 'Guardian') {
       next({ name: 'GuardianMyMemorials' })
+    } else if (role === 'StandardUser') {
+      next({ name: 'Profile' })
     } else {
       next({ name: 'Home' })
     }
