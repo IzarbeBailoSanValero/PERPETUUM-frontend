@@ -60,22 +60,24 @@ const routes: RouteRecordRaw[] = [
     name: 'Unauthorized',
     component: () => import('@/views/public/UnauthorizedView.vue')
   },
-  // Ruta 404 — debe ir siempre al final
-  {
-    path: '/:pathMatch(.*)*',
-    name: 'NotFound',
-    component: () => import('@/views/public/NotFoundView.vue')
-  },
   //RUTAS PARA EL STANDARDUSER -- RECUPERACIÓN
     {
     path: '/user',
     component: () => import('@/layouts/PublicLayout.vue'),
     meta: { requiresAuth: true, roles: ['StandardUser'] },
     children: [
+      { path: '', redirect: { name: 'Profile' } }, 
       { path: 'profile', name: 'Profile', component: () => import('@/views/user/ProfileView.vue')},
       { path: 'my-memories', name: 'memoriesByUser', component: () => import('@/views/user/MyMemoriesView.vue')},
     ]
   },
+  // Ruta 404 — debe ir siempre al final
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('@/views/public/NotFoundView.vue')
+  }
+  
 ]
 
  
