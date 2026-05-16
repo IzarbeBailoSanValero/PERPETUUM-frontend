@@ -65,6 +65,17 @@
 
       <v-btn
         v-if="auth.isLoggedIn && auth.userRole === 'StandardUser'"
+        to="/user/my-memories"
+        color="primary"
+        variant="tonal"
+        prepend-icon="mdi-heart"
+        class="text-none ml-2"
+      >
+        {{ t('nav.myMemories') }}
+      </v-btn>
+
+      <v-btn
+        v-if="auth.isLoggedIn && auth.userRole === 'StandardUser'"
         to="/user/profile"
         color="primary"
         variant="tonal"
@@ -73,6 +84,8 @@
       >
         {{ t('nav.myProfile') }}
       </v-btn>
+
+       
 
       <v-btn
         v-if="auth.isLoggedIn"

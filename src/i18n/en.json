@@ -6,7 +6,8 @@
     "logout": "Logout",
     "adminPanel": "Management Panel",
     "guardianPanel": "Family Space",
-    "myProfile": "My Profile"
+    "myProfile": "My Profile",
+    "myMemories": "My Memories"
   },
   "sidebar": {
     "admin": {

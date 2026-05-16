@@ -6,7 +6,8 @@
     "logout": "Cerrar Sesión",
     "adminPanel": "Panel de Gestión",
     "guardianPanel": "Espacio Familiar",
-    "myProfile": "Mi Perfil"
+    "myProfile": "Mi Perfil",
+    "myMemories": "Mis recuerdos"
   },
   "sidebar": {
     "admin": {
