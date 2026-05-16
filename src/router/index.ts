@@ -9,7 +9,6 @@ const routes: RouteRecordRaw[] = [
     children: [
       { path: '', name: 'Home', component: () => import('@/views/public/HomeView.vue') },
       { path: 'memorial/:id', component: () => import('@/views/public/MemorialDetailView.vue'), props: true },
-      { path: 'profile', name: 'Profile', component: () => import('@/views/public/ProfileView.vue'), meta: { requiresAuth: true, roles: ['StandardUser'] } }
     ]
   },
   // 2. RUTAS DE AUTENTICACIÓN
@@ -66,8 +65,24 @@ const routes: RouteRecordRaw[] = [
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('@/views/public/NotFoundView.vue')
-  }
+  },
+  //RUTAS PARA EL STANDARDUSER -- RECUPERACIÓN
+    {
+    path: '/user',
+    component: () => import('@/layouts/PublicLayout.vue'),
+    meta: { requiresAuth: true, roles: ['StandardUser'] },
+    children: [
+      { path: 'profile', name: 'Profile', component: () => import('@/views/user/ProfileView.vue')},
+      { path: 'my-memories', name: 'memoriesByUser', component: () => import('@/views/user/MyMemoriesView.vue')},
+    ]
+  },
 ]
+
+ 
+
+
+
+
 
 const router = createRouter({
   history: createWebHistory(),
