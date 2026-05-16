@@ -65,7 +65,7 @@
 
       <v-btn
         v-if="auth.isLoggedIn && auth.userRole === 'StandardUser'"
-        to="/profile"
+        to="/user/profile"
         color="primary"
         variant="tonal"
         prepend-icon="mdi-account-circle"
