@@ -32,7 +32,7 @@ export const useAuthStore = defineStore('auth', {
     userRole: (state) => state.user?.role || null,
     canCreateMemory: (state) => state.user?.role === 'StandardUser' || state.user?.role === 'Guardian', // Usuario o familiar pueden publicar recuerdos en el espacio público
     //RECUPERACIÓN
-    userId: (state) => {state.user?.id || null;}
+    userId: (state) => state.user?.id || null
   },
 
   actions: {
