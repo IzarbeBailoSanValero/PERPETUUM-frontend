@@ -34,7 +34,10 @@ onMounted(()=>{
         <li v-for="memory in memoryStore.memories" :key="memory.id">
             <h3><strong>Recuerdo dedicado a {{ memory.deceasedName }}</strong></h3>
             <h4>Fecha de realización: {{memory.createdDate}}</h4>
-            <h5>{{ memory.textContent }}</h5>
+
+            <img v-if="memory.type === 'Photo' && memory.mediaURL" :src="memory.mediaURL" alt = "foto subida">
+
+            <h5 v-if="memory.textContent">{{ memory.textContent }}</h5>
             <p>Estado: {{ memory.status }}</p>
             <button @click="handleDelete( memory.id)">Borrar</button>
         </li>
@@ -45,7 +48,10 @@ onMounted(()=>{
 
 
 
-<styles scoped>
-
-</styles>
+<style scoped>
+    img{
+        max-width:300px;
+        height:auto;
+    }
+</style>
 
