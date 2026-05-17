@@ -2,7 +2,7 @@
 import { useAuthStore } from '@/stores/authStore';
 import { useMemoryStore } from '@/stores/memoryStore';
 import { onMounted } from 'vue';
-
+import MyMemoryCard from '@/components/user/MyMemoryCard.vue';
 
 const memoryStore = useMemoryStore();
 const authStore = useAuthStore();
@@ -10,16 +10,15 @@ const authStore = useAuthStore();
 
 
 
-const handleDelete = ( memoryId : number ) => {
-        console.log('handleDelete llamado', memoryId)
-    if (authStore.userId != null){
-        memoryStore.deleteMemory(memoryId, authStore.userId );
+const handleDelete = (memoryId: number) => {
+    if (authStore.userId != null) {
+        memoryStore.deleteMemory(memoryId, authStore.userId);
     }
 }
 
 
-onMounted(()=>{
-    if (authStore.userId != null){
+onMounted(() => {
+    if (authStore.userId != null) {
         memoryStore.fetchMemoriesByUser(authStore.userId);
     }
 })
@@ -27,31 +26,26 @@ onMounted(()=>{
 </script>
 
 
-<template> 
-<h1>Mis recuerdos</h1>
-<article>
-    <ul>
-        <li v-for="memory in memoryStore.memories" :key="memory.id">
-            <h3><strong>Recuerdo dedicado a {{ memory.deceasedName }}</strong></h3>
-            <h4>Fecha de realización: {{memory.createdDate}}</h4>
+<template>
+    <h1>Mis recuerdos</h1>
+    <article>
 
-            <img v-if="memory.type === 'Photo' && memory.mediaURL" :src="memory.mediaURL" alt = "foto subida">
+        <p v-if="memoryStore.loading">Cargando...</p>
+        <p v-else-if="memoryStore.memories.length === 0">No tienes recuerdos aún.</p>
+        <ul v-else>
+            <li v-for="memory in memoryStore.memories" :key="memory.id">
+                <MyMemoryCard @delete="handleDelete" :memory="memory"></MyMemoryCard>
+            </li>
+        </ul>
 
-            <h5 v-if="memory.textContent">{{ memory.textContent }}</h5>
-            <p>Estado: {{ memory.status }}</p>
-            <button @click="handleDelete( memory.id)">Borrar</button>
-        </li>
-    </ul>
-    
-</article>
+    </article>
 </template>
 
 
 
 <style scoped>
-    img{
-        max-width:300px;
-        height:auto;
-    }
+img {
+    max-width: 300px;
+    height: auto;
+}
 </style>
-
