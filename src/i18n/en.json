@@ -333,5 +333,14 @@
     "subtitle": "The address you're looking for was not found. It may have been removed or you may have mistyped the URL.",
     "homeBtn": "Go home",
     "backBtn": "Go back"
+  },
+  "myMemories": {
+    "title": "My Memories",
+    "loading": "Loading...",
+    "noMemories": "You don't have any memories yet.",
+    "dedicatedTo": "Memory dedicated to",
+    "writtenOn": "Written on",
+    "status": "Status",
+    "deleteBtn": "Delete"
   }
 }

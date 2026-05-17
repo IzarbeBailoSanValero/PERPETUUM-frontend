@@ -333,5 +333,14 @@
     "subtitle": "La dirección que buscas no se encontró. Puede que haya sido eliminada o que hayas escrito mal la URL.",
     "homeBtn": "Ir al inicio",
     "backBtn": "Volver atrás"
+  },
+  "myMemories": {
+    "title": "Mis recuerdos",
+    "loading": "Cargando...",
+    "noMemories": "No tienes recuerdos aún.",
+    "dedicatedTo": "Recuerdo dedicado a",
+    "writtenOn": "Escrito el",
+    "status": "Estado",
+    "deleteBtn": "Borrar"
   }
 }

@@ -30,8 +30,8 @@ onMounted(() => {
     <h1>Mis recuerdos</h1>
     <article>
 
-        <p v-if="memoryStore.loading">Cargando...</p>
-        <p v-else-if="memoryStore.memories.length === 0">No tienes recuerdos aún.</p>
+        <p v-if="memoryStore.loading">{{ $t('myMemories.title') }}</p>
+        <p v-else-if="memoryStore.memories.length === 0">{{ $t('myMemories.loading') }}</p>
         <ul v-else>
             <li v-for="memory in memoryStore.memories" :key="memory.id">
                 <MyMemoryCard @delete="handleDelete" :memory="memory"></MyMemoryCard>

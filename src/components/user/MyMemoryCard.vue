@@ -12,12 +12,12 @@ const dateFormatted = new Date(props.memory.createdDate).toLocaleDateString('es-
 
 <template>
   <div>
-    <h3><strong>Recuerdo dedicado a {{ memory.deceasedName }}</strong></h3>
-    <h4>Escrito el {{dateFormatted}}</h4>
+    <h3><strong>{{ $t('myMemories.dedicatedTo') }} {{ memory.deceasedName }}</strong></h3>
+    <h4>{{ $t('myMemories.writtenOn') }} {{dateFormatted}}</h4>
     <img v-if="memory.type === 'Photo' && memory.mediaURL" :src="memory.mediaURL" alt="foto subida">
     <h5 v-if="memory.textContent">{{ memory.textContent }}</h5>
-    <p>Estado: {{ memory.status }}</p>
+    <p>{{ $t('myMemories.status') }}: {{ memory.status }}</p>
 
-    <button @click="emit('delete', memory.id)">Borrar</button>
+    <button @click="emit('delete', memory.id)">{{ $t('myMemories.deleteBtn') }}</button>
   </div>
 </template>
