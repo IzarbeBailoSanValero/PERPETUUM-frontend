@@ -6,14 +6,14 @@ import { onMounted } from 'vue';
 
 const memoryStore = useMemoryStore();
 const authStore = useAuthStore();
-
 const userId = authStore.userId;
-const memories = memoryStore.memories;
 
 
-const handleDelete = ( memoryId : number , userId : number | null) => {
+
+const handleDelete = ( memoryId : number ) => {
+        console.log('handleDelete llamado', memoryId)
     if (userId != null){
-        memoryStore.deleteMemory(memoryId, userId);
+        memoryStore.deleteMemory(memoryId, userId );
     }
 }
 
@@ -24,23 +24,19 @@ onMounted(()=>{
     }
 })
 
-
-
-
-
 </script>
 
 
 <template> 
 <h1>Mis recuerdos</h1>
 <article>
-    <ul v-for="memory in memories">
-        <li>
+    <ul>
+        <li v-for="memory in memoryStore.memories" :key="memory.id">
             <h3><strong>Recuerdo dedicado a {{ memory.deceasedName }}</strong></h3>
             <h4>Fecha de realización: {{memory.createdDate}}</h4>
             <h5>{{ memory.textContent }}</h5>
             <p>Estado: {{ memory.status }}</p>
-            <button @click="handleDelete( memory.id, userId)">Borrar</button>
+            <button @click="handleDelete( memory.id)">Borrar</button>
         </li>
     </ul>
     
