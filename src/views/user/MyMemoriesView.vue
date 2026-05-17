@@ -6,21 +6,21 @@ import { onMounted } from 'vue';
 
 const memoryStore = useMemoryStore();
 const authStore = useAuthStore();
-const userId = authStore.userId;
+
 
 
 
 const handleDelete = ( memoryId : number ) => {
         console.log('handleDelete llamado', memoryId)
-    if (userId != null){
-        memoryStore.deleteMemory(memoryId, userId );
+    if (authStore.userId != null){
+        memoryStore.deleteMemory(memoryId, authStore.userId );
     }
 }
 
 
 onMounted(()=>{
-    if (userId != null){
-        memoryStore.fetchMemoriesByUser(userId);
+    if (authStore.userId != null){
+        memoryStore.fetchMemoriesByUser(authStore.userId);
     }
 })
 
