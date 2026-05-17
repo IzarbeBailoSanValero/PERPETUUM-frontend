@@ -39,8 +39,8 @@ onMounted(()=>{
             <h3><strong>Recuerdo dedicado a {{ memory.deceasedName }}</strong></h3>
             <h4>Fecha de realización: {{memory.createdDate}}</h4>
             <h5>{{ memory.textContent }}</h5>
-            <span>Estado: {{ memory.status }}</span>
-            <button @click="handleDelete( memory.id, userId)"></button>
+            <p>Estado: {{ memory.status }}</p>
+            <button @click="handleDelete( memory.id, userId)">Borrar</button>
         </li>
     </ul>
     
