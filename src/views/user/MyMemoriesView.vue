@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useAuthStore } from '@/stores/authStore';
 import { useMemoryStore } from '@/stores/memoryStore';
+import { onMounted } from 'vue';
 
 
 const memoryStore = useMemoryStore();
@@ -8,6 +9,13 @@ const authStore = useAuthStore();
 
 const userId = authStore.userId;
 const memories = memoryStore.memories;
+
+
+const handleDelete = ( memoryId : number , userId : number | null) => {
+    if (userId != null){
+        memoryStore.deleteMemory(memoryId, userId);
+    }
+}
 
 
 onMounted(()=>{
@@ -32,7 +40,7 @@ onMounted(()=>{
             <h4>Fecha de realización: {{memory.createdDate}}</h4>
             <h5>{{ memory.textContent }}</h5>
             <span>Estado: {{ memory.status }}</span>
-            <button @click="memoryStore.deleteMemory(memory.id, )"></button>
+            <button @click="handleDelete( memory.id, userId)"></button>
         </li>
     </ul>
     
