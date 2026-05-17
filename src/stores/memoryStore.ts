@@ -60,7 +60,7 @@ export const useMemoryStore = defineStore('memory', () => {
 
 
   //RECUPERACIÓN
-  async function fetchMemoriesByUser(userId: string) {
+  async function fetchMemoriesByUser(userId: number) {
     loading.value = true;
 
     try {
@@ -75,7 +75,7 @@ export const useMemoryStore = defineStore('memory', () => {
   }
 
   //RECUPERACIÓN
-  async function deleteMemory ( memoryId: string, userId: string) {
+  async function deleteMemory ( memoryId: number, userId: number) {
     loading.value = true
 
     try{
