@@ -147,9 +147,15 @@
             />
             <v-list-item
               v-if="auth.userRole === 'StandardUser'"
-              to="/profile"
+              to="/user/profile"
               prepend-icon="mdi-account-circle"
               :title="t('nav.myProfile')"
+            />
+            <v-list-item
+              v-if="auth.userRole === 'StandardUser'"
+              to="/user/my-memories"
+              prepend-icon="mdi-heart"
+              :title="t('nav.myMemories')"
             />
             <v-divider />
             <v-list-item
