@@ -81,6 +81,7 @@ export const useMemoryStore = defineStore('memory', () => {
     try{
       const response = await apiClient.delete(`/Memory/${memoryId}`)
       await fetchMemoriesByUser(userId)
+      return response.status  
     }catch(error){
       console.log("error al borrar recuerdo")
     }finally{
